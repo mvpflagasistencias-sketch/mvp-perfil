@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import api from '../../frontend/src/api';
+import api from './api'; // 👈 ¡Corregido para que Railway encuentre el archivo en producción!
 
 const LoginJugador = ({ onLoginSuccess, onSwitchToRegister }) => {
   const [correo, setCorreo] = useState('');
@@ -29,18 +29,18 @@ const LoginJugador = ({ onLoginSuccess, onSwitchToRegister }) => {
       justifyContent: 'center',
       backgroundColor: '#0f172a',
       margin: 0,
-      padding: '16px', // 👈 Ajustado para dejar un margen limpio en los bordes del teléfono
+      padding: '16px', 
       boxSizing: 'border-box',
       width: '100%'
     }}>
       <div style={{
         backgroundColor: '#1e293b',
-        padding: 'clamp(20px, 5vw, 32px)', // 👈 Padding adaptativo: se encoge en pantallas chicas y se expande en web
+        padding: 'clamp(20px, 5vw, 32px)', 
         borderRadius: '24px',
         border: '1px solid #334155',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
         width: '100%',
-        maxWidth: '380px', // 👈 Ancho máximo ideal para que embone estético en cualquier celular
+        maxWidth: '380px', 
         boxSizing: 'border-box',
         textAlign: 'center'
       }}>
@@ -70,7 +70,7 @@ const LoginJugador = ({ onLoginSuccess, onSwitchToRegister }) => {
             <label style={{ color: '#64748b', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Correo Electrónico</label>
             <input 
               type="email" 
-              style={{ width: '100%', backgroundColor: '#0f172a', padding: '14px 16px', borderRadius: '16px', border: '1px solid #334155', color: 'white', outline: 'none', fontWeight: '600', boxSizing: 'border-box', fontSize: '16px' }} // 👈 fontSize a 16px para evitar el zoom automático molesto en iOS/Android
+              style={{ width: '100%', backgroundColor: '#0f172a', padding: '14px 16px', borderRadius: '16px', border: '1px solid #334155', color: 'white', outline: 'none', fontWeight: '600', boxSizing: 'border-box', fontSize: '16px' }} 
               placeholder="atleta@correo.com"
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
@@ -82,7 +82,7 @@ const LoginJugador = ({ onLoginSuccess, onSwitchToRegister }) => {
             <label style={{ color: '#64748b', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Contraseña</label>
             <input 
               type="password" 
-              style={{ width: '100%', backgroundColor: '#0f172a', padding: '14px 16px', borderRadius: '16px', border: '1px solid #334155', color: 'white', outline: 'none', fontWeight: '600', boxSizing: 'border-box', fontSize: '16px' }} // 👈 Evita zoom forzado al enfocar
+              style={{ width: '100%', backgroundColor: '#0f172a', padding: '14px 16px', borderRadius: '16px', border: '1px solid #334155', color: 'white', outline: 'none', fontWeight: '600', boxSizing: 'border-box', fontSize: '16px' }} 
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -113,13 +113,13 @@ const LoginJugador = ({ onLoginSuccess, onSwitchToRegister }) => {
               background: 'transparent', 
               border: 'none', 
               color: '#60a5fa', 
-              fontSize: '11px', // 👈 Sutilmente reducido para que no se desborde el texto en pantallas de 5 pulgadas
+              fontSize: '11px', 
               fontWeight: '700', 
               textTransform: 'uppercase', 
               cursor: 'pointer',
               padding: '8px',
               width: '100%',
-              whiteSpace: 'normal' // 👈 Permite que rompa renglón limpio si el celular es excesivamente angosto
+              whiteSpace: 'normal' 
             }}
           >
             ¿No tienes cuenta? Regístrate aquí
