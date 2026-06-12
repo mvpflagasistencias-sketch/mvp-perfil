@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import api from './api'; 
 import AvatarEditor from './AvatarEditor'; 
 
@@ -63,18 +64,18 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       alignItems: 'center', 
       justifyContent: 'center', 
       backgroundColor: '#0f172a', 
-      padding: '16px', // 👈 Ajustado para dejar aire limpio en las orillas del cel
+      padding: '16px', 
       boxSizing: 'border-box',
       width: '100%'
     }}>
       <div style={{ 
         backgroundColor: '#1e293b',
-        padding: 'clamp(20px, 6vw, 32px)', // 👈 Relleno fluido automático para cels
+        padding: 'clamp(20px, 6vw, 32px)', 
         borderRadius: '24px', 
         border: '1px solid #30363d', 
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', 
         width: '100%', 
-        maxWidth: '380px', // 👈 Ajuste a 380px para que encaje perfecto en pantallas chicas
+        maxWidth: '380px', 
         boxSizing: 'border-box',
         textAlign: 'center',
         color: 'white'
@@ -88,7 +89,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         {/* Avatar y Foto Responsivos */}
         <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: '24px', width: '100%' }}>
-          {/* Círculo Principal */}
           <div style={{ width: '112px', height: '112px', backgroundColor: '#0f172a', borderRadius: '50%', border: '4px solid #30363d', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.3)', boxSizing: 'border-box' }}>
             {perfil.foto_perfil ? (
               <img src={perfil.foto_perfil} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -96,12 +96,11 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
               <div style={{ color: '#374151', fontSize: '10px', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>SIN FOTO</div>
             )}
           </div>
-          {/* Mini-Avatar con Posicionamiento Dinámico Blindado */}
           <div style={{ 
             position: 'absolute', 
             bottom: '0', 
             left: '50%',
-            transform: 'translateX(12px)', // 👈 Desplaza el miniavatar justo al borde derecho del círculo sin usar pixeles fijos de pantalla
+            transform: 'translateX(12px)', 
             width: '44px', 
             height: '44px', 
             backgroundColor: '#0f172a', 
@@ -120,7 +119,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           <h2 style={{ fontSize: 'clamp(20px, 6vw, 24px)', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 6px', wordBreak: 'break-word' }}>{perfil.nombre}</h2>
           <p style={{ color: '#22c55e', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', margin: 0 }}>{perfil.nombre_equipo?.toUpperCase() || 'AGENTE LIBRE'}</p>
           
-          {/* Bloques de Categoría y Jersey */}
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', fontSize: '10px', fontWeight: '900', color: '#9ca3af', marginTop: '16px', textTransform: 'uppercase', width: '100%', boxSizing: 'border-box' }}>
             <span style={{ backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '8px', border: '1px solid #30363d', flex: '1', minWidth: '0', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>Cat: {perfil.categoria?.toUpperCase() || 'S/C'}</span>
             <span style={{ backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '8px', border: '1px solid #30363d', color: '#60a5fa', flex: '1', minWidth: '0' }}># {perfil.numero_jersey || 'S/N'}</span>
@@ -129,10 +127,14 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         {/* QR Area Responsivo */}
         <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', marginBottom: '24px', boxSizing: 'border-box' }}>
-          <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 8px' }}>ID Único de Acceso</p>
-          <div style={{ color: 'white', fontFamily: 'monospace', fontSize: 'clamp(11px, 3.5vw, 12px)', letterSpacing: '0.05em', wordBreak: 'break-all' }}>
-            {perfil.qr_token || 'TOKEN PENDIENTE'}
-          </div>
+          <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
+          {perfil.qr_token ? (
+            <div style={{ backgroundColor: 'white', padding: '8px', borderRadius: '8px', display: 'inline-block' }}>
+              <QRCodeSVG value={perfil.qr_token} size={120} level={"H"} includeMargin={true} />
+            </div>
+          ) : (
+            <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
+          )}
         </div>
 
         {/* Botón Salir */}
