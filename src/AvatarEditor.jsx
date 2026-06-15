@@ -2,53 +2,47 @@ import { useState } from 'react';
 import { createAvatar } from '@dicebear/core';
 import * as adventurer from '@dicebear/adventurer';
 
-// ✅ Límites numéricos oficiales basados en el esquema de DiceBear v9 Adventurer
-const LIMITES = {
-  cabello: 6,       // 0 a 5
-  colorCabello: 5,  // Indices de colores
-  ropa: 5,          // 0 a 4
-  colorRopa: 5,     // Indices de colores
-  accesorios: 4,    // 0 representa 'none', 1 a 3 son accesorios
-  expresion: 4      // 0 a 3
+// Opciones mapeadas a strings puros como lo exige el esquema estricto de DiceBear v9
+const OPCIONES = {
+  cabello: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5', 'variant6'],
+  colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
+  ropa: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'],
+  colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
+  accesorios: ['none', 'variant1', 'variant2', 'variant3'],
+  expresion: ['variant1', 'variant2', 'variant3', 'variant4']
 };
 
-const COLORES_CABELLO = ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'];
-const COLORES_ROPA = ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'];
-
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
-  // Inicializamos los estados numéricos directamente
   const [indices, setIndices] = useState({
-    cabello: typeof configInicial?.hair === 'number' ? configInicial.hair : 0,
-    colorCabello: typeof configInicial?.hairColor === 'number' ? configInicial.hairColor : 0,
-    ropa: typeof configInicial?.clothing === 'number' ? configInicial.clothing : 0,
-    colorRopa: typeof configInicial?.clothingColor === 'number' ? configInicial.clothingColor : 0,
-    accesorios: typeof configInicial?.features === 'number' ? configInicial.features : 0,
-    expresion: typeof configInicial?.eyebrows === 'number' ? configInicial.eyebrows : 0,
+    cabello: OPCIONES.cabello.indexOf(configInicial?.hair?.[0]) >= 0 ? OPCIONES.cabello.indexOf(configInicial?.hair?.[0]) : 0,
+    colorCabello: OPCIONES.colorCabello.indexOf(configInicial?.hairColor?.[0]) >= 0 ? OPCIONES.colorCabello.indexOf(configInicial?.hairColor?.[0]) : 0,
+    ropa: OPCIONES.ropa.indexOf(configInicial?.clothing?.[0]) >= 0 ? OPCIONES.ropa.indexOf(configInicial?.clothing?.[0]) : 0,
+    colorRopa: OPCIONES.colorRopa.indexOf(configInicial?.clothingColor?.[0]) >= 0 ? OPCIONES.colorRopa.indexOf(configInicial?.clothingColor?.[0]) : 0,
+    accesorios: OPCIONES.accesorios.indexOf(configInicial?.features?.[0]) >= 0 ? OPCIONES.accesorios.indexOf(configInicial?.features?.[0]) : 0,
+    expresion: OPCIONES.expresion.indexOf(configInicial?.eyebrows?.[0]) >= 0 ? OPCIONES.expresion.indexOf(configInicial?.eyebrows?.[0]) : 0,
   });
 
   const [guardando, setGuardando] = useState(false);
 
   const cambiarOpcion = (key, direccion) => {
-    const max = LIMITES[key];
+    const max = OPCIONES[key].length;
     let nuevoIndex = indices[key] + direccion;
     if (nuevoIndex < 0) nuevoIndex = max - 1;
     if (nuevoIndex >= max) nuevoIndex = 0;
     setIndices({ ...indices, [key]: nuevoIndex });
   };
 
-  // Genera el SVG local inyectando los tipos de datos primitivos que espera la v9
   const generarSvgLocal = () => {
     const estiloAvatar = adventurer.adventurer || adventurer;
     
-    // Configuramos los arreglos y parámetros con la sintaxis exacta de DiceBear v9
+    // 🚀 ALINEACIÓN CLAVE: Quitamos la propiedad 'seed' para que no anule tus selecciones
     const opcionesConfig = {
-      seed: 'atleta',
-      hair: [indices.cabello], // Espera índice numérico directo
-      hairColor: [COLORES_CABELLO[indices.colorCabello]], 
-      clothing: [indices.ropa], 
-      clothingColor: [COLORES_ROPA[indices.colorRopa]],
-      features: indices.accesorios > 0 ? [indices.accesorios] : [], // 0 mapea vacío (sin accesorios)
-      eyebrows: [indices.expresion],
+      hair: [OPCIONES.cabello[indices.cabello]],
+      hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
+      clothing: [OPCIONES.ropa[indices.ropa]],
+      clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
+      features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
+      eyebrows: [OPCIONES.expresion[indices.expresion]],
       size: 100
     };
 
@@ -60,12 +54,12 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     setGuardando(true);
     try {
       const configAEnviar = {
-        hair: indices.cabello,
-        hairColor: indices.colorCabello,
-        clothing: indices.ropa,
-        clothingColor: indices.colorRopa,
-        features: indices.accesorios,
-        eyebrows: indices.expresion
+        hair: [OPCIONES.cabello[indices.cabello]],
+        hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
+        clothing: [OPCIONES.ropa[indices.ropa]],
+        clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
+        features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
+        eyebrows: [OPCIONES.expresion[indices.expresion]]
       };
       
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
