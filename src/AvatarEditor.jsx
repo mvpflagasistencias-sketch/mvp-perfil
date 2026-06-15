@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import api from './api';
 
 // Opciones de personalización estilo DiceBear Adventurer
 const OPCIONES = {
@@ -12,7 +11,6 @@ const OPCIONES = {
 };
 
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
-  // Si el atleta ya tiene configuración guardada en la BD la mapeamos, si no, empezamos en 0
   const [indices, setIndices] = useState({
     cabello: OPCIONES.cabello.indexOf(configInicial?.hair?.[0]) >= 0 ? OPCIONES.cabello.indexOf(configInicial?.hair?.[0]) : 0,
     colorCabello: OPCIONES.colorCabello.indexOf(configInicial?.hairColor?.[0]) >= 0 ? OPCIONES.colorCabello.indexOf(configInicial?.hairColor?.[0]) : 0,
@@ -24,7 +22,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
   const [guardando, setGuardando] = useState(false);
 
-  // Controladores para mover las flechas izquierda o derecha
   const cambiarOpcion = (key, direccion) => {
     const max = OPCIONES[key].length;
     let nuevoIndex = indices[key] + direccion;
@@ -33,7 +30,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     setIndices({ ...indices, [key]: nuevoIndex });
   };
 
-  // Estructura el objeto JSON con las llaves que espera recibir la API de DiceBear
   const obtenerConfigActual = () => ({
     hair: [OPCIONES.cabello[indices.cabello]],
     hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
@@ -43,18 +39,34 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     eyebrows: [OPCIONES.expresion[indices.expresion]]
   });
 
-  // Genera la URL interactiva del SVG en tiempo real para la vista previa
   const construirUrlAvatar = () => {
     const conf = obtenerConfigActual();
-    return `https://api.dicebear.com/9.x/adventurer/svg?hair=${conf.hair[0]}&hairColor=${conf.hairColor[0]}&clothing=${conf.clothing[0]}&clothingColor=${conf.clothingColor[0]}&features=${conf.features.length > 0 ? conf.features[0] : ''}&eyebrows=${conf.eyebrows[0]}`;
+    const hairParam = conf.hair[0];
+    const hairColorParam = conf.hairColor[0];
+    const clothingParam = conf.clothing[0];
+    const clothingColorParam = conf.clothingColor[0];
+    const featuresParam = conf.features.length > 0 ? conf.features[0] : '';
+    const eyebrowsParam = conf.eyebrows[0];
+
+    return `https://api.dicebear.com/9.x/adventurer/svg?hair=${hairParam}&hairColor=${hairColorParam}&clothing=${clothingParam}&clothingColor=${clothingColorParam}&features=${featuresParam}&eyebrows=${eyebrowsParam}`;
   };
 
   const handleGuardar = async () => {
     setGuardando(true);
     try {
       const configAEnviar = obtenerConfigActual();
-      // Petición PUT directa a tu endpoint en Node.js
-      await api.put(`/api/jugadores/${jugadorId}/avatar`, { avatar_config: configAEnviar });
+      
+      // Usamos un fetch nativo directo para evitar conflictos con Axios y asegurar el guardado
+      const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ avatar_config: configAEnviar }),
+      });
+
+      if (!response.ok) throw new Error("Error en servidor");
+
       alert("✅ ¡Avatar guardado y fijado en tu perfil!");
       if (onGuardarExito) onGuardarExito(configAEnviar);
     } catch (err) {
@@ -69,12 +81,15 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      {/* Contenedor del renderizado SVG en tiempo real */}
-      <div style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', padding: '5px', boxSizing: 'border-box' }}>
-        <img src={construirUrlAvatar()} alt="Preview Avatar" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+      <div style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', padding: '5px', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <img 
+          src={construirUrlAvatar()} 
+          alt="Avatar" 
+          style={{ width: '100%', height: '100%', display: 'block' }} 
+          onError={(e) => console.log("Error cargando SVG de DiceBear", e)}
+        />
       </div>
 
-      {/* Selectores del Atleta con Flechas */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {[
           { label: 'Estilo de Cabello', campo: 'cabello' },
@@ -95,7 +110,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         ))}
       </div>
 
-      {/* Botón de persistencia en MySQL */}
       <button 
         onClick={handleGuardar} 
         disabled={guardando}
