@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
 import * as adventurer from '@dicebear/adventurer';
 
-// Opciones mapeadas a strings puros como lo exige el esquema estricto de DiceBear v9
 const OPCIONES = {
   cabello: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5', 'variant6'],
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
@@ -14,15 +13,29 @@ const OPCIONES = {
 
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   const [indices, setIndices] = useState({
-    cabello: OPCIONES.cabello.indexOf(configInicial?.hair?.[0]) >= 0 ? OPCIONES.cabello.indexOf(configInicial?.hair?.[0]) : 0,
-    colorCabello: OPCIONES.colorCabello.indexOf(configInicial?.hairColor?.[0]) >= 0 ? OPCIONES.colorCabello.indexOf(configInicial?.hairColor?.[0]) : 0,
-    ropa: OPCIONES.ropa.indexOf(configInicial?.clothing?.[0]) >= 0 ? OPCIONES.ropa.indexOf(configInicial?.clothing?.[0]) : 0,
-    colorRopa: OPCIONES.colorRopa.indexOf(configInicial?.clothingColor?.[0]) >= 0 ? OPCIONES.colorRopa.indexOf(configInicial?.clothingColor?.[0]) : 0,
-    accesorios: OPCIONES.accesorios.indexOf(configInicial?.features?.[0]) >= 0 ? OPCIONES.accesorios.indexOf(configInicial?.features?.[0]) : 0,
-    expresion: OPCIONES.expresion.indexOf(configInicial?.eyebrows?.[0]) >= 0 ? OPCIONES.expresion.indexOf(configInicial?.eyebrows?.[0]) : 0,
+    cabello: 0,
+    colorCabello: 0,
+    ropa: 0,
+    colorRopa: 0,
+    accesorios: 0,
+    expresion: 0,
   });
 
   const [guardando, setGuardando] = useState(false);
+
+  // 🚀 EL DESBLOQUEADOR: Sincroniza el editor en cuanto los datos del perfil bajan de la base de datos
+  useEffect(() => {
+    if (configInicial) {
+      setIndices({
+        cabello: OPCIONES.cabello.indexOf(configInicial.hair?.[0]) >= 0 ? OPCIONES.cabello.indexOf(configInicial.hair[0]) : 0,
+        colorCabello: OPCIONES.colorCabello.indexOf(configInicial.hairColor?.[0]) >= 0 ? OPCIONES.colorCabello.indexOf(configInicial.hairColor[0]) : 0,
+        ropa: OPCIONES.ropa.indexOf(configInicial.clothing?.[0]) >= 0 ? OPCIONES.ropa.indexOf(configInicial.clothing[0]) : 0,
+        colorRopa: OPCIONES.colorRopa.indexOf(configInicial.clothingColor?.[0]) >= 0 ? OPCIONES.colorRopa.indexOf(configInicial.clothingColor[0]) : 0,
+        accesorios: OPCIONES.accesorios.indexOf(configInicial.features?.[0]) >= 0 ? OPCIONES.accesorios.indexOf(configInicial.features[0]) : 0,
+        expresion: OPCIONES.expresion.indexOf(configInicial.eyebrows?.[0]) >= 0 ? OPCIONES.expresion.indexOf(configInicial.eyebrows[0]) : 0,
+      });
+    }
+  }, [configInicial]);
 
   const cambiarOpcion = (key, direccion) => {
     const max = OPCIONES[key].length;
@@ -35,8 +48,10 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   const generarSvgLocal = () => {
     const estiloAvatar = adventurer.adventurer || adventurer;
     
-    // 🚀 ALINEACIÓN CLAVE: Quitamos la propiedad 'seed' para que no anule tus selecciones
     const opcionesConfig = {
+      featuresProbability: 100,
+      hairProbability: 100,
+      clothingProbability: 100,
       hair: [OPCIONES.cabello[indices.cabello]],
       hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
       clothing: [OPCIONES.ropa[indices.ropa]],
@@ -86,7 +101,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      {/* Contenedor del renderizado reactivo */}
       <div 
         style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}
         dangerouslySetInnerHTML={{ __html: generarSvgLocal() }}
