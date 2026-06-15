@@ -39,16 +39,17 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     eyebrows: [OPCIONES.expresion[indices.expresion]]
   });
 
+  // 🚀 CAMBIO CLAVE: Usamos la API oficial v9 simplificada para asegurar que el servidor responda al tiro
   const construirUrlAvatar = () => {
     const conf = obtenerConfigActual();
-    const hairParam = conf.hair[0];
-    const hairColorParam = conf.hairColor[0];
-    const clothingParam = conf.clothing[0];
-    const clothingColorParam = conf.clothingColor[0];
-    const featuresParam = conf.features.length > 0 ? conf.features[0] : '';
-    const eyebrowsParam = conf.eyebrows[0];
+    const hair = conf.hair[0];
+    const hairColor = conf.hairColor[0];
+    const clothing = conf.clothing[0];
+    const clothingColor = conf.clothingColor[0];
+    const features = conf.features.length > 0 ? conf.features[0] : '';
+    const eyebrows = conf.eyebrows[0];
 
-    return `https://api.dicebear.com/9.x/adventurer/svg?hair=${hairParam}&hairColor=${hairColorParam}&clothing=${clothingParam}&clothingColor=${clothingColorParam}&features=${featuresParam}&eyebrows=${eyebrowsParam}`;
+    return `https://api.dicebear.com/9.x/adventurer/svg?seed=atleta&hair=${hair}&hairColor=${hairColor}&clothing=${clothing}&clothingColor=${clothingColor}&features=${features}&eyebrows=${eyebrows}`;
   };
 
   const handleGuardar = async () => {
@@ -56,7 +57,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     try {
       const configAEnviar = obtenerConfigActual();
       
-      // Usamos un fetch nativo directo para evitar conflictos con Axios y asegurar el guardado
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
         method: 'PUT',
         headers: {
@@ -81,13 +81,16 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      <div style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', padding: '5px', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <img 
-          src={construirUrlAvatar()} 
-          alt="Avatar" 
-          style={{ width: '100%', height: '100%', display: 'block' }} 
-          onError={(e) => console.log("Error cargando SVG de DiceBear", e)}
-        />
+      {/* 🚀 VISTA PREVIA CORREGIDA: Usamos un object tag para forzar al navegador a renderizar el SVG vectorial */}
+      <div style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <object 
+          data={construirUrlAvatar()} 
+          type="image/svg+xml"
+          style={{ width: '90px', height: '90px', pointerEvents: 'none' }}
+        >
+          {/* Respaldo por si el navegador bloquea la carga externa */}
+          <span style={{ fontSize: '10px', color: '#64748b' }}>Cargando...</span>
+        </object>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
