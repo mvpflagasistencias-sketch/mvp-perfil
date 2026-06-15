@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createAvatar } from '@dicebear/core';
-// ✅ ASÍ DEBE QUEDAR (Compatible con la v9):
-import adventurer from '@dicebear/adventurer';
+// ✅ CAMBIO 1: Importación wildcard para unificar los exports problemáticos en la v9
+import * as adventurer from '@dicebear/adventurer';
 
 const OPCIONES = {
   cabello: ['short1', 'short2', 'curly', 'long1', 'dreadlocks', 'shaved'],
@@ -44,7 +44,10 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   // 🚀 TRUCO MAESTRO: La librería crea el string XML del SVG localmente al vuelo
   const generarSvgLocal = () => {
     const conf = obtenerConfigActual();
-    const avatar = createAvatar(adventurer, {
+    // ✅ CAMBIO 2: Condicional para extraer la función independientemente de cómo la exporte la v9
+    const estiloAvatar = adventurer.adventurer || adventurer;
+    
+    const avatar = createAvatar(estiloAvatar, {
       seed: 'atleta',
       hair: conf.hair,
       hairColor: conf.hairColor,
