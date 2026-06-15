@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dicebear/adventurer": "^9.4.2",
+    "@dicebear/core": "^10.3.0",
     "@react-oauth/google": "^0.13.5",
     "axios": "^1.17.0",
     "bootstrap": "^5.3.8",

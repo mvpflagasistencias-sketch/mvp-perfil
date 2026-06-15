@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { createAvatar } from '@dicebear/core';
+import { adventurer } from '@dicebear/adventurer';
 
-// Opciones de personalización estilo DiceBear Adventurer
 const OPCIONES = {
   cabello: ['short1', 'short2', 'curly', 'long1', 'dreadlocks', 'shaved'],
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
@@ -39,17 +40,20 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     eyebrows: [OPCIONES.expresion[indices.expresion]]
   });
 
-  // 🚀 CAMBIO CLAVE: Usamos la API oficial v9 simplificada para asegurar que el servidor responda al tiro
-  const construirUrlAvatar = () => {
+  // 🚀 TRUCO MAESTRO: La librería crea el string XML del SVG localmente al vuelo
+  const generarSvgLocal = () => {
     const conf = obtenerConfigActual();
-    const hair = conf.hair[0];
-    const hairColor = conf.hairColor[0];
-    const clothing = conf.clothing[0];
-    const clothingColor = conf.clothingColor[0];
-    const features = conf.features.length > 0 ? conf.features[0] : '';
-    const eyebrows = conf.eyebrows[0];
-
-    return `https://api.dicebear.com/9.x/adventurer/svg?seed=atleta&hair=${hair}&hairColor=${hairColor}&clothing=${clothing}&clothingColor=${clothingColor}&features=${features}&eyebrows=${eyebrows}`;
+    const avatar = createAvatar(adventurer, {
+      seed: 'atleta',
+      hair: conf.hair,
+      hairColor: conf.hairColor,
+      clothing: conf.clothing,
+      clothingColor: conf.clothingColor,
+      features: conf.features,
+      eyebrows: conf.eyebrows,
+      size: 100
+    });
+    return avatar.toString();
   };
 
   const handleGuardar = async () => {
@@ -81,17 +85,11 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      {/* 🚀 VISTA PREVIA CORREGIDA: Usamos un object tag para forzar al navegador a renderizar el SVG vectorial */}
-      <div style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <object 
-          data={construirUrlAvatar()} 
-          type="image/svg+xml"
-          style={{ width: '90px', height: '90px', pointerEvents: 'none' }}
-        >
-          {/* Respaldo por si el navegador bloquea la carga externa */}
-          <span style={{ fontSize: '10px', color: '#64748b' }}>Cargando...</span>
-        </object>
-      </div>
+      {/* 🚀 RENDERIZADO INMEDIATO: Inyectamos el SVG puro usando dangerouslySetInnerHTML sin depender de URLs externas */}
+      <div 
+        style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}
+        dangerouslySetInnerHTML={{ __html: generarSvgLocal() }}
+      />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {[
