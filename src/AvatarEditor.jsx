@@ -41,25 +41,20 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     eyebrows: [OPCIONES.expresion[indices.expresion]]
   });
 
-  // 🚀 TRUCO MAESTRO: La librería crea el string XML del SVG localmente al vuelo
+ // 🚀 ACTUALIZACIÓN CORREGIDA: Accedemos directo a los índices del estado para forzar el re-render en vivo
   const generarSvgLocal = () => {
-    const conf = obtenerConfigActual();
-    // ✅ CAMBIO 2: Condicional para extraer la función independientemente de cómo la exporte la v9
-    const estiloAvatar = adventurer.adventurer || adventurer;
-    
-    const avatar = createAvatar(estiloAvatar, {
+    const avatar = createAvatar(adventurer.adventurer || adventurer, {
       seed: 'atleta',
-      hair: conf.hair,
-      hairColor: conf.hairColor,
-      clothing: conf.clothing,
-      clothingColor: conf.clothingColor,
-      features: conf.features,
-      eyebrows: conf.eyebrows,
+      hair: [OPCIONES.cabello[indices.cabello]],
+      hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
+      clothing: [OPCIONES.ropa[indices.ropa]],
+      clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
+      features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
+      eyebrows: [OPCIONES.expresion[indices.expresion]],
       size: 100
     });
     return avatar.toString();
   };
-
   const handleGuardar = async () => {
     setGuardando(true);
     try {
