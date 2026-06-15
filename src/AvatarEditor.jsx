@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { createAvatar } from '@dicebear/core';
-import { adventurer } from '@dicebear/adventurer';
+// ✅ ASÍ DEBE QUEDAR (Compatible con la v9):
+import adventurer from '@dicebear/adventurer';
 
 const OPCIONES = {
   cabello: ['short1', 'short2', 'curly', 'long1', 'dreadlocks', 'shaved'],
