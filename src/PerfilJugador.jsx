@@ -2,31 +2,40 @@ import { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import api from './api'; 
 import AvatarEditor from './AvatarEditor'; 
-import logoMvp from './assets/logo-mvp.png'; // 👈 Asegúrate de que esta ruta sea correcta
+import logoMvp from './assets/logo-mvp.png'; 
 
 const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
+  // 🚀 NUEVO ESTADO: Almacena la lista de equipos para resolver mapeos numéricos
+  const [equipos, setEquipos] = useState([]);
 
   useEffect(() => {
-    const fetchPerfil = async () => {
+    const fetchPerfilYEquipos = async () => {
       const idActual = jugadorId || localStorage.getItem('atleta_id');
       if (!idActual) { setLoading(false); return; }
 
       try {
-        const res = await api.get(`/api/jugadores/perfil/${idActual}`);
-        let data = res.data;
+        // Ejecutamos ambas peticiones en paralelo para optimizar la velocidad de carga
+        const [resPerfil, resEquipos] = await Promise.all([
+          api.get(`/api/jugadores/perfil/${idActual}`),
+          api.get('/api/equipos')
+        ]);
+
+        let data = resPerfil.data;
         if (data.avatar_config && typeof data.avatar_config === 'string') {
           data.avatar_config = JSON.parse(data.avatar_config);
         }
+        
         setPerfil(data);
+        setEquipos(resEquipos.data);
       } catch (err) {
         console.error("Error al obtener perfil del atleta", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchPerfil();
+    fetchPerfilYEquipos();
   }, [jugadorId]);
 
   const handleLogout = () => {
@@ -37,6 +46,20 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     } else {
       window.location.reload();
     }
+  };
+
+  // 🚀 FUNCIÓN DE MAPEO: Valida si el dato es numérico y extrae el nombre correcto del equipo
+  const obtenerNombreEquipo = () => {
+    if (!perfil) return 'AGENTE LIBRE';
+    
+    // Si nombre_equipo no es un número, significa que el backend ya mandó el string correcto
+    if (isNaN(perfil.nombre_equipo)) {
+      return perfil.nombre_equipo || 'AGENTE LIBRE';
+    }
+
+    // Si es un número (ID), buscamos la coincidencia exacta dentro de nuestro estado de equipos
+    const equipoEncontrado = equipos.find(e => e.id === Number(perfil.nombre_equipo));
+    return equipoEncontrado ? equipoEncontrado.nombre_equipo : 'AGENTE LIBRE';
   };
 
   if (loading) {
@@ -118,7 +141,8 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         {/* Info Jugador */}
         <div style={{ marginBottom: '24px', width: '100%' }}>
           <h2 style={{ fontSize: 'clamp(20px, 6vw, 24px)', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 6px', wordBreak: 'break-word' }}>{perfil.nombre}</h2>
-          <p style={{ color: '#22c55e', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', margin: 0 }}>{perfil.nombre_equipo?.toUpperCase() || 'AGENTE LIBRE'}</p>
+          {/* 👈 CORRECCIÓN APLICADA: Renderiza el nombre en lugar de la ID numérica */}
+          <p style={{ color: '#22c55e', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', margin: 0 }}>{obtenerNombreEquipo().toUpperCase()}</p>
           
           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', fontSize: '10px', fontWeight: '900', color: '#9ca3af', marginTop: '16px', textTransform: 'uppercase', width: '100%', boxSizing: 'border-box' }}>
             <span style={{ backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '8px', border: '1px solid #30363d', flex: '1', minWidth: '0', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>Cat: {perfil.categoria?.toUpperCase() || 'S/C'}</span>
@@ -127,29 +151,28 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         </div>
 
         {/* QR Area Responsivo */}
-<div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', marginBottom: '24px', boxSizing: 'border-box' }}>
-  <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
-  {perfil ? (
-    <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
-      <QRCodeSVG 
-        // AQUI ESTA EL CAMBIO: Usamos el formato JSON que tu app de Android ya reconoce
-        value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
-        size={120} 
-        level={"H"} 
-        includeMargin={true}
-        imageSettings={{
-          src: logoMvp,
-          height: 35,
-          width: 35,
-          align: 'center',
-          excavate: true,
-        }}
-      />
-    </div>
-  ) : (
-    <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
-  )}
-</div>
+        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', marginBottom: '24px', boxSizing: 'border-box' }}>
+          <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
+          {perfil ? (
+            <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
+              <QRCodeSVG 
+                value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
+                size={120} 
+                level={"H"} 
+                includeMargin={true}
+                imageSettings={{
+                  src: logoMvp,
+                  height: 35,
+                  width: 35,
+                  align: 'center',
+                  excavate: true,
+                }}
+              />
+            </div>
+          ) : (
+            <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
+          )}
+        </div>
 
         {/* Botón Salir */}
         <button 
