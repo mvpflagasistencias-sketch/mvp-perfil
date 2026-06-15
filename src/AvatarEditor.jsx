@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { createAvatar } from '@dicebear/core';
-// ✅ CAMBIO 1: Importación wildcard para unificar los exports problemáticos en la v9
 import * as adventurer from '@dicebear/adventurer';
 
+// ✅ Variantes nativas y reales de DiceBear v9 Adventurer para que la API no las ignore
 const OPCIONES = {
-  cabello: ['short1', 'short2', 'curly', 'long1', 'dreadlocks', 'shaved'],
+  cabello: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'],
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
-  ropa: ['jersey', 'hoodie', 'shirt'],
+  ropa: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'],
   colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
-  accesorios: ['none', 'glasses', 'sunglasses'],
-  expresion: ['happy', 'smile', 'surprised', 'serious']
+  accesorios: ['none', 'variant1', 'variant2', 'variant3'],
+  expresion: ['variant1', 'variant2', 'variant3', 'variant4']
 };
 
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
@@ -32,18 +32,11 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     setIndices({ ...indices, [key]: nuevoIndex });
   };
 
-  const obtenerConfigActual = () => ({
-    hair: [OPCIONES.cabello[indices.cabello]],
-    hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
-    clothing: [OPCIONES.ropa[indices.ropa]],
-    clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
-    features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
-    eyebrows: [OPCIONES.expresion[indices.expresion]]
-  });
-
- // 🚀 ACTUALIZACIÓN CORREGIDA: Accedemos directo a los índices del estado para forzar el re-render en vivo
+  // Genera el string XML del SVG leyendo dinámicamente el estado actual de los índices
   const generarSvgLocal = () => {
-    const avatar = createAvatar(adventurer.adventurer || adventurer, {
+    const estiloAvatar = adventurer.adventurer || adventurer;
+    
+    const avatar = createAvatar(estiloAvatar, {
       seed: 'atleta',
       hair: [OPCIONES.cabello[indices.cabello]],
       hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
@@ -55,10 +48,18 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
     return avatar.toString();
   };
+
   const handleGuardar = async () => {
     setGuardando(true);
     try {
-      const configAEnviar = obtenerConfigActual();
+      const configAEnviar = {
+        hair: [OPCIONES.cabello[indices.cabello]],
+        hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
+        clothing: [OPCIONES.ropa[indices.ropa]],
+        clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
+        features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
+        eyebrows: [OPCIONES.expresion[indices.expresion]]
+      };
       
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
         method: 'PUT',
@@ -84,7 +85,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      {/* 🚀 RENDERIZADO INMEDIATO: Inyectamos el SVG puro usando dangerouslySetInnerHTML sin depender de URLs externas */}
+      {/* Contenedor del renderizado reactivo */}
       <div 
         style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}
         dangerouslySetInnerHTML={{ __html: generarSvgLocal() }}
