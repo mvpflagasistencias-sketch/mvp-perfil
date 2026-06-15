@@ -23,7 +23,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
   const [guardando, setGuardando] = useState(false);
 
-  // 🚀 EL DESBLOQUEADOR: Sincroniza el editor en cuanto los datos del perfil bajan de la base de datos
+  // Sincroniza al cargar los datos de la base de datos
   useEffect(() => {
     if (configInicial) {
       setIndices({
@@ -45,10 +45,10 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     setIndices({ ...indices, [key]: nuevoIndex });
   };
 
-  const generarSvgLocal = () => {
+  // 🚀 PASO CLAVE: Construimos el SVG de forma limpia devolviendo el objeto html directo
+  const obtenerHtmlSvg = () => {
     const estiloAvatar = adventurer.adventurer || adventurer;
-    
-    const opcionesConfig = {
+    const avatar = createAvatar(estiloAvatar, {
       featuresProbability: 100,
       hairProbability: 100,
       clothingProbability: 100,
@@ -59,10 +59,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
       eyebrows: [OPCIONES.expresion[indices.expresion]],
       size: 100
-    };
-
-    const avatar = createAvatar(estiloAvatar, opcionesConfig);
-    return avatar.toString();
+    });
+    
+    return { __html: avatar.toString() };
   };
 
   const handleGuardar = async () => {
@@ -79,14 +78,11 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ avatar_config: configAEnviar }),
       });
 
       if (!response.ok) throw new Error("Error en servidor");
-
       alert("✅ ¡Avatar guardado y fijado en tu perfil!");
       if (onGuardarExito) onGuardarExito(configAEnviar);
     } catch (err) {
@@ -101,9 +97,10 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
+      {/* 🚀 SOLUCIÓN DEFINITIVA: Al pasarle la ejecución reactiva directa del objeto, forzamos a React a romper la caché del DOM en cada flechazo */}
       <div 
         style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}
-        dangerouslySetInnerHTML={{ __html: generarSvgLocal() }}
+        dangerouslySetInnerHTML={obtenerHtmlSvg()}
       />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
