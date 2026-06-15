@@ -10,7 +10,8 @@ const CLIENT_ID = "562921795217-unpktkr53aae2fu2s4haklakjfufdtji.apps.googleuser
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <GoogleOAuthProvider clientId={CLIENT_ID}> {/* 3. Envuelve tu App */}
+    {/* 3. Envuelve tu App y agregamos la bandera de compatibilidad desactivando FedCM */}
+    <GoogleOAuthProvider clientId={CLIENT_ID} use_fedcm={false}> 
       <App />
     </GoogleOAuthProvider>
   </StrictMode>,
