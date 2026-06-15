@@ -127,28 +127,29 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         </div>
 
         {/* QR Area Responsivo */}
-        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', marginBottom: '24px', boxSizing: 'border-box' }}>
-          <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
-          {perfil.qr_token ? (
-            <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
-              <QRCodeSVG 
-                value={perfil.qr_token} 
-                size={120} 
-                level={"H"} 
-                includeMargin={true}
-                imageSettings={{
-                  src: logoMvp,
-                  height: 35,
-                  width: 35,
-                  align: 'center',
-                  excavate: true,
-                }}
-              />
-            </div>
-          ) : (
-            <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
-          )}
-        </div>
+<div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', marginBottom: '24px', boxSizing: 'border-box' }}>
+  <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
+  {perfil ? (
+    <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
+      <QRCodeSVG 
+        // AQUI ESTA EL CAMBIO: Usamos el formato JSON que tu app de Android ya reconoce
+        value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
+        size={120} 
+        level={"H"} 
+        includeMargin={true}
+        imageSettings={{
+          src: logoMvp,
+          height: 35,
+          width: 35,
+          align: 'center',
+          excavate: true,
+        }}
+      />
+    </div>
+  ) : (
+    <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
+  )}
+</div>
 
         {/* Botón Salir */}
         <button 
