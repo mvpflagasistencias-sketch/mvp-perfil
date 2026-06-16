@@ -117,6 +117,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     const colorDetalles = '#ffffff';
     const colorSombras = 'rgba(0, 0, 0, 0.15)';
     const colorBordeNegro = '#1a1a1a';
+    
+    // Color de piel adaptado al tono oscuro del personaje para simular el cuello
+    const colorPielCuello = '#a56c40'; 
 
     return (
       <div style={{ 
@@ -128,7 +131,17 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         transition: 'all 0.2s ease'
       }}>
         <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%' }}>
-          {/* Silueta base */}
+          
+          {/* 🚀 NUEVO: CUELLO ANATÓMICO DE FONDO (Conecta la barbilla al jersey) */}
+          <path 
+            d="M 50,35 L 50,22 C 50,22 60,18 70,22 L 70,35 Z" 
+            fill={colorPielCuello} 
+            stroke={colorBordeNegro} 
+            strokeWidth="3.5"
+            strokeLinejoin="round"
+          />
+
+          {/* Silueta base del jersey */}
           <path 
             d="M 25,100 C 25,60 35,42 45,35 C 50,32 70,32 75,35 C 85,42 95,60 95,100 Z" 
             fill={colorJerseyActual} 
@@ -220,8 +233,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        {/* 🚀 MODIFICACIÓN DE ENCUADRE: Subimos el marginTop a 42px para bajar la cabeza de forma exacta sobre los hombros */}
-        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '42px' }}>
+        {/* 🚀 SE CALIBRA EL MARGEN: Regresamos a 18px para levantar la cabeza lo justo y dejar ver el cuello vectorial */}
+        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '18px' }}>
           {imagenSrc && (
             <img 
               src={imagenSrc} 
