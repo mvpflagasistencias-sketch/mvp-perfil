@@ -70,7 +70,10 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         clothing: [OPCIONES.ropa[indices.ropa]], 
         clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
         eyebrows: [OPCIONES.expresion[indices.expresion]],
-        features: indices.accesorios > 0 ? [OPCIONES.accesorios[indices.accesorios]] : []
+        features: indices.accesorios > 0 ? [OPCIONES.accesorios[indices.accesorios]] : [],
+        // 🚀 SE CONFIGURA DE FORMA NATIVA: Le decimos a DiceBear que expanda el lienzo vertical del SVG
+        // para que quepa todo el torso sin tener que meter replaces ni hacks externos.
+        viewBox: [0, 0, 100, 135]
       });
 
       return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
@@ -127,31 +130,19 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         boxSizing: 'border-box', 
         display: 'flex', 
         alignItems: 'center', 
-        justifyContent: 'center',
-        position: 'relative'
+        justifyContent: 'center'
       }}>
         {imagenSrc ? (
-          <div style={{
-            width: '100%',
-            height: '100%',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            {/* 🚀 CALIBRACIÓN FINAL: Reducimos la escala para abrir el plano de la cámara y  
-                usamos un translateY negativo para jalar el torso y el rostro arriba */}
-            <img 
-              src={imagenSrc} 
-              alt="Avatar Jugador" 
-              style={{ 
-                width: '100%', 
-                height: '100%', 
-                display: 'block', 
-                objectFit: 'contain',
-                transform: 'scale(0.85) translateY(-25px)',
-                transformOrigin: 'top center'
-              }}
-            />
-          </div>
+          <img 
+            src={imagenSrc} 
+            alt="Avatar Jugador" 
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              display: 'block', 
+              objectFit: 'contain' // Se ajusta perfectamente al alto de tu tarjeta azul
+            }}
+          />
         ) : (
           <div style={{ fontSize: '11px', color: '#64748b' }}>Generando...</div>
         )}
