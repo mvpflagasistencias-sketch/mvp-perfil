@@ -1,6 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
-import { createAvatar } from '@dicebear/core';
-import * as adventurer from '@dicebear/adventurer';
+import { useState, useEffect } from 'react';
 
 const OPCIONES = {
   cabello: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5', 'variant6'],
@@ -23,7 +21,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
   const [guardando, setGuardando] = useState(false);
 
-  // Sincroniza al cargar los datos del perfil (quitamos lectura de arreglos si venían como strings planos)
   useEffect(() => {
     if (configInicial) {
       const hairConfig = Array.isArray(configInicial.hair) ? configInicial.hair[0] : configInicial.hair;
@@ -52,36 +49,13 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       if (nuevoIndex < 0) nuevoIndex = max - 1;
       if (nuevoIndex >= max) nuevoIndex = 0;
       
-      return {
-        ...prev,
-        [key]: nuevoIndex
-      };
+      return { ...prev, [key]: nuevoIndex };
     });
   };
 
-  // 🚀 GENERADOR CORREGIDO: Pasamos las propiedades como cadenas directas (strings planos) sin corchetes
-  const svgPuroHTML = useMemo(() => {
-    try {
-      const estiloAvatar = adventurer.adventurer || adventurer;
-      const avatar = createAvatar(estiloAvatar, {
-        featuresProbability: 100,
-        hairProbability: 100,
-        clothingProbability: 100,
-        hair: OPCIONES.cabello[indices.cabello], 
-        hairColor: OPCIONES.colorCabello[indices.colorCabello],
-        clothing: OPCIONES.ropa[indices.ropa],
-        clothingColor: OPCIONES.colorRopa[indices.colorRopa],
-        features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
-        eyebrows: OPCIONES.expresion[indices.expresion],
-        size: 100
-      });
-      return { __html: avatar.toString() };
-    } catch (e) {
-      console.error("Error building avatar", e);
-      return { __html: '' };
-    }
-  // 🚀 MODIFICACIÓN ÚNICA: Escuchamos de forma desagregada cada variable numérica para forzar la reactividad
-  }, [indices.cabello, indices.colorCabello, indices.ropa, indices.colorRopa, indices.accesorios, indices.expresion]);
+  // 🚀 CONEXIÓN DIRECTA A LA NUBE: Construimos la URL oficial de DiceBear
+  const featuresParam = OPCIONES.accesorios[indices.accesorios] !== 'none' ? `&features=${OPCIONES.accesorios[indices.accesorios]}` : '';
+  const urlAvatarNube = `https://api.dicebear.com/9.x/adventurer/svg?hair=${OPCIONES.cabello[indices.cabello]}&hairColor=${OPCIONES.colorCabello[indices.colorCabello]}&clothing=${OPCIONES.ropa[indices.ropa]}&clothingColor=${OPCIONES.colorRopa[indices.colorRopa]}${featuresParam}&eyebrows=${OPCIONES.expresion[indices.expresion]}&featuresProbability=100&hairProbability=100&clothingProbability=100`;
 
   const handleGuardar = async () => {
     setGuardando(true);
@@ -116,11 +90,15 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      <div 
-        key={`${indices.cabello}-${indices.colorCabello}-${indices.ropa}-${indices.colorRopa}-${indices.accesorios}-${indices.expresion}`}
-        style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}
-        dangerouslySetInnerHTML={svgPuroHTML}
-      />
+      {/* 🔮 PINTADO CON UNA IMAGEN SIMPLE: Forzamos la descarga del SVG limpio desde internet */}
+      <div style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}>
+        <img 
+          src={urlAvatarNube} 
+          alt="Avatar en Vivo" 
+          style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+          key={urlAvatarNube} // Rompe la caché de la imagen al instante
+        />
+      </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {[
