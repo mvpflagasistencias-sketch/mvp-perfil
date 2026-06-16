@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
 import * as adventurer from '@dicebear/adventurer';
 
-// 🚀 CATÁLOGO REAL COMPATIBLE CON ADVENTURER (Se añade paleta oficial de pieles)
+// 🚀 CATÁLOGO REAL COMPATIBLE CON ADVENTURER (Corregido con las variantes reales del paquete)
 const OPCIONES = {
   cabello: ['long01', 'short01', 'short02', 'short03', 'short04', 'short05'],
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
   ropa: ['jersey01', 'jersey02', 'jersey03', 'jersey04', 'jersey05'],
   colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
-  accesorios: ['none', 'variant01', 'variant02', 'variant03'],
+  accesorios: ['none', 'glasses', 'patch'], // 👈 ¡Arreglado! Variantes reales de la librería adventurer
   expresion: ['variant01', 'variant02', 'variant03', 'variant04'],
-  colorPiel: ['f2d3b1', 'ecad80', 'c1885a', '94613c', '613b1e'] // 👈 Tonos nativos de Adventurer
+  colorPiel: ['f2d3b1', 'ecad80', 'c1885a', '94613c', '613b1e'] 
 };
 
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
@@ -21,7 +21,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     colorRopa: 0,
     accesorios: 0,
     expresion: 0,
-    colorPiel: 2, // 👈 Estado inicial centrado en un tono medio
+    colorPiel: 2, 
   });
 
   const [guardando, setGuardando] = useState(false);
@@ -70,10 +70,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         hair: [OPCIONES.cabello[indices.cabello]], 
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
         eyebrows: [OPCIONES.expresion[indices.expresion]],
-        skinColor: [OPCIONES.colorPiel[indices.colorPiel]] // 🚀 Piel amarrada nativamente al motor
+        skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
       };
 
-      // 🚀 AJUSTE EN ACCESORIOS: Cambiado para usar el formato de arreglo que requiere el catálogo nativo de adventurer
       if (indices.accesorios > 0) {
         opcionesDiceBear.features = [OPCIONES.accesorios[indices.accesorios]];
       }
@@ -96,7 +95,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
         features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
         eyebrows: [OPCIONES.expresion[indices.expresion]],
-        skinColor: [OPCIONES.colorPiel[indices.colorPiel]] // Se guarda la piel en tu JSON de la BD
+        skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
       };
       
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
@@ -232,7 +231,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        {/* 🚀 ENCUADRE FINAL PERFECTO: Bajamos el marginTop de 26px a 48px para unir la mandíbula con los trazos vectoriales cortos */}
         <div style={{ 
           width: '110px', 
           height: '110px', 
@@ -261,7 +259,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
           { label: 'Color de Ropa', campo: 'colorRopa' },
           { label: 'Accesorios', campo: 'accesorios' },
           { label: 'Expresión', campo: 'expresion' },
-          { label: 'Color de Piel', campo: 'colorPiel' } // 🚀 SE AÑADE EL BOTÓN SELECTOR DE PIEL
+          { label: 'Color de Piel', campo: 'colorPiel' } 
         ].map((item) => (
           <div key={item.campo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '12px', border: '1px solid #30363d', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>{item.label}</span>
