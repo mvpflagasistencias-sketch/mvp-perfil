@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
 import * as adventurer from '@dicebear/adventurer';
 
-// 🚀 CATÁLOGO REAL COMPATIBLE CON ADVENTURER: Nombres exactos de los vectores de ropa y cabello
+// 🚀 CATÁLOGO REAL COMPATIBLE CON ADVENTURER
 const OPCIONES = {
   cabello: ['long01', 'short01', 'short02', 'short03', 'short04', 'short05'],
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
@@ -56,22 +56,15 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
-  // 🚀 RENDER LOCAL SEGURO: Genera el string SVG manipulando el viewBox para abrir la toma vertical
   const obtenerDataUriAvatar = () => {
     try {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
       const opcionesDiceBear = {
-        // 🚀 MODIFICACIÓN ÚNICA: Reducimos la escala global y subimos la posición para meter torso y cabeza juntos
-        scale: 60,
-        translateY: -10,
         featuresProbability: indices.accesorios === 0 ? 0 : 100,
         hairProbability: 100,
-        clothingProbability: 100,
         hair: [OPCIONES.cabello[indices.cabello]], 
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
-        clothing: [OPCIONES.ropa[indices.ropa]], // Pasa el jersey real (jersey01, etc.)
-        clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
         eyebrows: [OPCIONES.expresion[indices.expresion]]
       };
 
@@ -80,14 +73,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       }
 
       const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
-      let svgString = avatar.toString();
-
-      // Forzamos al plano matemático del SVG a estirarse verticalmente para mostrar el uniforme completo
-      if (svgString.includes('viewBox="0 0 100 100"')) {
-        svgString = svgString.replace('viewBox="0 0 100 100"', 'viewBox="0 0 100 140"');
-      }
-
-      return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
+      return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
       console.error("Error generando avatar local:", e);
       return '';
@@ -124,11 +110,14 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   };
 
   const imagenSrc = obtenerDataUriAvatar();
+  // Jala el color actual seleccionado por los botones para pintar el jersey deportivo
+  const colorJerseyActual = `#${OPCIONES.colorRopa[indices.colorRopa]}`;
 
   return (
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
+      {/* Tarjeta contenedora vertical */}
       <div style={{ 
         width: '160px', 
         height: '240px', 
@@ -139,19 +128,63 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         overflow: 'hidden', 
         boxSizing: 'border-box', 
         display: 'flex', 
+        flexDirection: 'column',
         alignItems: 'center', 
-        justifyContent: 'center',
-        padding: '12px'
+        justifyContent: 'flex-start',
+        position: 'relative',
+        paddingTop: '25px'
       }}>
-        {imagenSrc ? (
-          <img 
-            src={imagenSrc} 
-            alt="Avatar Personaje" 
-            style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
-          />
-        ) : (
-          <div style={{ fontSize: '11px', color: '#64748b' }}>Generando...</div>
-        )}
+        {/* 1. SECCIÓN DE LA CABEZA (Viene limpia desde DiceBear) */}
+        <div style={{ width: '100px', height: '100px', zIndex: 2, position: 'relative' }}>
+          {imagenSrc && (
+            <img 
+              src={imagenSrc} 
+              alt="Rostro" 
+              style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
+            />
+          )}
+        </div>
+
+        {/* 2. UNIFORME DEPORTIVO (Renderizado con CSS dinámico de frente) */}
+        <div style={{ 
+          position: 'absolute',
+          bottom: '0',
+          width: '110px',
+          height: '115px',
+          backgroundColor: colorJerseyActual, // Cambia de color en vivo con los botones
+          borderRadius: '45px 45px 0 0',
+          zIndex: 1,
+          border: '3px solid #1e293b',
+          borderBottom: 'none',
+          boxSizing: 'border-box',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          paddingTop: '12px',
+          transition: 'background-color 0.2s ease'
+        }}>
+          {/* Detalles del Jersey: Cuello deportivo tipo V */}
+          <div style={{
+            width: '32px',
+            height: '20px',
+            backgroundColor: '#0f172a',
+            borderRadius: '0 0 16px 16px',
+            border: '2px solid rgba(255,255,255,0.1)',
+            borderTop: 'none'
+          }} />
+          
+          {/* Sombra o número de jersey sutil en el pecho */}
+          <div style={{
+            position: 'absolute',
+            bottom: '25px',
+            color: 'rgba(255, 255, 255, 0.15)',
+            fontSize: '32px',
+            fontWeight: '900',
+            fontFamily: 'sans-serif'
+          }}>
+            {indices.ropa + 1}
+          </div>
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
