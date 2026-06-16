@@ -73,7 +73,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         features: indices.accesorios > 0 ? [OPCIONES.accesorios[indices.accesorios]] : []
       });
 
-      // Retornamos el SVG tal cual, sin modificarle nada por código para evitar que se rompa
       return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
       console.error("Error generando avatar local:", e);
@@ -138,9 +137,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* 🚀 SOLUCIÓN DEFINITIVA POR CSS: Como el SVG viene enfocado en la cara por defecto, 
-                escalamos la imagen completa y la bajamos para que revele el cuerpo deportivo 
-                de forma idéntica en cualquier pantalla sin corromper el código base */}
+            {/* 🚀 CALIBRACIÓN FINAL: Reducimos la escala para abrir el plano de la cámara y  
+                usamos un translateY negativo para jalar el torso y el rostro arriba */}
             <img 
               src={imagenSrc} 
               alt="Avatar Jugador" 
@@ -149,7 +147,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
                 height: '100%', 
                 display: 'block', 
                 objectFit: 'contain',
-                transform: 'scale(1.8) translateY(12px)',
+                transform: 'scale(0.85) translateY(-25px)',
                 transformOrigin: 'top center'
               }}
             />
