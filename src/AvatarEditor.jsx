@@ -27,17 +27,16 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   useEffect(() => {
     if (configInicial) {
       setIndices({
-        cabello: OPCIONES.cabello.indexOf(configInicial.hair?.[0]) >= 0 ? OPCIONES.cabello.indexOf(configInicial.hair[0]) : 0,
-        colorCabello: OPCIONES.colorCabello.indexOf(configInicial.hairColor?.[0]) >= 0 ? OPCIONES.colorCabello.indexOf(configInicial.hairColor[0]) : 0,
-        ropa: OPCIONES.ropa.indexOf(configInicial.clothing?.[0]) >= 0 ? OPCIONES.ropa.indexOf(configInicial.clothing[0]) : 0,
-        colorRopa: OPCIONES.colorRopa.indexOf(configInicial.clothingColor?.[0]) >= 0 ? OPCIONES.colorRopa.indexOf(configInicial.clothingColor[0]) : 0,
-        accesorios: OPCIONES.accesorios.indexOf(configInicial.features?.[0]) >= 0 ? OPCIONES.accesorios.indexOf(configInicial.features[0]) : 0,
-        expresion: OPCIONES.expresion.indexOf(configInicial.eyebrows?.[0]) >= 0 ? OPCIONES.expresion.indexOf(configInicial.eyebrows[0]) : 0,
+        cabello: OPCIONES.cabello.indexOf(configInicial.hair) >= 0 ? OPCIONES.cabello.indexOf(configInicial.hair) : 0,
+        colorCabello: OPCIONES.colorCabello.indexOf(configInicial.hairColor) >= 0 ? OPCIONES.colorCabello.indexOf(configInicial.hairColor) : 0,
+        ropa: OPCIONES.ropa.indexOf(configInicial.clothing) >= 0 ? OPCIONES.ropa.indexOf(configInicial.clothing) : 0,
+        colorRopa: OPCIONES.colorRopa.indexOf(configInicial.clothingColor) >= 0 ? OPCIONES.colorRopa.indexOf(configInicial.clothingColor) : 0,
+        accesorios: OPCIONES.accesorios.indexOf(configInicial.features) >= 0 ? OPCIONES.accesorios.indexOf(configInicial.features) : 0,
+        expresion: OPCIONES.expresion.indexOf(configInicial.eyebrows) >= 0 ? OPCIONES.expresion.indexOf(configInicial.eyebrows) : 0,
       });
     }
   }, [configInicial]);
 
-  // 🚀 INTERRUPTOR CORREGIDO: Forzamos la creación de una nueva referencia en memoria (Inmutabilidad pura)
   const cambiarOpcion = (key, direccion) => {
     setIndices((prev) => {
       const max = OPCIONES[key].length;
@@ -55,16 +54,18 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
   const obtenerHtmlSvg = () => {
     const estiloAvatar = adventurer.adventurer || adventurer;
+    
+    // 🚀 SOLUCIÓN: Pasamos los valores como strings planos directos (sin corchetes)
     const avatar = createAvatar(estiloAvatar, {
       featuresProbability: 100,
       hairProbability: 100,
       clothingProbability: 100,
-      hair: [OPCIONES.cabello[indices.cabello]],
-      hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
-      clothing: [OPCIONES.ropa[indices.ropa]],
-      clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
-      features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
-      eyebrows: [OPCIONES.expresion[indices.expresion]],
+      hair: OPCIONES.cabello[indices.cabello],
+      hairColor: OPCIONES.colorCabello[indices.colorCabello],
+      clothing: OPCIONES.ropa[indices.ropa],
+      clothingColor: OPCIONES.colorRopa[indices.colorRopa],
+      features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [], 
+      eyebrows: OPCIONES.expresion[indices.expresion],
       size: 100
     });
     
@@ -75,12 +76,12 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     setGuardando(true);
     try {
       const configAEnviar = {
-        hair: [OPCIONES.cabello[indices.cabello]],
-        hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
-        clothing: [OPCIONES.ropa[indices.ropa]],
-        clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
-        features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
-        eyebrows: [OPCIONES.expresion[indices.expresion]]
+        hair: OPCIONES.cabello[indices.cabello],
+        hairColor: OPCIONES.colorCabello[indices.colorCabello],
+        clothing: OPCIONES.ropa[indices.ropa],
+        clothingColor: OPCIONES.colorRopa[indices.colorRopa],
+        features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? OPCIONES.accesorios[indices.accesorios] : 'none',
+        eyebrows: OPCIONES.expresion[indices.expresion]
       };
       
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
