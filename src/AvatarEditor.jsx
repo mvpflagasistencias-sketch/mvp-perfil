@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 
-// 🚀 CONFIGURACIÓN OFICIAL PARA LA API DE DICEBEAR V9
 const OPCIONES = {
-  cabello: ['variant01', 'variant02', 'variant03', 'variant04', 'variant05', 'variant06'],
+  cabello: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5', 'variant6'],
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
-  ropa: ['variant01', 'variant02', 'variant03', 'variant04', 'variant05'],
+  ropa: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'],
   colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
-  accesorios: ['none', 'variant01', 'variant02', 'variant03'],
-  expresion: ['variant01', 'variant02', 'variant03', 'variant04']
+  accesorios: ['none', 'variant1', 'variant2', 'variant3'],
+  expresion: ['variant1', 'variant2', 'variant3', 'variant4']
 };
 
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
@@ -22,7 +21,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
   const [guardando, setGuardando] = useState(false);
 
-  // Sincroniza al cargar los datos desde la base de datos
   useEffect(() => {
     if (configInicial) {
       const hairConfig = Array.isArray(configInicial.hair) ? configInicial.hair[0] : configInicial.hair;
@@ -55,15 +53,18 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
-  // 🚀 ARMADO SEGURO DE URL PARA LA API NATIVA DE DICEBEAR
-  const hairParam = `&hair=${OPCIONES.cabello[indices.cabello]}`;
-  const hairColorParam = `&hairColor=${OPCIONES.colorCabello[indices.colorCabello]}`;
-  const clothingParam = `&clothing=${OPCIONES.ropa[indices.ropa]}`;
-  const clothingColorParam = `&clothingColor=${OPCIONES.colorRopa[indices.colorRopa]}`;
-  const featuresParam = OPCIONES.accesorios[indices.accesorios] !== 'none' ? `&features=${OPCIONES.accesorios[indices.accesorios]}` : '&featuresProbability=0';
-  const eyebrowsParam = `&eyebrows=${OPCIONES.expresion[indices.expresion]}`;
+  // 🚀 CONSTRUCCIÓN LIMPIA PARA LA API DE DICEBEAR HTTP
+  const hair = OPCIONES.cabello[indices.cabello];
+  const hairColor = OPCIONES.colorCabello[indices.colorCabello];
+  const clothing = OPCIONES.ropa[indices.ropa];
+  const clothingColor = OPCIONES.colorRopa[indices.colorRopa];
+  const eyebrows = OPCIONES.expresion[indices.expresion];
+  
+  // Si es 'none', mandamos un string vacío para que no pinte accesorios
+  const features = OPCIONES.accesorios[indices.accesorios] !== 'none' ? OPCIONES.accesorios[indices.accesorios] : '';
 
-  const urlAvatarNube = `https://api.dicebear.com/9.x/adventurer/svg?size=100${hairParam}${hairColorParam}${clothingParam}${clothingColorParam}${featuresParam}${eyebrowsParam}`;
+  // URL final simplificada y directa
+  const urlAvatarNube = `https://api.dicebear.com/9.x/adventurer/svg?hair=${hair}&hairColor=${hairColor}&clothing=${clothing}&clothingColor=${clothingColor}&eyebrows=${eyebrows}&features=${features}`;
 
   const handleGuardar = async () => {
     setGuardando(true);
@@ -98,13 +99,12 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      {/* 🔮 CONTENEDOR OPTIMIZADO PARA LA IMAGEN DESDE LA API */}
       <div style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <img 
           src={urlAvatarNube} 
           alt="Avatar" 
-          style={{ width: '100%', height: '100%', display: 'block' }}
-          key={urlAvatarNube} // Esto fuerza al navegador a renderizar el nuevo SVG al instante
+          style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
+          key={urlAvatarNube} // Rompe la caché con cada clic obligatoriamente
         />
       </div>
 
