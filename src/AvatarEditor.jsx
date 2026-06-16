@@ -54,15 +54,12 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
-  // 🚀 GENERACIÓN LOCAL CON CÁMARA ALEJADA
+  // 🚀 GENERACIÓN CON APERTURA TOTAL DE CÁMARA
   const obtenerDataUriAvatar = () => {
     try {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
       const opcionesDiceBear = {
-        size: 100,
-        scale: 100,           // 🚀 Ponemos escala completa para aprovechar el alto de la tarjeta
-        translateY: 0,        // 🚀 Centrado vertical nativo
         featuresProbability: indices.accesorios === 0 ? 0 : 100,
         hairProbability: 100,
         clothingProbability: 100,
@@ -78,7 +75,12 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       }
 
       const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
-      return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
+      
+      // 🚀 HACK METAMÁTICO: Le borramos las restricciones del recorte por defecto para obligar al SVG a expandir todo su cuerpo disponible
+      let svgString = avatar.toString();
+      svgString = svgString.replace('viewBox="0 0 100 100"', 'viewBox="0 0 120 190"'); 
+
+      return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
     } catch (e) {
       console.error("Error generando avatar local:", e);
       return '';
@@ -126,7 +128,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      {/* 🚀 MODIFICACIÓN VISUAL: De círculo a Contenedor Rectangular tipo Tarjeta */}
       <div style={{ 
         width: '160px', 
         height: '240px', 
@@ -139,7 +140,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '8px'
+        padding: '12px'
       }}>
         {imagenSrc ? (
           <img 
