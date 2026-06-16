@@ -1,20 +1,14 @@
 import { useState, useEffect } from 'react';
-import { createAvatar } from '@dicebear/core';
-import * as adventurer from '@dicebear/adventurer';
 
-// Usamos números planos para iterar de forma nativa sobre el catálogo seguro de adventurer
-const MAX_OPCIONES = {
-  cabello: 6,       // 6 estilos
-  colorCabello: 5,  // 5 colores
-  ropa: 5,          // 5 prendas
-  colorRopa: 5,     // 5 colores
-  accesorios: 4,    // 3 variantes + 1 (ninguno)
-  expresion: 4      // 4 rostros
+// Configuración de variantes mapeadas para el catálogo de Lorelei en la API v9
+const OPCIONES = {
+  cabello: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5', 'variant6'],
+  colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
+  ropa: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'],
+  colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
+  accesorios: ['none', 'variant1', 'variant2', 'variant3'],
+  expresion: ['variant1', 'variant2', 'variant3', 'variant4']
 };
-
-// Paletas de colores reales en formato Hex para el motor
-const COLORES_CABELLO = ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'];
-const COLORES_ROPA = ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'];
 
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   const [indices, setIndices] = useState({
@@ -28,23 +22,29 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
   const [guardando, setGuardando] = useState(false);
 
-  // Sincroniza al cargar los datos guardados de la base de datos
   useEffect(() => {
     if (configInicial) {
+      const hairConfig = Array.isArray(configInicial.hair) ? configInicial.hair[0] : configInicial.hair;
+      const hairColorConfig = Array.isArray(configInicial.hairColor) ? configInicial.hairColor[0] : configInicial.hairColor;
+      const clothingConfig = Array.isArray(configInicial.clothing) ? configInicial.clothing[0] : configInicial.clothing;
+      const clothingColorConfig = Array.isArray(configInicial.clothingColor) ? configInicial.clothingColor[0] : configInicial.clothingColor;
+      const featuresConfig = Array.isArray(configInicial.features) ? configInicial.features[0] : configInicial.features;
+      const eyebrowsConfig = Array.isArray(configInicial.eyebrows) ? configInicial.eyebrows[0] : configInicial.eyebrows;
+
       setIndices({
-        cabello: typeof configInicial.hair_idx === 'number' ? configInicial.hair_idx : 0,
-        colorCabello: typeof configInicial.hair_color_idx === 'number' ? configInicial.hair_color_idx : 0,
-        ropa: typeof configInicial.clothing_idx === 'number' ? configInicial.clothing_idx : 0,
-        colorRopa: typeof configInicial.clothing_color_idx === 'number' ? configInicial.clothing_color_idx : 0,
-        accesorios: typeof configInicial.features_idx === 'number' ? configInicial.features_idx : 0,
-        expresion: typeof configInicial.eyebrows_idx === 'number' ? configInicial.eyebrows_idx : 0,
+        cabello: OPCIONES.cabello.indexOf(hairConfig) >= 0 ? OPCIONES.cabello.indexOf(hairConfig) : 0,
+        colorCabello: OPCIONES.colorCabello.indexOf(hairColorConfig) >= 0 ? OPCIONES.colorCabello.indexOf(hairColorConfig) : 0,
+        ropa: OPCIONES.ropa.indexOf(clothingConfig) >= 0 ? OPCIONES.ropa.indexOf(clothingConfig) : 0,
+        colorRopa: OPCIONES.colorRopa.indexOf(clothingColorConfig) >= 0 ? OPCIONES.colorRopa.indexOf(clothingColorConfig) : 0,
+        accesorios: OPCIONES.accesorios.indexOf(featuresConfig) >= 0 ? OPCIONES.accesorios.indexOf(featuresConfig) : 0,
+        expresion: OPCIONES.expresion.indexOf(eyebrowsConfig) >= 0 ? OPCIONES.expresion.indexOf(eyebrowsConfig) : 0,
       });
     }
   }, [configInicial]);
 
   const cambiarOpcion = (key, direccion) => {
     setIndices((prev) => {
-      const max = MAX_OPCIONES[key];
+      const max = OPCIONES[key].length;
       let nuevoIndex = prev[key] + direccion;
       
       if (nuevoIndex < 0) nuevoIndex = max - 1;
@@ -54,61 +54,27 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
-  // 🚀 GENERACIÓN LOCAL MODIFICANDO EL MAPA DE VECTORES DIRECTAMENTE
-  const obtenerDataUriAvatar = () => {
-    try {
-      const estiloAvatar = adventurer.adventurer || adventurer;
-      
-      const opcionesDiceBear = {
-        featuresProbability: indices.accesorios === 0 ? 0 : 100,
-        hairProbability: 100,
-        clothingProbability: 100,
-        hair: [`variant0${indices.cabello + 1}`],
-        hairColor: [COLORES_CABELLO[indices.colorCabello]],
-        clothing: [`variant0${indices.ropa + 1}`],
-        clothingColor: [COLORES_ROPA[indices.colorRopa]],
-        eyebrows: [`variant0${indices.expresion + 1}`]
-      };
+  // 🚀 ARMADO SEGURO DE LA URL PARA EL ESTILO LORELEI (CUERPO DE FRENTE)
+  const hair = OPCIONES.cabello[indices.cabello];
+  const hairColor = OPCIONES.colorCabello[indices.colorCabello];
+  const clothing = OPCIONES.ropa[indices.ropa];
+  const clothingColor = OPCIONES.colorRopa[indices.colorRopa];
+  const eyebrows = OPCIONES.expresion[indices.expresion];
+  const glasses = OPCIONES.accesorios[indices.accesorios] !== 'none' ? OPCIONES.accesorios[indices.accesorios] : '';
 
-      if (indices.accesorios > 0) {
-        opcionesDiceBear.features = [`variant0${indices.accesorios}`];
-      }
-
-      const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
-      let svgString = avatar.toString();
-
-      // 🚀 HACK DE COORDENADAS: Forzamos al SVG local a redefinir su área visible de '0 0 100 100' a vertical '0 0 100 160'
-      // Esto rompe el recorte por defecto de la cabeza y expone los hombros y la playera
-      if (svgString.includes('viewBox="0 0 100 100"')) {
-        svgString = svgString.replace('viewBox="0 0 100 100"', 'viewBox="0 0 100 155"');
-      } else if (svgString.includes('viewBox="0 0 0 0"')) {
-        // En caso de que no traiga dimensiones fijas, se las inyectamos directo
-        svgString = svgString.replace('<svg', '<svg viewBox="0 0 100 155"');
-      }
-
-      return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
-    } catch (e) {
-      console.error("Error generando avatar local:", e);
-      return '';
-    }
-  };
+  // Generamos la query limpia consumiendo la API global sin dependencias pesadas locales
+  const urlAvatarNube = `https://api.dicebear.com/9.x/lorelei/svg?hair=${hair}&hairColor=${hairColor}&clothing=${clothing}&clothingColor=${clothingColor}&eyebrows=${eyebrows}&glasses=${glasses}`;
 
   const handleGuardar = async () => {
     setGuardando(true);
     try {
       const configAEnviar = {
-        hair_idx: indices.cabello,
-        hair_color_idx: indices.colorCabello,
-        clothing_idx: indices.ropa,
-        clothing_color_idx: indices.colorRopa,
-        features_idx: indices.accesorios,
-        eyebrows_idx: indices.expresion,
-        hair: [`variant0${indices.cabello + 1}`],
-        hairColor: [COLORES_CABELLO[indices.colorCabello]],
-        clothing: [`variant0${indices.ropa + 1}`],
-        clothingColor: [COLORES_ROPA[indices.colorRopa]],
-        features: indices.accesorios > 0 ? [`variant0${indices.accesorios}`] : [],
-        eyebrows: [`variant0${indices.expresion + 1}`]
+        hair: OPCIONES.cabello[indices.cabello],
+        hairColor: OPCIONES.colorCabello[indices.colorCabello],
+        clothing: OPCIONES.ropa[indices.ropa],
+        clothingColor: OPCIONES.colorRopa[indices.colorRopa],
+        features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? OPCIONES.accesorios[indices.accesorios] : 'none',
+        eyebrows: OPCIONES.expresion[indices.expresion]
       };
       
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
@@ -128,12 +94,11 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     }
   };
 
-  const imagenSrc = obtenerDataUriAvatar();
-
   return (
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
+      {/* Marco contenedor de la tarjeta vertical */}
       <div style={{ 
         width: '160px', 
         height: '240px', 
@@ -146,17 +111,14 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '12px'
+        padding: '8px'
       }}>
-        {imagenSrc ? (
-          <img 
-            src={imagenSrc} 
-            alt="Avatar Personaje" 
-            style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
-          />
-        ) : (
-          <div style={{ fontSize: '11px', color: '#64748b' }}>Generando...</div>
-        )}
+        <img 
+          src={urlAvatarNube} 
+          alt="Avatar" 
+          style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
+          key={urlAvatarNube} // Rompe el caché del navegador al cambiar de opción
+        />
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -184,7 +146,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         disabled={guardando}
         style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', marginTop: '18px', cursor: 'pointer', letterSpacing: '0.05em' }}
       >
-        {guardando ? 'Guardando...' : '¼ Guarda en la base...'}
+        {guardando ? 'Guardando...' : '💾 Fijar en mi Credencial'}
       </button>
     </div>
   );
