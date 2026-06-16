@@ -56,24 +56,30 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
+  // 🚀 PARTE MODIFICADA: Render nativo y apertura de plano matemático por Regex
   const obtenerDataUriAvatar = () => {
     try {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
-      const opcionesDiceBear = {
+      const avatar = createAvatar(estiloAvatar, {
+        size: 100,
         featuresProbability: indices.accesorios === 0 ? 0 : 100,
         hairProbability: 100,
+        clothingProbability: 100,
         hair: [OPCIONES.cabello[indices.cabello]], 
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
-        eyebrows: [OPCIONES.expresion[indices.expresion]]
-      };
+        clothing: [OPCIONES.ropa[indices.ropa]], // Jala jersey01, jersey02, etc.
+        clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
+        eyebrows: [OPCIONES.expresion[indices.expresion]],
+        features: indices.accesorios > 0 ? [OPCIONES.accesorios[indices.accesorios]] : []
+      });
 
-      if (indices.accesorios > 0) {
-        opcionesDiceBear.features = [OPCIONES.accesorios[indices.accesorios]];
-      }
+      let svgString = avatar.toString();
 
-      const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
-      return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
+      // Forzamos al plano del SVG a extenderse hacia abajo (viewBox 0 0 100 135) para revelar la playera nativa
+      svgString = svgString.replace(/viewBox="[^"]*"/, 'viewBox="0 0 100 135"');
+
+      return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
     } catch (e) {
       console.error("Error generando avatar local:", e);
       return '';
@@ -110,7 +116,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   };
 
   const imagenSrc = obtenerDataUriAvatar();
-  const colorJerseyActual = `#${OPCIONES.colorRopa[indices.colorRopa]}`;
 
   return (
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
@@ -129,60 +134,18 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         display: 'flex', 
         flexDirection: 'column',
         alignItems: 'center', 
-        justifyContent: 'flex-start',
-        position: 'relative'
+        justifyContent: 'center',
+        padding: '4px'
       }}>
-        {/* 1. SECCIÓN DE LA CABEZA (Bajada con un margen superior negativo para acoplar el cuello) */}
-        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '15px' }}>
-          {imagenSrc && (
-            <img 
-              src={imagenSrc} 
-              alt="Rostro" 
-              style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
-            />
-          )}
-        </div>
-
-        {/* 2. UNIFORME DEPORTIVO (Subido ligeramente para recibir la barbilla) */}
-        <div style={{ 
-          position: 'absolute',
-          bottom: '0',
-          width: '135px', // Hombros un poco más anchos para llenar la tarjeta
-          height: '130px',
-          backgroundColor: colorJerseyActual, 
-          borderRadius: '40px 40px 0 0',
-          zIndex: 1,
-          border: '3px solid #1e293b',
-          borderBottom: 'none',
-          boxSizing: 'border-box',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          paddingTop: '16px',
-          transition: 'background-color 0.2s ease'
-        }}>
-          {/* Detalles del Jersey: Cuello tipo V deportivo */}
-          <div style={{
-            width: '36px',
-            height: '18px',
-            backgroundColor: '#0f172a',
-            borderRadius: '0 0 16px 16px',
-            border: '2px solid rgba(255,255,255,0.15)',
-            borderTop: 'none'
-          }} />
-          
-          {/* Número de jersey en el pecho */}
-          <div style={{
-            position: 'absolute',
-            bottom: '30px',
-            color: 'rgba(255, 255, 255, 0.2)',
-            fontSize: '36px',
-            fontWeight: '900',
-            fontFamily: 'sans-serif'
-          }}>
-            {indices.ropa + 1}
-          </div>
-        </div>
+        {imagenSrc ? (
+          <img 
+            src={imagenSrc} 
+            alt="Avatar Jugador" 
+            style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
+          />
+        ) : (
+          <div style={{ fontSize: '11px', color: '#64748b' }}>Generando...</div>
+        )}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
