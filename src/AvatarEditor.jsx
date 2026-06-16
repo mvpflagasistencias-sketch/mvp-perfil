@@ -73,8 +73,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
       };
 
+      // 🚀 AJUSTE AQUÍ: Cambiado 'features' por 'accessories' para activar la propiedad nativa de adventurer
       if (indices.accesorios > 0) {
-        opcionesDiceBear.features = [OPCIONES.accesorios[indices.accesorios]];
+        opcionesDiceBear.accessories = [OPCIONES.accesorios[indices.accesorios]];
       }
 
       const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
