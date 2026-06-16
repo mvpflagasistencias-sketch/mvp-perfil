@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 
-// Configuración de variantes mapeadas para el catálogo de Lorelei en la API v9
+// 🚀 OPCIONES OFICIALES COMPATIBLES AL 100% CON LA API DE LORELEI V9
 const OPCIONES = {
   cabello: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5', 'variant6'],
-  colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
+  colorCabello: ['01', '02', '03', '04', '05'], // Índices numéricos directos para colores de la API
   ropa: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'],
-  colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
+  colorRopa: ['01', '02', '03', '04', '05'],    // Índices numéricos directos para colores de la API
   accesorios: ['none', 'variant1', 'variant2', 'variant3'],
   expresion: ['variant1', 'variant2', 'variant3', 'variant4']
 };
@@ -54,16 +54,18 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
-  // 🚀 ARMADO SEGURO DE LA URL PARA EL ESTILO LORELEI (CUERPO DE FRENTE)
+  // 🚀 CONSTRUCCIÓN DE URL DE ACUERDO A DOCUMENTACIÓN ESTRICTA HTTP V9
   const hair = OPCIONES.cabello[indices.cabello];
   const hairColor = OPCIONES.colorCabello[indices.colorCabello];
   const clothing = OPCIONES.ropa[indices.ropa];
   const clothingColor = OPCIONES.colorRopa[indices.colorRopa];
   const eyebrows = OPCIONES.expresion[indices.expresion];
-  const glasses = OPCIONES.accesorios[indices.accesorios] !== 'none' ? OPCIONES.accesorios[indices.accesorios] : '';
+  
+  // Manejo de accesorios en Lorelei de forma segura
+  const glassesParam = OPCIONES.accesorios[indices.accesorios] !== 'none' ? `&glasses=${OPCIONES.accesorios[indices.accesorios]}&glassesProbability=100` : '&glassesProbability=0';
 
-  // Generamos la query limpia consumiendo la API global sin dependencias pesadas locales
-  const urlAvatarNube = `https://api.dicebear.com/9.x/lorelei/svg?hair=${hair}&hairColor=${hairColor}&clothing=${clothing}&clothingColor=${clothingColor}&eyebrows=${eyebrows}&glasses=${glasses}`;
+  // Armado final limpio de la URL
+  const urlAvatarNube = `https://api.dicebear.com/9.x/lorelei/svg?hair=${hair}&hairColor=${hairColor}&clothing=${clothing}&clothingColor=${clothingColor}&eyebrows=${eyebrows}${glassesParam}`;
 
   const handleGuardar = async () => {
     setGuardando(true);
@@ -84,7 +86,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       });
 
       if (!response.ok) throw new Error("Error en servidor");
-      alert("✅ ¡Avatar guardado y fijado en tu perfil!");
+      alert("✅ ¡Avatar de cuerpo completo guardado!");
       if (onGuardarExito) onGuardarExito(configAEnviar);
     } catch (err) {
       console.error("Error al guardar avatar:", err);
@@ -98,7 +100,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      {/* Marco contenedor de la tarjeta vertical */}
       <div style={{ 
         width: '160px', 
         height: '240px', 
@@ -117,7 +118,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
           src={urlAvatarNube} 
           alt="Avatar" 
           style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
-          key={urlAvatarNube} // Rompe el caché del navegador al cambiar de opción
+          key={urlAvatarNube} // Rompe el cache en cada click al instante
         />
       </div>
 
