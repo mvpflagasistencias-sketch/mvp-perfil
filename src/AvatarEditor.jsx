@@ -54,20 +54,18 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
-  // 🚀 GENERACIÓN LOCAL EN BASE64: Crea una imagen virtual instantánea sin usar URLs externas
+  // 🚀 GENERACIÓN LOCAL CON CÁMARA ALEJADA
   const obtenerDataUriAvatar = () => {
     try {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
-      // Mapeamos los índices numéricos a los arreglos que espera el core local
       const opcionesDiceBear = {
         size: 100,
-        scale: 85,           // 🚀 MODIFICACIÓN ÚNICA: Aleja la cámara para que el cuerpo quepa en el círculo
-        translateY: 5,       // 🚀 MODIFICACIÓN ÚNICA: Baja un poco la posición para centrar el jersey y rostro
+        scale: 100,           // 🚀 Ponemos escala completa para aprovechar el alto de la tarjeta
+        translateY: 0,        // 🚀 Centrado vertical nativo
         featuresProbability: indices.accesorios === 0 ? 0 : 100,
         hairProbability: 100,
         clothingProbability: 100,
-        // Pasamos números directos en el arreglo para que el core elija el índice del catálogo nativo
         hair: [`variant0${indices.cabello + 1}`],
         hairColor: [COLORES_CABELLO[indices.colorCabello]],
         clothing: [`variant0${indices.ropa + 1}`],
@@ -80,8 +78,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       }
 
       const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
-      
-      // Convertimos el SVG matemático a un string Base64 seguro para la etiqueta <img>
       return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
       console.error("Error generando avatar local:", e);
@@ -92,7 +88,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   const handleGuardar = async () => {
     setGuardando(true);
     try {
-      // Guardamos tanto los índices numéricos para el control como el formato string estándar
       const configAEnviar = {
         hair_idx: indices.cabello,
         hair_color_idx: indices.colorCabello,
@@ -131,7 +126,21 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      <div style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      {/* 🚀 MODIFICACIÓN VISUAL: De círculo a Contenedor Rectangular tipo Tarjeta */}
+      <div style={{ 
+        width: '160px', 
+        height: '240px', 
+        backgroundColor: '#0f172a', 
+        borderRadius: '20px', 
+        margin: '0 auto 20px', 
+        border: '4px solid #60a5fa', 
+        overflow: 'hidden', 
+        boxSizing: 'border-box', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        padding: '8px'
+      }}>
         {imagenSrc ? (
           <img 
             src={imagenSrc} 
