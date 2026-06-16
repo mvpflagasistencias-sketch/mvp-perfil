@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
-import * as adventurer from '@dicebear/adventurer';
+import * as openPeeps from '@dicebear/open-peeps';
 
-// Usamos números planos para iterar de forma nativa sobre el catálogo de la v9
+// Configuración nativa para el catálogo de cuerpo completo de Open Peeps
 const MAX_OPCIONES = {
-  cabello: 6,       // 6 estilos
-  colorCabello: 5,  // 5 colores
-  ropa: 5,          // 5 prendas
-  colorRopa: 5,     // 5 colores
-  accesorios: 4,    // 3 variantes + 1 (ninguno)
-  expresion: 4      // 4 rostros
+  cabello: 10,       // 10 peinados distintos
+  colorCabello: 5,   // 5 colores
+  ropa: 5,           // 5 estilos de prendas/cuerpo
+  colorRopa: 5,      // 5 colores de ropa
+  accesorios: 4,     // 3 lentes/accesorios + ninguno
+  expresion: 5       // 5 rostros/expresiones
 };
 
-// Paletas de colores reales en formato Hex para el motor
-const COLORES_CABELLO = ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'];
+const COLORES_CABELLO = ['0e0e10', '4a3728', 'b58143', 'af3838', '6b7280'];
 const COLORES_ROPA = ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'];
 
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
@@ -28,7 +27,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
   const [guardando, setGuardando] = useState(false);
 
-  // Sincroniza al cargar los datos guardados de la base de datos
   useEffect(() => {
     if (configInicial) {
       setIndices({
@@ -54,35 +52,31 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
-  // 🚀 GENERACIÓN CON APERTURA TOTAL DE CÁMARA
   const obtenerDataUriAvatar = () => {
     try {
-      const estiloAvatar = adventurer.adventurer || adventurer;
+      const estiloAvatar = openPeeps.openPeeps || openPeeps;
       
       const opcionesDiceBear = {
-        featuresProbability: indices.accesorios === 0 ? 0 : 100,
-        hairProbability: 100,
-        clothingProbability: 100,
-        hair: [`variant0${indices.cabello + 1}`],
-        hairColor: [COLORES_CABELLO[indices.colorCabello]],
-        clothing: [`variant0${indices.ropa + 1}`],
-        clothingColor: [COLORES_ROPA[indices.colorRopa]],
-        eyebrows: [`variant0${indices.expresion + 1}`]
+        size: 100,
+        // Forzamos el modo cuerpo completo de pie que ofrece open-peeps
+        maskTop: 0,
+        faceProbability: 100,
+        maskProbability: 0,
+        // Asignamos las variantes numéricas nativas de la librería
+        head: [`variant${indices.cabello + 1}`],
+        face: [`variant0${indices.expresion + 1}`],
+        body: [`drawing${indices.ropa + 1}`], // Jala cuerpos completos con ropa de pie
+        accessoriesProbability: indices.accesorios === 0 ? 0 : 100
       };
 
       if (indices.accesorios > 0) {
-        opcionesDiceBear.features = [`variant0${indices.accesorios}`];
+        opcionesDiceBear.accessories = [`variant0${indices.accesorios}`];
       }
 
       const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
-      
-      // 🚀 HACK METAMÁTICO: Le borramos las restricciones del recorte por defecto para obligar al SVG a expandir todo su cuerpo disponible
-      let svgString = avatar.toString();
-      svgString = svgString.replace('viewBox="0 0 100 100"', 'viewBox="0 0 120 190"'); 
-
-      return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
+      return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
-      console.error("Error generando avatar local:", e);
+      console.error("Error generando avatar de cuerpo completo:", e);
       return '';
     }
   };
@@ -96,13 +90,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         clothing_idx: indices.ropa,
         clothing_color_idx: indices.colorRopa,
         features_idx: indices.accesorios,
-        eyebrows_idx: indices.expresion,
-        hair: [`variant0${indices.cabello + 1}`],
-        hairColor: [COLORES_CABELLO[indices.colorCabello]],
-        clothing: [`variant0${indices.ropa + 1}`],
-        clothingColor: [COLORES_ROPA[indices.colorRopa]],
-        features: indices.accesorios > 0 ? [`variant0${indices.accesorios}`] : [],
-        eyebrows: [`variant0${indices.expresion + 1}`]
+        eyebrows_idx: indices.expresion
       };
       
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
@@ -112,7 +100,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       });
 
       if (!response.ok) throw new Error("Error en servidor");
-      alert("✅ ¡Avatar guardado y fijado en tu perfil!");
+      alert("✅ ¡Avatar de cuerpo completo fijado!");
       if (onGuardarExito) onGuardarExito(configAEnviar);
     } catch (err) {
       console.error("Error al guardar avatar:", err);
@@ -140,12 +128,12 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '12px'
+        padding: '4px'
       }}>
         {imagenSrc ? (
           <img 
             src={imagenSrc} 
-            alt="Avatar Personaje" 
+            alt="Avatar Cuerpo Completo" 
             style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
           />
         ) : (
