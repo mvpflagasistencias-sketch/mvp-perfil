@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
-import * as openPeeps from '@dicebear/open-peeps';
+import * as adventurer from '@dicebear/adventurer';
 
-// Configuración nativa para el catálogo de cuerpo completo de Open Peeps
+// Usamos números planos para iterar de forma nativa sobre el catálogo seguro de adventurer
 const MAX_OPCIONES = {
-  cabello: 10,       // 10 peinados distintos
-  colorCabello: 5,   // 5 colores
-  ropa: 5,           // 5 estilos de prendas/cuerpo
-  colorRopa: 5,      // 5 colores de ropa
-  accesorios: 4,     // 3 lentes/accesorios + ninguno
-  expresion: 5       // 5 rostros/expresiones
+  cabello: 6,       // 6 estilos
+  colorCabello: 5,  // 5 colores
+  ropa: 5,          // 5 prendas
+  colorRopa: 5,     // 5 colores
+  accesorios: 4,    // 3 variantes + 1 (ninguno)
+  expresion: 4      // 4 rostros
 };
 
-const COLORES_CABELLO = ['0e0e10', '4a3728', 'b58143', 'af3838', '6b7280'];
+// Paletas de colores reales en formato Hex para el motor
+const COLORES_CABELLO = ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'];
 const COLORES_ROPA = ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'];
 
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
@@ -27,6 +28,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
   const [guardando, setGuardando] = useState(false);
 
+  // Sincroniza al cargar los datos guardados de la base de datos
   useEffect(() => {
     if (configInicial) {
       setIndices({
@@ -52,31 +54,41 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
+  // 🚀 GENERACIÓN LOCAL MODIFICANDO EL MAPA DE VECTORES DIRECTAMENTE
   const obtenerDataUriAvatar = () => {
     try {
-      const estiloAvatar = openPeeps.openPeeps || openPeeps;
+      const estiloAvatar = adventurer.adventurer || adventurer;
       
       const opcionesDiceBear = {
-        size: 100,
-        // Forzamos el modo cuerpo completo de pie que ofrece open-peeps
-        maskTop: 0,
-        faceProbability: 100,
-        maskProbability: 0,
-        // Asignamos las variantes numéricas nativas de la librería
-        head: [`variant${indices.cabello + 1}`],
-        face: [`variant0${indices.expresion + 1}`],
-        body: [`drawing${indices.ropa + 1}`], // Jala cuerpos completos con ropa de pie
-        accessoriesProbability: indices.accesorios === 0 ? 0 : 100
+        featuresProbability: indices.accesorios === 0 ? 0 : 100,
+        hairProbability: 100,
+        clothingProbability: 100,
+        hair: [`variant0${indices.cabello + 1}`],
+        hairColor: [COLORES_CABELLO[indices.colorCabello]],
+        clothing: [`variant0${indices.ropa + 1}`],
+        clothingColor: [COLORES_ROPA[indices.colorRopa]],
+        eyebrows: [`variant0${indices.expresion + 1}`]
       };
 
       if (indices.accesorios > 0) {
-        opcionesDiceBear.accessories = [`variant0${indices.accesorios}`];
+        opcionesDiceBear.features = [`variant0${indices.accesorios}`];
       }
 
       const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
-      return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
+      let svgString = avatar.toString();
+
+      // 🚀 HACK DE COORDENADAS: Forzamos al SVG local a redefinir su área visible de '0 0 100 100' a vertical '0 0 100 160'
+      // Esto rompe el recorte por defecto de la cabeza y expone los hombros y la playera
+      if (svgString.includes('viewBox="0 0 100 100"')) {
+        svgString = svgString.replace('viewBox="0 0 100 100"', 'viewBox="0 0 100 155"');
+      } else if (svgString.includes('viewBox="0 0 0 0"')) {
+        // En caso de que no traiga dimensiones fijas, se las inyectamos directo
+        svgString = svgString.replace('<svg', '<svg viewBox="0 0 100 155"');
+      }
+
+      return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
     } catch (e) {
-      console.error("Error generando avatar de cuerpo completo:", e);
+      console.error("Error generando avatar local:", e);
       return '';
     }
   };
@@ -90,7 +102,13 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         clothing_idx: indices.ropa,
         clothing_color_idx: indices.colorRopa,
         features_idx: indices.accesorios,
-        eyebrows_idx: indices.expresion
+        eyebrows_idx: indices.expresion,
+        hair: [`variant0${indices.cabello + 1}`],
+        hairColor: [COLORES_CABELLO[indices.colorCabello]],
+        clothing: [`variant0${indices.ropa + 1}`],
+        clothingColor: [COLORES_ROPA[indices.colorRopa]],
+        features: indices.accesorios > 0 ? [`variant0${indices.accesorios}`] : [],
+        eyebrows: [`variant0${indices.expresion + 1}`]
       };
       
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
@@ -100,7 +118,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       });
 
       if (!response.ok) throw new Error("Error en servidor");
-      alert("✅ ¡Avatar de cuerpo completo fijado!");
+      alert("✅ ¡Avatar guardado y fijado en tu perfil!");
       if (onGuardarExito) onGuardarExito(configAEnviar);
     } catch (err) {
       console.error("Error al guardar avatar:", err);
@@ -128,12 +146,12 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '4px'
+        padding: '12px'
       }}>
         {imagenSrc ? (
           <img 
             src={imagenSrc} 
-            alt="Avatar Cuerpo Completo" 
+            alt="Avatar Personaje" 
             style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
           />
         ) : (
@@ -166,7 +184,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         disabled={guardando}
         style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', marginTop: '18px', cursor: 'pointer', letterSpacing: '0.05em' }}
       >
-        {guardando ? 'Guardando...' : '💾 Fijar en mi Credencial'}
+        {guardando ? 'Guardando...' : '¼ Guarda en la base...'}
       </button>
     </div>
   );
