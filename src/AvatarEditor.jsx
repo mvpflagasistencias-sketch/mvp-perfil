@@ -121,17 +121,15 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     return (
       <div style={{ 
         position: 'absolute',
-        bottom: '-15px', // 🚀 CORRECCIÓN 1: Bajamos un poco el SVG completo para que la playera llene el fondo de la tarjeta
+        bottom: '-15px', 
         width: '150px',
         height: '140px',
         zIndex: 1,
         transition: 'all 0.2s ease'
       }}>
-        {/* Usamos transform para desplazar todo el vector del cuerpo hacia arriba de forma limpia */}
         <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%', transform: 'translateY(-12px)' }}>
           
-          {/* 🚀 CORRECCIÓN 2: Acortamos drásticamente el trazo vertical. Ahora el cuello solo mide 7px de alto 
-              (va desde el inicio en Y=35 hasta Y=28) para cerrar el hueco feo de inmediato. */}
+          {/* Líneas cortas perfectas de cuello (Eje Y fijo en 28) */}
           <path d="M 53,35 L 53,28" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
           <path d="M 67,35 L 67,28" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
 
@@ -227,14 +225,13 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        {/* 🚀 CORRECCIÓN 3: Ajustamos el marginTop a 26px para que la cabeza baje lo suficiente y cierre la distancia, 
-            conectando perfectamente las puntas de las dos líneas del cuello con la mandíbula */}
+        {/* 🚀 ENCUADRE FINAL PERFECTO: Bajamos el marginTop de 26px a 48px para unir la mandíbula con los trazos vectoriales cortos */}
         <div style={{ 
           width: '110px', 
           height: '110px', 
           zIndex: 2, 
           position: 'relative', 
-          marginTop: '26px'
+          marginTop: '48px'
         }}>
           {imagenSrc && (
             <img 
