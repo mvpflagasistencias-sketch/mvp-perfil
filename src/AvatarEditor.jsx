@@ -110,7 +110,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   };
 
   const imagenSrc = obtenerDataUriAvatar();
-  // Jala el color actual seleccionado por los botones para pintar el jersey deportivo
   const colorJerseyActual = `#${OPCIONES.colorRopa[indices.colorRopa]}`;
 
   return (
@@ -131,11 +130,10 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         flexDirection: 'column',
         alignItems: 'center', 
         justifyContent: 'flex-start',
-        position: 'relative',
-        paddingTop: '25px'
+        position: 'relative'
       }}>
-        {/* 1. SECCIÓN DE LA CABEZA (Viene limpia desde DiceBear) */}
-        <div style={{ width: '100px', height: '100px', zIndex: 2, position: 'relative' }}>
+        {/* 1. SECCIÓN DE LA CABEZA (Bajada con un margen superior negativo para acoplar el cuello) */}
+        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '15px' }}>
           {imagenSrc && (
             <img 
               src={imagenSrc} 
@@ -145,14 +143,14 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
           )}
         </div>
 
-        {/* 2. UNIFORME DEPORTIVO (Renderizado con CSS dinámico de frente) */}
+        {/* 2. UNIFORME DEPORTIVO (Subido ligeramente para recibir la barbilla) */}
         <div style={{ 
           position: 'absolute',
           bottom: '0',
-          width: '110px',
-          height: '115px',
-          backgroundColor: colorJerseyActual, // Cambia de color en vivo con los botones
-          borderRadius: '45px 45px 0 0',
+          width: '135px', // Hombros un poco más anchos para llenar la tarjeta
+          height: '130px',
+          backgroundColor: colorJerseyActual, 
+          borderRadius: '40px 40px 0 0',
           zIndex: 1,
           border: '3px solid #1e293b',
           borderBottom: 'none',
@@ -160,25 +158,25 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'flex-start',
-          paddingTop: '12px',
+          paddingTop: '16px',
           transition: 'background-color 0.2s ease'
         }}>
-          {/* Detalles del Jersey: Cuello deportivo tipo V */}
+          {/* Detalles del Jersey: Cuello tipo V deportivo */}
           <div style={{
-            width: '32px',
-            height: '20px',
+            width: '36px',
+            height: '18px',
             backgroundColor: '#0f172a',
             borderRadius: '0 0 16px 16px',
-            border: '2px solid rgba(255,255,255,0.1)',
+            border: '2px solid rgba(255,255,255,0.15)',
             borderTop: 'none'
           }} />
           
-          {/* Sombra o número de jersey sutil en el pecho */}
+          {/* Número de jersey en el pecho */}
           <div style={{
             position: 'absolute',
-            bottom: '25px',
-            color: 'rgba(255, 255, 255, 0.15)',
-            fontSize: '32px',
+            bottom: '30px',
+            color: 'rgba(255, 255, 255, 0.2)',
+            fontSize: '36px',
             fontWeight: '900',
             fontFamily: 'sans-serif'
           }}>
