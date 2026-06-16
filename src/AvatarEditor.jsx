@@ -60,7 +60,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     try {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
-      // 🚀 PARTE MODIFICADA: Vinculamos los estados de tus botones directamente al creador de DiceBear
       const opcionesDiceBear = {
         featuresProbability: indices.accesorios === 0 ? 0 : 100,
         hairProbability: 100,
@@ -113,6 +112,83 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   const imagenSrc = obtenerDataUriAvatar();
   const colorJerseyActual = `#${OPCIONES.colorRopa[indices.colorRopa]}`;
 
+  // 🚀 INTERRUPTOR DE ESTILOS CSS SEGÚN EL TIPO DE ROPA SELECCIONADO (1 al 5)
+  const renderJerseyEstilizado = () => {
+    const tipoRopa = indices.ropa + 1; // Valores de 1 a 5
+
+    // Configuración base de hombros según el tipo
+    let widthJersey = '135px';
+    let borderRadiusJersey = '40px 40px 0 0';
+    let paddingJerseyTop = '16px';
+
+    if (tipoRopa === 2) {
+      // Tipo 2: Jersey de tirantes (corte olímpico)
+      widthJersey = '110px';
+      borderRadiusJersey = '50px 50px 0 0';
+    } else if (tipoRopa === 4) {
+      // Tipo 4: Hombros más rectos / cuadrados
+      borderRadiusJersey = '20px 20px 0 0';
+    }
+
+    return (
+      <div style={{ 
+        position: 'absolute',
+        bottom: '0',
+        width: widthJersey, 
+        height: '130px',
+        backgroundColor: colorJerseyActual, 
+        borderRadius: borderRadiusJersey,
+        zIndex: 1,
+        border: '3px solid #1e293b',
+        borderBottom: 'none',
+        boxSizing: 'border-box',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+        paddingTop: paddingJerseyTop,
+        transition: 'all 0.2s ease',
+        overflow: 'hidden' // Corta los detalles internos como las rayas de las mangas
+      }}>
+        {/* DETALLE DEL CUELLO (Cambia según el tipo de ropa) */}
+        <div style={{
+          width: tipoRopa === 3 ? '44px' : '36px', // Cuello ancho en tipo 3
+          height: tipoRopa === 5 ? '24px' : '18px', // Cuello profundo en tipo 5
+          backgroundColor: '#0f172a',
+          borderRadius: tipoRopa === 3 ? '50%' : '0 0 16px 16px', // Tipo 3 es cuello redondo, los demás tipo V
+          border: '2px solid rgba(255,255,255,0.15)',
+          borderTop: 'none',
+          boxSizing: 'border-box'
+        }} />
+
+        {/* DETALLES EXTRA (Líneas deportivas en los hombros para Tipo 1 y Tipo 4) */}
+        {(tipoRopa === 1 || tipoRopa === 4) && (
+          <>
+            <div style={{ position: 'absolute', left: '8px', top: '25px', width: '12px', height: '40px', borderLeft: '3px solid rgba(255,255,255,0.3)', borderRight: '3px solid rgba(255,255,255,0.3)' }} />
+            <div style={{ position: 'absolute', right: '8px', top: '25px', width: '12px', height: '40px', borderLeft: '3px solid rgba(255,255,255,0.3)', borderRight: '3px solid rgba(255,255,255,0.3)' }} />
+          </>
+        )}
+
+        {/* DETALLES EXTRA (Franja horizontal en el pecho para Tipo 5) */}
+        {tipoRopa === 5 && (
+          <div style={{ position: 'absolute', top: '50px', width: '100%', height: '10px', backgroundColor: 'rgba(255,255,255,0.2)' }} />
+        )}
+        
+        {/* Número de jersey en el pecho */}
+        <div style={{
+          position: 'absolute',
+          bottom: '25px',
+          color: 'rgba(255, 255, 255, 0.25)',
+          fontSize: '38px',
+          fontWeight: '900',
+          fontFamily: 'sans-serif',
+          letterSpacing: '-0.05em'
+        }}>
+          {tipoRopa}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
@@ -133,7 +209,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         justifyContent: 'flex-start',
         position: 'relative'
       }}>
-        {/* 1. SECCIÓN DE LA CABEZA (Bajada con un margen superior negativo para acoplar el cuello) */}
+        {/* 1. SECCIÓN DE LA CABEZA */}
         <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '15px' }}>
           {imagenSrc && (
             <img 
@@ -144,46 +220,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
           )}
         </div>
 
-        {/* 2. UNIFORME DEPORTIVO (Subido ligeramente para recibir la barbilla) */}
-        <div style={{ 
-          position: 'absolute',
-          bottom: '0',
-          width: '135px', 
-          height: '130px',
-          backgroundColor: colorJerseyActual, 
-          borderRadius: '40px 40px 0 0',
-          zIndex: 1,
-          border: '3px solid #1e293b',
-          borderBottom: 'none',
-          boxSizing: 'border-box',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          paddingTop: '16px',
-          transition: 'background-color 0.2s ease'
-        }}>
-          {/* Detalles del Jersey: Cuello tipo V deportivo */}
-          <div style={{
-            width: '36px',
-            height: '18px',
-            backgroundColor: '#0f172a',
-            borderRadius: '0 0 16px 16px',
-            border: '2px solid rgba(255,255,255,0.15)',
-            borderTop: 'none'
-          }} />
-          
-          {/* Número de jersey en el pecho */}
-          <div style={{
-            position: 'absolute',
-            bottom: '30px',
-            color: 'rgba(255, 255, 255, 0.2)',
-            fontSize: '36px',
-            fontWeight: '900',
-            fontFamily: 'sans-serif'
-          }}>
-            {indices.ropa + 1}
-          </div>
-        </div>
+        {/* 2. UNIFORME DEPORTIVO DINÁMICO */}
+        {renderJerseyEstilizado()}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
