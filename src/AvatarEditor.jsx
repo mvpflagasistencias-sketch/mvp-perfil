@@ -56,7 +56,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
-  // 🚀 PARTE MODIFICADA: Render nativo y apertura de plano matemático por Regex
   const obtenerDataUriAvatar = () => {
     try {
       const estiloAvatar = adventurer.adventurer || adventurer;
@@ -68,18 +67,14 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         clothingProbability: 100,
         hair: [OPCIONES.cabello[indices.cabello]], 
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
-        clothing: [OPCIONES.ropa[indices.ropa]], // Jala jersey01, jersey02, etc.
+        clothing: [OPCIONES.ropa[indices.ropa]], 
         clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
         eyebrows: [OPCIONES.expresion[indices.expresion]],
         features: indices.accesorios > 0 ? [OPCIONES.accesorios[indices.accesorios]] : []
       });
 
-      let svgString = avatar.toString();
-
-      // Forzamos al plano del SVG a extenderse hacia abajo (viewBox 0 0 100 135) para revelar la playera nativa
-      svgString = svgString.replace(/viewBox="[^"]*"/, 'viewBox="0 0 100 135"');
-
-      return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
+      // Retornamos el SVG tal cual, sin modificarle nada por código para evitar que se rompa
+      return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
       console.error("Error generando avatar local:", e);
       return '';
@@ -132,17 +127,33 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         overflow: 'hidden', 
         boxSizing: 'border-box', 
         display: 'flex', 
-        flexDirection: 'column',
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '4px'
+        position: 'relative'
       }}>
         {imagenSrc ? (
-          <img 
-            src={imagenSrc} 
-            alt="Avatar Jugador" 
-            style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
-          />
+          <div style={{
+            width: '100%',
+            height: '100%',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            {/* 🚀 SOLUCIÓN DEFINITIVA POR CSS: Como el SVG viene enfocado en la cara por defecto, 
+                escalamos la imagen completa y la bajamos para que revele el cuerpo deportivo 
+                de forma idéntica en cualquier pantalla sin corromper el código base */}
+            <img 
+              src={imagenSrc} 
+              alt="Avatar Jugador" 
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                display: 'block', 
+                objectFit: 'contain',
+                transform: 'scale(1.8) translateY(12px)',
+                transformOrigin: 'top center'
+              }}
+            />
+          </div>
         ) : (
           <div style={{ fontSize: '11px', color: '#64748b' }}>Generando...</div>
         )}
