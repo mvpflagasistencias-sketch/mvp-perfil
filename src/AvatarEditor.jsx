@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { createAvatar } from '@dicebear/core';
 import * as adventurer from '@dicebear/adventurer';
 
@@ -52,25 +52,28 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
-  const obtenerHtmlSvg = () => {
-    const estiloAvatar = adventurer.adventurer || adventurer;
-    
-    // 🚀 SOLUCIÓN: Pasamos los valores como strings planos directos (sin corchetes)
-    const avatar = createAvatar(estiloAvatar, {
-      featuresProbability: 100,
-      hairProbability: 100,
-      clothingProbability: 100,
-      hair: OPCIONES.cabello[indices.cabello],
-      hairColor: OPCIONES.colorCabello[indices.colorCabello],
-      clothing: OPCIONES.ropa[indices.ropa],
-      clothingColor: OPCIONES.colorRopa[indices.colorRopa],
-      features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [], 
-      eyebrows: OPCIONES.expresion[indices.expresion],
-      size: 100
-    });
-    
-    return { __html: avatar.toString() };
-  };
+  // 🚀 LA CLAVE: useMemo obliga al motor de DiceBear a correr de nuevo en cada cambio de índices
+  const svgPuroHTML = useMemo(() => {
+    try {
+      const estiloAvatar = adventurer.adventurer || adventurer;
+      const avatar = createAvatar(estiloAvatar, {
+        featuresProbability: 100,
+        hairProbability: 100,
+        clothingProbability: 100,
+        hair: [OPCIONES.cabello[indices.cabello]], // Intentamos con arreglo limpio para el core
+        hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
+        clothing: [OPCIONES.ropa[indices.ropa]],
+        clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
+        features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
+        eyebrows: [OPCIONES.expresion[indices.expresion]],
+        size: 100
+      });
+      return { __html: avatar.toString() };
+    } catch (e) {
+      console.error("Error building avatar", e);
+      return { __html: '' };
+    }
+  }, [indices]); // 👈 Escucha este estado estrictamente
 
   const handleGuardar = async () => {
     setGuardando(true);
@@ -105,9 +108,10 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
+      {/* 🚀 Inyección optimizada por la memoria de useMemo */}
       <div 
         style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}
-        dangerouslySetInnerHTML={obtenerHtmlSvg()}
+        dangerouslySetInnerHTML={svgPuroHTML}
       />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
