@@ -62,6 +62,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       // Mapeamos los índices numéricos a los arreglos que espera el core local
       const opcionesDiceBear = {
         size: 100,
+        scale: 85,           // 🚀 MODIFICACIÓN ÚNICA: Aleja la cámara para que el cuerpo quepa en el círculo
+        translateY: 5,       // 🚀 MODIFICACIÓN ÚNICA: Baja un poco la posición para centrar el jersey y rostro
         featuresProbability: indices.accesorios === 0 ? 0 : 100,
         hairProbability: 100,
         clothingProbability: 100,
