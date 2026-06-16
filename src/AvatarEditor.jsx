@@ -80,7 +80,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       console.error("Error building avatar", e);
       return { __html: '' };
     }
-  }, [indices]);
+  // 🚀 MODIFICACIÓN ÚNICA: Escuchamos de forma desagregada cada variable numérica para forzar la reactividad
+  }, [indices.cabello, indices.colorCabello, indices.ropa, indices.colorRopa, indices.accesorios, indices.expresion]);
 
   const handleGuardar = async () => {
     setGuardando(true);
