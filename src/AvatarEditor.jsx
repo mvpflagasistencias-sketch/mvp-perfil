@@ -73,6 +73,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         skinColor: [OPCIONES.colorPiel[indices.colorPiel]] // 🚀 Piel amarrada nativamente al motor
       };
 
+      // 🚀 AJUSTE EN ACCESORIOS: Cambiado para usar el formato de arreglo que requiere el catálogo nativo de adventurer
       if (indices.accesorios > 0) {
         opcionesDiceBear.features = [OPCIONES.accesorios[indices.accesorios]];
       }
@@ -231,6 +232,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
+        {/* 🚀 ENCUADRE FINAL PERFECTO: Bajamos el marginTop de 26px a 48px para unir la mandíbula con los trazos vectoriales cortos */}
         <div style={{ 
           width: '110px', 
           height: '110px', 
