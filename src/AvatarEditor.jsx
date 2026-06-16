@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
 import * as adventurer from '@dicebear/adventurer';
 
-// 🚀 CATÁLOGO REAL COMPATIBLE CON ADVENTURER (Corregido con las variantes de lentes y parches reales)
+// 🚀 CATÁLOGO REAL COMPATIBLE CON ADVENTURER (Corregido con las variantes reales del paquete)
 const OPCIONES = {
   cabello: ['long01', 'short01', 'short02', 'short03', 'short04', 'short05'],
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
   ropa: ['jersey01', 'jersey02', 'jersey03', 'jersey04', 'jersey05'],
   colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
-  accesorios: ['none', 'glasses01', 'glasses02', 'patch'], // 👈 ¡Arreglado! Lentes y parches reales en lugar de bigotes
+  accesorios: ['none', 'glasses', 'patch'], // 👈 ¡Arreglado! Variantes reales de la librería adventurer
   expresion: ['variant01', 'variant02', 'variant03', 'variant04'],
   colorPiel: ['f2d3b1', 'ecad80', 'c1885a', '94613c', '613b1e'] 
 };
@@ -65,15 +65,15 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
       const opcionesDiceBear = {
-        accessoriesProbability: indices.accesorios === 0 ? 0 : 100, // 👈 Se amarra la probabilidad a accessories obligatoriamente
+        featuresProbability: indices.accesorios === 0 ? 0 : 100,
         hairProbability: 100,
         hair: [OPCIONES.cabello[indices.cabello]], 
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
         eyebrows: [OPCIONES.expresion[indices.expresion]],
-        skinColor: [OPCIONES.colorPiel[indices.colorPiel]],
-        featuresProbability: 0 // 👈 Apagamos por completo los bigotes/barbas para que no interfieran jamás
+        skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
       };
 
+      // 🚀 AJUSTE AQUÍ: Cambiado 'features' por 'accessories' para activar la propiedad nativa de adventurer
       if (indices.accesorios > 0) {
         opcionesDiceBear.accessories = [OPCIONES.accesorios[indices.accesorios]];
       }
