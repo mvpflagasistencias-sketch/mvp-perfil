@@ -60,22 +60,19 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     try {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
-      const avatar = createAvatar(estiloAvatar, {
-        size: 100,
+      const opcionesDiceBear = {
         featuresProbability: indices.accesorios === 0 ? 0 : 100,
         hairProbability: 100,
-        clothingProbability: 100,
         hair: [OPCIONES.cabello[indices.cabello]], 
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
-        clothing: [OPCIONES.ropa[indices.ropa]], 
-        clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
-        eyebrows: [OPCIONES.expresion[indices.expresion]],
-        features: indices.accesorios > 0 ? [OPCIONES.accesorios[indices.accesorios]] : [],
-        // 🚀 SE CONFIGURA DE FORMA NATIVA: Le decimos a DiceBear que expanda el lienzo vertical del SVG
-        // para que quepa todo el torso sin tener que meter replaces ni hacks externos.
-        viewBox: [0, 0, 100, 135]
-      });
+        eyebrows: [OPCIONES.expresion[indices.expresion]]
+      };
 
+      if (indices.accesorios > 0) {
+        opcionesDiceBear.features = [OPCIONES.accesorios[indices.accesorios]];
+      }
+
+      const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
       return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
       console.error("Error generando avatar local:", e);
@@ -113,6 +110,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   };
 
   const imagenSrc = obtenerDataUriAvatar();
+  const colorJerseyActual = `#${OPCIONES.colorRopa[indices.colorRopa]}`;
 
   return (
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
@@ -129,23 +127,62 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         overflow: 'hidden', 
         boxSizing: 'border-box', 
         display: 'flex', 
+        flexDirection: 'column',
         alignItems: 'center', 
-        justifyContent: 'center'
+        justifyContent: 'flex-start',
+        position: 'relative'
       }}>
-        {imagenSrc ? (
-          <img 
-            src={imagenSrc} 
-            alt="Avatar Jugador" 
-            style={{ 
-              width: '100%', 
-              height: '100%', 
-              display: 'block', 
-              objectFit: 'contain' // Se ajusta perfectamente al alto de tu tarjeta azul
-            }}
-          />
-        ) : (
-          <div style={{ fontSize: '11px', color: '#64748b' }}>Generando...</div>
-        )}
+        {/* 1. SECCIÓN DE LA CABEZA (Bajada con un margen superior negativo para acoplar el cuello) */}
+        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '15px' }}>
+          {imagenSrc && (
+            <img 
+              src={imagenSrc} 
+              alt="Rostro" 
+              style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
+            />
+          )}
+        </div>
+
+        {/* 2. UNIFORME DEPORTIVO (Subido ligeramente para recibir la barbilla) */}
+        <div style={{ 
+          position: 'absolute',
+          bottom: '0',
+          width: '135px', // Hombros un poco más anchos para llenar la tarjeta
+          height: '130px',
+          backgroundColor: colorJerseyActual, 
+          borderRadius: '40px 40px 0 0',
+          zIndex: 1,
+          border: '3px solid #1e293b',
+          borderBottom: 'none',
+          boxSizing: 'border-box',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          paddingTop: '16px',
+          transition: 'background-color 0.2s ease'
+        }}>
+          {/* Detalles del Jersey: Cuello tipo V deportivo */}
+          <div style={{
+            width: '36px',
+            height: '18px',
+            backgroundColor: '#0f172a',
+            borderRadius: '0 0 16px 16px',
+            border: '2px solid rgba(255,255,255,0.15)',
+            borderTop: 'none'
+          }} />
+          
+          {/* Número de jersey en el pecho */}
+          <div style={{
+            position: 'absolute',
+            bottom: '30px',
+            color: 'rgba(255, 255, 255, 0.2)',
+            fontSize: '36px',
+            fontWeight: '900',
+            fontFamily: 'sans-serif'
+          }}>
+            {indices.ropa + 1}
+          </div>
+        </div>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
