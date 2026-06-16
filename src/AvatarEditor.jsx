@@ -32,7 +32,11 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const hairColorConfig = Array.isArray(configInicial.hairColor) ? configInicial.hairColor[0] : configInicial.hairColor;
       const clothingConfig = Array.isArray(configInicial.clothing) ? configInicial.clothing[0] : configInicial.clothing;
       const clothingColorConfig = Array.isArray(configInicial.clothingColor) ? configInicial.clothingColor[0] : configInicial.clothingColor;
-      const featuresConfig = Array.isArray(configInicial.features) ? configInicial.features[0] : configInicial.features;
+      
+      // Intentamos leer tanto de 'accessories' como de 'features' por retrocompatibilidad
+      const rawAccessories = configInicial.accessories || configInicial.features;
+      const featuresConfig = Array.isArray(rawAccessories) ? rawAccessories[0] : rawAccessories;
+      
       const eyebrowsConfig = Array.isArray(configInicial.eyebrows) ? configInicial.eyebrows[0] : configInicial.eyebrows;
       const skinColorConfig = Array.isArray(configInicial.skinColor) ? configInicial.skinColor[0] : configInicial.skinColor;
 
@@ -41,6 +45,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         colorCabello: OPCIONES.colorCabello.indexOf(hairColorConfig) >= 0 ? OPCIONES.colorCabello.indexOf(hairColorConfig) : 0,
         ropa: OPCIONES.ropa.indexOf(clothingConfig) >= 0 ? OPCIONES.ropa.indexOf(clothingConfig) : 0,
         colorRopa: OPCIONES.colorRopa.indexOf(clothingColorConfig) >= 0 ? OPCIONES.colorRopa.indexOf(clothingColorConfig) : 0,
+        // 🚀 CORRECCIÓN AQUÍ: Si el valor guardado no coincide con el nuevo catálogo, se fuerza por defecto un índice seguro de 0 (none)
         accesorios: OPCIONES.accesorios.indexOf(featuresConfig) >= 0 ? OPCIONES.accesorios.indexOf(featuresConfig) : 0,
         expresion: OPCIONES.expresion.indexOf(eyebrowsConfig) >= 0 ? OPCIONES.expresion.indexOf(eyebrowsConfig) : 0,
         colorPiel: OPCIONES.colorPiel.indexOf(skinColorConfig) >= 0 ? OPCIONES.colorPiel.indexOf(skinColorConfig) : 2,
@@ -94,7 +99,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
         clothing: [OPCIONES.ropa[indices.ropa]],
         clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
-        features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
+        // 🚀 CORRECCIÓN AQUÍ: Guardamos bajo la clave correcta 'accessories' esperada por el backend y el motor
+        accessories: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
         eyebrows: [OPCIONES.expresion[indices.expresion]],
         skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
       };
