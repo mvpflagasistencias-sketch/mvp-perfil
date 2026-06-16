@@ -8,7 +8,7 @@ const OPCIONES = {
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
   ropa: ['jersey01', 'jersey02', 'jersey03', 'jersey04', 'jersey05'],
   colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
-  accesorios: ['none', 'glasses', 'patch'], // 👈 ¡Arreglado! Variantes reales de la librería adventurer
+  accesorios: ['none', 'glasses', 'patch'], // 👈 Variantes reales de la librería adventurer
   expresion: ['variant01', 'variant02', 'variant03', 'variant04'],
   colorPiel: ['f2d3b1', 'ecad80', 'c1885a', '94613c', '613b1e'] 
 };
@@ -65,8 +65,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
       const opcionesDiceBear = {
-        accessoriesProbability: indices.accesorios === 0 ? 0 : 100, // 🚀 NUEVO: Activa los lentes nativos al 100%
-        featuresProbability: 0, // 🚀 NUEVO: Apaga los bigotes por completo para que no se repitan
+        accessoriesProbability: indices.accesorios === 0 ? 0 : 100, // 🚀 Ajuste: Controla lentes nativos
+        featuresProbability: 0, // 🚀 Ajuste: Apaga bigotes permanentes
         hairProbability: 100,
         hair: [OPCIONES.cabello[indices.cabello]], 
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
@@ -74,12 +74,11 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
       };
 
-      // 🚀 AJUSTE AQUÍ: Cambiado 'features' por 'accessories' para activar la propiedad nativa de adventurer
       if (indices.accesorios > 0) {
-        opcionesDiceBear.accessories = [OPCIONES.accesorios[indices.accesorios]];
+        opcionesDiceBear.accessories = [OPCIONES.accesorios[indices.accesorios]]; // 🚀 Ajuste: Pasa los lentes o parche
       }
 
-      const avatar = createAvatar(styleAvatar => estiloAvatar, opcionesDiceBear);
+      const avatar = createAvatar(estiloAvatar, opcionesDiceBear); // 👈 Corregido el renderizador nativo
       return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
       console.error("Error generando avatar local:", e);
