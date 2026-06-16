@@ -62,6 +62,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
       const opcionesDiceBear = {
+        // 🚀 MODIFICACIÓN ÚNICA: Reducimos la escala global y subimos la posición para meter torso y cabeza juntos
+        scale: 60,
+        translateY: -10,
         featuresProbability: indices.accesorios === 0 ? 0 : 100,
         hairProbability: 100,
         clothingProbability: 100,
