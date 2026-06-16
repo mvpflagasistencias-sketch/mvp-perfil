@@ -8,7 +8,7 @@ const OPCIONES = {
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
   ropa: ['jersey01', 'jersey02', 'jersey03', 'jersey04', 'jersey05'],
   colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
-  accesorios: ['none', 'glasses', 'patch'], // 👈 Variantes reales de la librería adventurer
+  accesorios: ['none', 'glasses01', 'eyepatch'], // 👈 ¡Cambiaste 'glasses' por 'glasses01' y 'patch' por 'eyepatch'!
   expresion: ['variant01', 'variant02', 'variant03', 'variant04'],
   colorPiel: ['f2d3b1', 'ecad80', 'c1885a', '94613c', '613b1e'] 
 };
