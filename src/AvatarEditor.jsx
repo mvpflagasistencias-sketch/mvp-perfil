@@ -121,18 +121,19 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     return (
       <div style={{ 
         position: 'absolute',
-        bottom: '10px',
+        bottom: '-15px', // 🚀 CORRECCIÓN 1: Bajamos un poco el SVG completo para que la playera llene el fondo de la tarjeta
         width: '150px',
         height: '140px',
         zIndex: 1,
         transition: 'all 0.2s ease'
       }}>
-        <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%' }}>
+        {/* Usamos transform para desplazar todo el vector del cuerpo hacia arriba de forma limpia */}
+        <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%', transform: 'translateY(-12px)' }}>
           
-          {/* 🚀 LÍNEAS DEL CUELLO INTEGRADAS AL SVG: Centradas milimétricamente en el eje X (coordenadas 53 y 67) 
-              para que salgan directamente desde adentro de la "V" del jersey hacia arriba */}
-          <path d="M 53,35 L 53,16" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
-          <path d="M 67,35 L 67,16" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
+          {/* 🚀 CORRECCIÓN 2: Acortamos drásticamente el trazo vertical. Ahora el cuello solo mide 7px de alto 
+              (va desde el inicio en Y=35 hasta Y=28) para cerrar el hueco feo de inmediato. */}
+          <path d="M 53,35 L 53,28" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
+          <path d="M 67,35 L 67,28" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
 
           {/* Silueta base del jersey */}
           <path 
@@ -225,16 +226,15 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         justifyContent: 'flex-start',
         position: 'relative'
       }}>
-        {/* 1. SECCIÓN DE LA CABEZA (Limpia, sin divs absolutos flotando encima) */}
-        {/* 🚀 ALINEACIÓN DE LA CÁMARA: Se ajusta el marginTop a 22px y agregamos una propiedad transform 
-            para centrar milimétricamente el rostro exactamente encima de los trazos del cuello */}
+        {/* 1. SECCIÓN DE LA CABEZA */}
+        {/* 🚀 CORRECCIÓN 3: Ajustamos el marginTop a 26px para que la cabeza baje lo suficiente y cierre la distancia, 
+            conectando perfectamente las puntas de las dos líneas del cuello con la mandíbula */}
         <div style={{ 
           width: '110px', 
           height: '110px', 
           zIndex: 2, 
           position: 'relative', 
-          marginTop: '22px',
-          transform: 'translateX(2px)' 
+          marginTop: '26px'
         }}>
           {imagenSrc && (
             <img 
