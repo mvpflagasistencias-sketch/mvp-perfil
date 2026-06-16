@@ -112,79 +112,98 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   const imagenSrc = obtenerDataUriAvatar();
   const colorJerseyActual = `#${OPCIONES.colorRopa[indices.colorRopa]}`;
 
-  // 🚀 INTERRUPTOR DE ESTILOS CSS SEGÚN EL TIPO DE ROPA SELECCIONADO (1 al 5)
+  // 🚀 GENERADOR DE UNIFORMES REALISTAS EN SVG (Mapeado de 1 a 5)
   const renderJerseyEstilizado = () => {
-    const tipoRopa = indices.ropa + 1; // Valores de 1 a 5
+    const tipoRopa = indices.ropa + 1;
 
-    // Configuración base de hombros según el tipo
-    let widthJersey = '135px';
-    let borderRadiusJersey = '40px 40px 0 0';
-    let paddingJerseyTop = '16px';
-
-    if (tipoRopa === 2) {
-      // Tipo 2: Jersey de tirantes (corte olímpico)
-      widthJersey = '110px';
-      borderRadiusJersey = '50px 50px 0 0';
-    } else if (tipoRopa === 4) {
-      // Tipo 4: Hombros más rectos / cuadrados
-      borderRadiusJersey = '20px 20px 0 0';
-    }
+    // Colores secundarios automáticos basados en la paleta para franjas y detalles
+    const colorDetalles = '#ffffff';
+    const colorSombras = 'rgba(0, 0, 0, 0.15)';
+    const colorBordeNegro = '#1a1a1a'; // Hace match con los bordes de la cabeza de DiceBear
 
     return (
       <div style={{ 
         position: 'absolute',
-        bottom: '0',
-        width: widthJersey, 
-        height: '130px',
-        backgroundColor: colorJerseyActual, 
-        borderRadius: borderRadiusJersey,
+        bottom: '-5px',
+        width: '150px',
+        height: '140px',
         zIndex: 1,
-        border: '3px solid #1e293b',
-        borderBottom: 'none',
-        boxSizing: 'border-box',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'flex-start',
-        paddingTop: paddingJerseyTop,
-        transition: 'all 0.2s ease',
-        overflow: 'hidden' // Corta los detalles internos como las rayas de las mangas
+        transition: 'all 0.2s ease'
       }}>
-        {/* DETALLE DEL CUELLO (Cambia según el tipo de ropa) */}
-        <div style={{
-          width: tipoRopa === 3 ? '44px' : '36px', // Cuello ancho en tipo 3
-          height: tipoRopa === 5 ? '24px' : '18px', // Cuello profundo en tipo 5
-          backgroundColor: '#0f172a',
-          borderRadius: tipoRopa === 3 ? '50%' : '0 0 16px 16px', // Tipo 3 es cuello redondo, los demás tipo V
-          border: '2px solid rgba(255,255,255,0.15)',
-          borderTop: 'none',
-          boxSizing: 'border-box'
-        }} />
+        <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%' }}>
+          {/* 1. SILUETA BASE DEL CUERPO (Hombros caídos con curvas orgánicas) */}
+          <path 
+            d="M 25,100 C 25,60 35,42 45,35 C 50,32 70,32 75,35 C 85,42 95,60 95,100 Z" 
+            fill={colorJerseyActual} 
+            stroke={colorBordeNegro} 
+            strokeWidth="3.5"
+            strokeLinejoin="round"
+          />
 
-        {/* DETALLES EXTRA (Líneas deportivas en los hombros para Tipo 1 y Tipo 4) */}
-        {(tipoRopa === 1 || tipoRopa === 4) && (
-          <>
-            <div style={{ position: 'absolute', left: '8px', top: '25px', width: '12px', height: '40px', borderLeft: '3px solid rgba(255,255,255,0.3)', borderRight: '3px solid rgba(255,255,255,0.3)' }} />
-            <div style={{ position: 'absolute', right: '8px', top: '25px', width: '12px', height: '40px', borderLeft: '3px solid rgba(255,255,255,0.3)', borderRight: '3px solid rgba(255,255,255,0.3)' }} />
-          </>
-        )}
+          {/* 2. DISEÑOS DINÁMICOS SEGÚN EL TIPO SELECCIONADO */}
+          {tipoRopa === 1 && (
+            /* Tipo 1: Franjas dobles en hombros (Estilo Football Clásico) */
+            <>
+              <path d="M 28,65 C 30,52 35,45 40,41" fill="none" stroke={colorDetalles} strokeWidth="4" opacity="0.8" />
+              <path d="M 92,65 C 90,52 85,45 80,41" fill="none" stroke={colorDetalles} strokeWidth="4" opacity="0.8" />
+            </>
+          )}
 
-        {/* DETALLES EXTRA (Franja horizontal en el pecho para Tipo 5) */}
-        {tipoRopa === 5 && (
-          <div style={{ position: 'absolute', top: '50px', width: '100%', height: '10px', backgroundColor: 'rgba(255,255,255,0.2)' }} />
-        )}
-        
-        {/* Número de jersey en el pecho */}
-        <div style={{
-          position: 'absolute',
-          bottom: '25px',
-          color: 'rgba(255, 255, 255, 0.25)',
-          fontSize: '38px',
-          fontWeight: '900',
-          fontFamily: 'sans-serif',
-          letterSpacing: '-0.05em'
-        }}>
-          {tipoRopa}
-        </div>
+          {tipoRopa === 2 && (
+            /* Tipo 2: Jersey de Tirantes / Corte Olímpico (Flag Pro) */
+            <>
+              {/* Sisa izquierda y derecha (recortes oscuros que simulan el espacio sin mangas) */}
+              <path d="M 23,100 C 24,68 33,52 38,44" fill="none" stroke={colorSombras} strokeWidth="6" />
+              <path d="M 97,100 C 96,68 87,52 82,44" fill="none" stroke={colorSombras} strokeWidth="6" />
+            </>
+          )}
+
+          {tipoRopa === 3 && (
+            /* Tipo 3: Franja gruesa de Capitán en el pecho */
+            <path d="M 27,62 C 40,58 80,58 93,62 L 94,74 C 80,70 40,70 26,74 Z" fill={colorDetalles} opacity="0.85" />
+          )}
+
+          {tipoRopa === 4 && (
+            /* Tipo 4: Cuello redondo amplio con bordes deportivos alternos */
+            <path d="M 45,35 C 48,45 72,45 75,35 C 72,48 48,48 45,35" fill={colorDetalles} />
+          )}
+
+          {tipoRopa === 5 && (
+            /* Tipo 5: Líneas de costura de compresión estilizadas (Look Under Armour) */
+            <>
+              <path d="M 42,36 C 44,55 40,75 32,95" fill="none" stroke={colorSombras} strokeWidth="2.5" />
+              <path d="M 78,36 C 76,55 80,75 88,95" fill="none" stroke={colorSombras} strokeWidth="2.5" />
+            </>
+          )}
+
+          {/* 3. ARRUGAS DE LA TELA (Le da el realismo en las axilas y caídas) */}
+          <path d="M 29,82 C 34,80 36,83 34,86" fill="none" stroke={colorSombras} strokeWidth="2" strokeLinecap="round" />
+          <path d="M 91,82 C 86,80 84,83 86,86" fill="none" stroke={colorSombras} strokeWidth="2" strokeLinecap="round" />
+
+          {/* 4. SOMBRA DEL CUELLO (Proyecta profundidad abajo de la barbilla) */}
+          <path d="M 45,35 C 50,42 70,42 75,35 Z" fill={colorSombras} />
+
+          {/* 5. EL CUELLO EN V (Se acopla físicamente al rostro de arriba) */}
+          <path 
+            d="M 46,34 L 60,46 L 74,34" 
+            fill="none" 
+            stroke={colorBordeNegro} 
+            strokeWidth="3.5" 
+            strokeLinecap="round"
+          />
+
+          {/* 6. DORSAL / NÚMERO DE JUEGO (Centrado de forma realista en el pecho) */}
+          <text 
+            x="60" 
+            y="78" 
+            textAnchor="middle" 
+            fill={colorDetalles} 
+            opacity="0.25"
+            style={{ fontSize: '26px', fontWeight: '900', fontFamily: 'Impact, sans-serif', letterSpacing: '-0.5px' }}
+          >
+            {tipoRopa}
+          </text>
+        </svg>
       </div>
     );
   };
@@ -210,7 +229,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '15px' }}>
+        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '14px' }}>
           {imagenSrc && (
             <img 
               src={imagenSrc} 
@@ -220,7 +239,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
           )}
         </div>
 
-        {/* 2. UNIFORME DEPORTIVO DINÁMICO */}
+        {/* 2. UNIFORME DEPORTIVO VECTORIAL DINÁMICO */}
         {renderJerseyEstilizado()}
       </div>
 
