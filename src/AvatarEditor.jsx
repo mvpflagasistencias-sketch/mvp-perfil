@@ -128,11 +128,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         transition: 'all 0.2s ease'
       }}>
         <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%' }}>
-          
-          {/* 🚀 LAS DOS LÍNEAS DEL CUELLO (Exactamente como en tu dibujo de edited-image_8.png) */}
-          <path d="M 49,35 L 49,15" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
-          <path d="M 71,35 L 71,15" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
-
           {/* Silueta base del jersey */}
           <path 
             d="M 25,100 C 25,60 35,42 45,35 C 50,32 70,32 75,35 C 85,42 95,60 95,100 Z" 
@@ -224,14 +219,23 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         justifyContent: 'flex-start',
         position: 'relative'
       }}>
-        {/* 1. SECCIÓN DE LA CABEZA */}
-        {/* Ajustado a 20px para que encuadre perfectamente la base del cráneo con las líneas nuevas */}
-        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '20px' }}>
+        {/* 1. SECCIÓN DE LA CABEZA CON LÍNEAS CSS REALES */}
+        <div style={{ 
+          width: '110px', 
+          height: '110px', 
+          zIndex: 2, 
+          position: 'relative', 
+          marginTop: '22px' 
+        }}>
+          {/* 🚀 DOS LÍNEAS FINAS EN CSS: Pintadas simétricamente atrás del rostro para simular el cuello apenas visible */}
+          <div style={{ position: 'absolute', left: '42px', bottom: '-12px', width: '3.5px', height: '16px', backgroundColor: '#1a1a1a', zIndex: 1 }} />
+          <div style={{ position: 'absolute', right: '42px', bottom: '-12px', width: '3.5px', height: '16px', backgroundColor: '#1a1a1a', zIndex: 1 }} />
+
           {imagenSrc && (
             <img 
               src={imagenSrc} 
               alt="Rostro" 
-              style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
+              style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain', position: 'relative', zIndex: 2 }}
             />
           )}
         </div>
