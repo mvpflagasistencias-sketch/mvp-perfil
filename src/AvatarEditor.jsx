@@ -75,7 +75,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
       return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
-      console.error("Error generating avatar local:", e);
+      console.error("Error generando avatar local:", e);
       return '';
     }
   };
@@ -130,9 +130,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       }}>
         <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%' }}>
           
-          {/* 🚀 CUELLO CALIBRADO: Recortamos la altura de 22 a 30 para que sea un cuello corto y estético */}
+          {/* 🚀 CUELLO REDUCIDO: Ahora es solo una pequeña cuña que se asoma sutilmente en la V del jersey */}
           <path 
-            d="M 52,35 L 52,30 C 52,30 60,27 68,30 L 68,35 Z" 
+            d="M 54,35 L 54,32 C 54,32 60,30 66,32 L 66,35 Z" 
             fill={colorPielCuello} 
             stroke={colorBordeNegro} 
             strokeWidth="3.5"
@@ -231,8 +231,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        {/* 🚀 MARGEN CALIBRADO: Lo dejamos en 24px para que la barbilla monte perfecto sobre el cuello corto */}
-        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '24px' }}>
+        {/* 🚀 ENCUADRE CORREGIDO: Bajamos el marginTop a 32px para que la barbilla se siente directamente sobre la V del uniforme, ocultando el exceso */}
+        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '32px' }}>
           {imagenSrc && (
             <img 
               src={imagenSrc} 
