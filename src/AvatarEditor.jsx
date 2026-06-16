@@ -225,15 +225,13 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        {/* 🚀 ACOPLE MILIMÉTRICO FINAL: Ajustado a 58px para bajar el rostro por completo y pegarlo  
-            directamente con los bordes del cuello, y un leve transform en X para centrar el mentón */}
+        {/* 🚀 ENCUADRE FINAL PERFECTO: Bajamos el marginTop de 26px a 48px para unir la mandíbula con los trazos vectoriales cortos */}
         <div style={{ 
           width: '110px', 
           height: '110px', 
           zIndex: 2, 
           position: 'relative', 
-          marginTop: '58px',
-          transform: 'translateX(2px)'
+          marginTop: '48px'
         }}>
           {imagenSrc && (
             <img 
