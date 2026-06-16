@@ -121,7 +121,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     return (
       <div style={{ 
         position: 'absolute',
-        // 🚀 AJUSTE visual 1: Subimos el bloque del jersey completo 15px hacia arriba para recibir la cabeza
         bottom: '10px',
         width: '150px',
         height: '140px',
@@ -221,8 +220,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        {/* 🚀 AJUSTE VISUAL 2: Aumentamos el marginTop de 14px a 28px para acoplar la barbilla directo en el cuello del SVG */}
-        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '28px' }}>
+        {/* 🚀 MODIFICACIÓN DE ENCUADRE: Subimos el marginTop a 42px para bajar la cabeza de forma exacta sobre los hombros */}
+        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '42px' }}>
           {imagenSrc && (
             <img 
               src={imagenSrc} 
