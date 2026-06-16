@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
+import { createAvatar } from '@dicebear/core';
+import * as adventurer from '@dicebear/adventurer';
 
-// 🚀 OPCIONES OFICIALES COMPATIBLES AL 100% CON LA API DE LORELEI V9
+// 🚀 CATÁLOGO REAL COMPATIBLE CON ADVENTURER: Nombres exactos de los vectores de ropa y cabello
 const OPCIONES = {
-  cabello: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5', 'variant6'],
-  colorCabello: ['01', '02', '03', '04', '05'], // Índices numéricos directos para colores de la API
-  ropa: ['variant1', 'variant2', 'variant3', 'variant4', 'variant5'],
-  colorRopa: ['01', '02', '03', '04', '05'],    // Índices numéricos directos para colores de la API
-  accesorios: ['none', 'variant1', 'variant2', 'variant3'],
-  expresion: ['variant1', 'variant2', 'variant3', 'variant4']
+  cabello: ['long01', 'short01', 'short02', 'short03', 'short04', 'short05'],
+  colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
+  ropa: ['jersey01', 'jersey02', 'jersey03', 'jersey04', 'jersey05'],
+  colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
+  accesorios: ['none', 'variant01', 'variant02', 'variant03'],
+  expresion: ['variant01', 'variant02', 'variant03', 'variant04']
 };
 
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
@@ -54,29 +56,51 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     });
   };
 
-  // 🚀 CONSTRUCCIÓN DE URL DE ACUERDO A DOCUMENTACIÓN ESTRICTA HTTP V9
-  const hair = OPCIONES.cabello[indices.cabello];
-  const hairColor = OPCIONES.colorCabello[indices.colorCabello];
-  const clothing = OPCIONES.ropa[indices.ropa];
-  const clothingColor = OPCIONES.colorRopa[indices.colorRopa];
-  const eyebrows = OPCIONES.expresion[indices.expresion];
-  
-  // Manejo de accesorios en Lorelei de forma segura
-  const glassesParam = OPCIONES.accesorios[indices.accesorios] !== 'none' ? `&glasses=${OPCIONES.accesorios[indices.accesorios]}&glassesProbability=100` : '&glassesProbability=0';
+  // 🚀 RENDER LOCAL SEGURO: Genera el string SVG manipulando el viewBox para abrir la toma vertical
+  const obtenerDataUriAvatar = () => {
+    try {
+      const estiloAvatar = adventurer.adventurer || adventurer;
+      
+      const opcionesDiceBear = {
+        featuresProbability: indices.accesorios === 0 ? 0 : 100,
+        hairProbability: 100,
+        clothingProbability: 100,
+        hair: [OPCIONES.cabello[indices.cabello]], 
+        hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
+        clothing: [OPCIONES.ropa[indices.ropa]], // Pasa el jersey real (jersey01, etc.)
+        clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
+        eyebrows: [OPCIONES.expresion[indices.expresion]]
+      };
 
-  // Armado final limpio de la URL
-  const urlAvatarNube = `https://api.dicebear.com/9.x/lorelei/svg?hair=${hair}&hairColor=${hairColor}&clothing=${clothing}&clothingColor=${clothingColor}&eyebrows=${eyebrows}${glassesParam}`;
+      if (indices.accesorios > 0) {
+        opcionesDiceBear.features = [OPCIONES.accesorios[indices.accesorios]];
+      }
+
+      const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
+      let svgString = avatar.toString();
+
+      // Forzamos al plano matemático del SVG a estirarse verticalmente para mostrar el uniforme completo
+      if (svgString.includes('viewBox="0 0 100 100"')) {
+        svgString = svgString.replace('viewBox="0 0 100 100"', 'viewBox="0 0 100 140"');
+      }
+
+      return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
+    } catch (e) {
+      console.error("Error generando avatar local:", e);
+      return '';
+    }
+  };
 
   const handleGuardar = async () => {
     setGuardando(true);
     try {
       const configAEnviar = {
-        hair: OPCIONES.cabello[indices.cabello],
-        hairColor: OPCIONES.colorCabello[indices.colorCabello],
-        clothing: OPCIONES.ropa[indices.ropa],
-        clothingColor: OPCIONES.colorRopa[indices.colorRopa],
-        features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? OPCIONES.accesorios[indices.accesorios] : 'none',
-        eyebrows: OPCIONES.expresion[indices.expresion]
+        hair: [OPCIONES.cabello[indices.cabello]],
+        hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
+        clothing: [OPCIONES.ropa[indices.ropa]],
+        clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
+        features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
+        eyebrows: [OPCIONES.expresion[indices.expresion]]
       };
       
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
@@ -86,7 +110,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       });
 
       if (!response.ok) throw new Error("Error en servidor");
-      alert("✅ ¡Avatar de cuerpo completo guardado!");
+      alert("✅ ¡Avatar deportivo guardado!");
       if (onGuardarExito) onGuardarExito(configAEnviar);
     } catch (err) {
       console.error("Error al guardar avatar:", err);
@@ -95,6 +119,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       setGuardando(false);
     }
   };
+
+  const imagenSrc = obtenerDataUriAvatar();
 
   return (
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
@@ -112,14 +138,17 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
-        padding: '8px'
+        padding: '12px'
       }}>
-        <img 
-          src={urlAvatarNube} 
-          alt="Avatar" 
-          style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
-          key={urlAvatarNube} // Rompe el cache en cada click al instante
-        />
+        {imagenSrc ? (
+          <img 
+            src={imagenSrc} 
+            alt="Avatar Personaje" 
+            style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
+          />
+        ) : (
+          <div style={{ fontSize: '11px', color: '#64748b' }}>Generando...</div>
+        )}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
