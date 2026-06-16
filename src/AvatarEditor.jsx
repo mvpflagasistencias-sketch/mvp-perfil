@@ -75,7 +75,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
       return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
-      console.error("Error generando avatar local:", e);
+      console.error("Error generating avatar local:", e);
       return '';
     }
   };
@@ -117,8 +117,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     const colorDetalles = '#ffffff';
     const colorSombras = 'rgba(0, 0, 0, 0.15)';
     const colorBordeNegro = '#1a1a1a';
-    
-    // Color de piel adaptado al tono oscuro del personaje para simular el cuello
     const colorPielCuello = '#a56c40'; 
 
     return (
@@ -132,9 +130,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       }}>
         <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%' }}>
           
-          {/* 🚀 NUEVO: CUELLO ANATÓMICO DE FONDO (Conecta la barbilla al jersey) */}
+          {/* 🚀 CUELLO CALIBRADO: Recortamos la altura de 22 a 30 para que sea un cuello corto y estético */}
           <path 
-            d="M 50,35 L 50,22 C 50,22 60,18 70,22 L 70,35 Z" 
+            d="M 52,35 L 52,30 C 52,30 60,27 68,30 L 68,35 Z" 
             fill={colorPielCuello} 
             stroke={colorBordeNegro} 
             strokeWidth="3.5"
@@ -233,8 +231,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        {/* 🚀 SE CALIBRA EL MARGEN: Regresamos a 18px para levantar la cabeza lo justo y dejar ver el cuello vectorial */}
-        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '18px' }}>
+        {/* 🚀 MARGEN CALIBRADO: Lo dejamos en 24px para que la barbilla monte perfecto sobre el cuello corto */}
+        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '24px' }}>
           {imagenSrc && (
             <img 
               src={imagenSrc} 
