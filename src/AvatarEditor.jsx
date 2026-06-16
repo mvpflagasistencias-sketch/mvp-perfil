@@ -37,15 +37,22 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     }
   }, [configInicial]);
 
+  // 🚀 INTERRUPTOR CORREGIDO: Forzamos la creación de una nueva referencia en memoria (Inmutabilidad pura)
   const cambiarOpcion = (key, direccion) => {
-    const max = OPCIONES[key].length;
-    let nuevoIndex = indices[key] + direccion;
-    if (nuevoIndex < 0) nuevoIndex = max - 1;
-    if (nuevoIndex >= max) nuevoIndex = 0;
-    setIndices({ ...indices, [key]: nuevoIndex });
+    setIndices((prev) => {
+      const max = OPCIONES[key].length;
+      let nuevoIndex = prev[key] + direccion;
+      
+      if (nuevoIndex < 0) nuevoIndex = max - 1;
+      if (nuevoIndex >= max) nuevoIndex = 0;
+      
+      return {
+        ...prev,
+        [key]: nuevoIndex
+      };
+    });
   };
 
-  // 🚀 PASO CLAVE: Construimos el SVG de forma limpia devolviendo el objeto html directo
   const obtenerHtmlSvg = () => {
     const estiloAvatar = adventurer.adventurer || adventurer;
     const avatar = createAvatar(estiloAvatar, {
@@ -97,7 +104,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      {/* 🚀 SOLUCIÓN DEFINITIVA: Al pasarle la ejecución reactiva directa del objeto, forzamos a React a romper la caché del DOM en cada flechazo */}
       <div 
         style={{ width: '120px', height: '120px', backgroundColor: '#0f172a', borderRadius: '50%', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}
         dangerouslySetInnerHTML={obtenerHtmlSvg()}
