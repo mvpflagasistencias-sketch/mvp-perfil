@@ -4,8 +4,10 @@ import RegistroJugador from './RegistroJugador';
 import PerfilJugador from './PerfilJugador';
 
 function App() {
-  // view puede ser: 'login', 'registro', o 'perfil'
-  const [view, setView] = useState('login');
+  // 🚀 MODIFICACIÓN ÚNICA: Validamos si hay token para mantener la vista en perfil tras un F5
+  const [view, setView] = useState(() => {
+    return localStorage.getItem('atleta_token') ? 'perfil' : 'login';
+  });
 
   return (
     <div className="min-h-screen bg-slate-900">
