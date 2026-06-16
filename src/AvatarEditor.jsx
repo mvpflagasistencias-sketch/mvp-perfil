@@ -65,7 +65,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
       const opcionesDiceBear = {
-        featuresProbability: indices.accesorios === 0 ? 0 : 100,
+        accessoriesProbability: indices.accesorios === 0 ? 0 : 100, // 🚀 NUEVO: Activa los lentes nativos al 100%
+        featuresProbability: 0, // 🚀 NUEVO: Apaga los bigotes por completo para que no se repitan
         hairProbability: 100,
         hair: [OPCIONES.cabello[indices.cabello]], 
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
@@ -78,7 +79,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         opcionesDiceBear.accessories = [OPCIONES.accesorios[indices.accesorios]];
       }
 
-      const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
+      const avatar = createAvatar(styleAvatar => estiloAvatar, opcionesDiceBear);
       return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
       console.error("Error generando avatar local:", e);
