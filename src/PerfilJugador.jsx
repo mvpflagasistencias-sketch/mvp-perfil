@@ -88,7 +88,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       {/* 🚀 CONTENEDOR FLEX ENVOLVENTE: Separa el Editor de la Credencial en pantallas grandes */}
       <div style={{
         display: 'flex',
-        flexDirection: 'row-reverse', // Cambia a 'column' en móviles si es necesario, flex-wrap ayuda
+        flexDirection: 'row-reverse', 
         flexWrap: 'wrap',
         gap: '40px',
         justifyContent: 'center',
@@ -99,7 +99,9 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         {/* 🔵 ESTE ES EL PANEL DEL AVATAR (ZONA DEL CÍRCULO AZUL GRANDE) */}
         <div style={{ flex: '1', minWidth: '320px', maxWidth: '380px' }}>
+          {/* 🚀 MODIFICACIÓN ÚNICA: Añadimos una key estática basada en el ID del jugador para congelar las props iniciales y evitar el bucle de reseteo del render */}
           <AvatarEditor 
+            key={`editor-atleta-${perfil.id}`}
             jugadorId={perfil.id} 
             configInicial={perfil.avatar_config} 
             onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
@@ -135,8 +137,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                 <div style={{ color: '#374151', fontSize: '10px', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>SIN FOTO</div>
               )}
             </div>
-            
-            {/* 🔴 EL CONTENEDOR CHIQUITO DEL CÍRCULO NEGRO FUE REMOVIDO PARA DEJAR LA INTERFAZ LIMPIA */}
           </div>
 
           {/* Info Jugador */}
