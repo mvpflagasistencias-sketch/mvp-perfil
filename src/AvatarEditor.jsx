@@ -112,26 +112,24 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   const imagenSrc = obtenerDataUriAvatar();
   const colorJerseyActual = `#${OPCIONES.colorRopa[indices.colorRopa]}`;
 
-  // 🚀 GENERADOR DE UNIFORMES REALISTAS EN SVG (Mapeado de 1 a 5)
   const renderJerseyEstilizado = () => {
     const tipoRopa = indices.ropa + 1;
-
-    // Colores secundarios automáticos basados en la paleta para franjas y detalles
     const colorDetalles = '#ffffff';
     const colorSombras = 'rgba(0, 0, 0, 0.15)';
-    const colorBordeNegro = '#1a1a1a'; // Hace match con los bordes de la cabeza de DiceBear
+    const colorBordeNegro = '#1a1a1a';
 
     return (
       <div style={{ 
         position: 'absolute',
-        bottom: '-5px',
+        // 🚀 AJUSTE visual 1: Subimos el bloque del jersey completo 15px hacia arriba para recibir la cabeza
+        bottom: '10px',
         width: '150px',
         height: '140px',
         zIndex: 1,
         transition: 'all 0.2s ease'
       }}>
         <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%' }}>
-          {/* 1. SILUETA BASE DEL CUERPO (Hombros caídos con curvas orgánicas) */}
+          {/* Silueta base */}
           <path 
             d="M 25,100 C 25,60 35,42 45,35 C 50,32 70,32 75,35 C 85,42 95,60 95,100 Z" 
             fill={colorJerseyActual} 
@@ -140,9 +138,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
             strokeLinejoin="round"
           />
 
-          {/* 2. DISEÑOS DINÁMICOS SEGÚN EL TIPO SELECCIONADO */}
+          {/* Diseños dinámicos */}
           {tipoRopa === 1 && (
-            /* Tipo 1: Franjas dobles en hombros (Estilo Football Clásico) */
             <>
               <path d="M 28,65 C 30,52 35,45 40,41" fill="none" stroke={colorDetalles} strokeWidth="4" opacity="0.8" />
               <path d="M 92,65 C 90,52 85,45 80,41" fill="none" stroke={colorDetalles} strokeWidth="4" opacity="0.8" />
@@ -150,40 +147,35 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
           )}
 
           {tipoRopa === 2 && (
-            /* Tipo 2: Jersey de Tirantes / Corte Olímpico (Flag Pro) */
             <>
-              {/* Sisa izquierda y derecha (recortes oscuros que simulan el espacio sin mangas) */}
               <path d="M 23,100 C 24,68 33,52 38,44" fill="none" stroke={colorSombras} strokeWidth="6" />
               <path d="M 97,100 C 96,68 87,52 82,44" fill="none" stroke={colorSombras} strokeWidth="6" />
             </>
           )}
 
           {tipoRopa === 3 && (
-            /* Tipo 3: Franja gruesa de Capitán en el pecho */
             <path d="M 27,62 C 40,58 80,58 93,62 L 94,74 C 80,70 40,70 26,74 Z" fill={colorDetalles} opacity="0.85" />
           )}
 
           {tipoRopa === 4 && (
-            /* Tipo 4: Cuello redondo amplio con bordes deportivos alternos */
             <path d="M 45,35 C 48,45 72,45 75,35 C 72,48 48,48 45,35" fill={colorDetalles} />
           )}
 
           {tipoRopa === 5 && (
-            /* Tipo 5: Líneas de costura de compresión estilizadas (Look Under Armour) */
             <>
               <path d="M 42,36 C 44,55 40,75 32,95" fill="none" stroke={colorSombras} strokeWidth="2.5" />
               <path d="M 78,36 C 76,55 80,75 88,95" fill="none" stroke={colorSombras} strokeWidth="2.5" />
             </>
           )}
 
-          {/* 3. ARRUGAS DE LA TELA (Le da el realismo en las axilas y caídas) */}
+          {/* Arrugas */}
           <path d="M 29,82 C 34,80 36,83 34,86" fill="none" stroke={colorSombras} strokeWidth="2" strokeLinecap="round" />
           <path d="M 91,82 C 86,80 84,83 86,86" fill="none" stroke={colorSombras} strokeWidth="2" strokeLinecap="round" />
 
-          {/* 4. SOMBRA DEL CUELLO (Proyecta profundidad abajo de la barbilla) */}
+          {/* Sombra cuello */}
           <path d="M 45,35 C 50,42 70,42 75,35 Z" fill={colorSombras} />
 
-          {/* 5. EL CUELLO EN V (Se acopla físicamente al rostro de arriba) */}
+          {/* Cuello en V */}
           <path 
             d="M 46,34 L 60,46 L 74,34" 
             fill="none" 
@@ -192,7 +184,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
             strokeLinecap="round"
           />
 
-          {/* 6. DORSAL / NÚMERO DE JUEGO (Centrado de forma realista en el pecho) */}
+          {/* Número */}
           <text 
             x="60" 
             y="78" 
@@ -229,7 +221,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '14px' }}>
+        {/* 🚀 AJUSTE VISUAL 2: Aumentamos el marginTop de 14px a 28px para acoplar la barbilla directo en el cuello del SVG */}
+        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '28px' }}>
           {imagenSrc && (
             <img 
               src={imagenSrc} 
