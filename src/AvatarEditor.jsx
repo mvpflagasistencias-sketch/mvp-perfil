@@ -117,7 +117,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     const colorDetalles = '#ffffff';
     const colorSombras = 'rgba(0, 0, 0, 0.15)';
     const colorBordeNegro = '#1a1a1a';
-    const colorPielCuello = '#a56c40'; 
 
     return (
       <div style={{ 
@@ -130,14 +129,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       }}>
         <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%' }}>
           
-          {/* 🚀 CUELLO REDUCIDO: Ahora es solo una pequeña cuña que se asoma sutilmente en la V del jersey */}
-          <path 
-            d="M 54,35 L 54,32 C 54,32 60,30 66,32 L 66,35 Z" 
-            fill={colorPielCuello} 
-            stroke={colorBordeNegro} 
-            strokeWidth="3.5"
-            strokeLinejoin="round"
-          />
+          {/* 🚀 LAS DOS LÍNEAS DEL CUELLO (Exactamente como en tu dibujo de edited-image_8.png) */}
+          <path d="M 49,35 L 49,15" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
+          <path d="M 71,35 L 71,15" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
 
           {/* Silueta base del jersey */}
           <path 
@@ -231,8 +225,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        {/* 🚀 ENCUADRE CORREGIDO: Bajamos el marginTop a 32px para que la barbilla se siente directamente sobre la V del uniforme, ocultando el exceso */}
-        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '32px' }}>
+        {/* Ajustado a 20px para que encuadre perfectamente la base del cráneo con las líneas nuevas */}
+        <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '20px' }}>
           {imagenSrc && (
             <img 
               src={imagenSrc} 
