@@ -2,14 +2,15 @@ import { useState, useEffect } from 'react';
 import { createAvatar } from '@dicebear/core';
 import * as adventurer from '@dicebear/adventurer';
 
-// 🚀 CATÁLOGO REAL COMPATIBLE CON ADVENTURER
+// 🚀 CATÁLOGO REAL COMPATIBLE CON ADVENTURER (Se añade paleta oficial de pieles)
 const OPCIONES = {
   cabello: ['long01', 'short01', 'short02', 'short03', 'short04', 'short05'],
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
   ropa: ['jersey01', 'jersey02', 'jersey03', 'jersey04', 'jersey05'],
   colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
   accesorios: ['none', 'variant01', 'variant02', 'variant03'],
-  expresion: ['variant01', 'variant02', 'variant03', 'variant04']
+  expresion: ['variant01', 'variant02', 'variant03', 'variant04'],
+  colorPiel: ['f2d3b1', 'ecad80', 'c1885a', '94613c', '613b1e'] // 👈 Tonos nativos de Adventurer
 };
 
 const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
@@ -20,6 +21,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     colorRopa: 0,
     accesorios: 0,
     expresion: 0,
+    colorPiel: 2, // 👈 Estado inicial centrado en un tono medio
   });
 
   const [guardando, setGuardando] = useState(false);
@@ -32,6 +34,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const clothingColorConfig = Array.isArray(configInicial.clothingColor) ? configInicial.clothingColor[0] : configInicial.clothingColor;
       const featuresConfig = Array.isArray(configInicial.features) ? configInicial.features[0] : configInicial.features;
       const eyebrowsConfig = Array.isArray(configInicial.eyebrows) ? configInicial.eyebrows[0] : configInicial.eyebrows;
+      const skinColorConfig = Array.isArray(configInicial.skinColor) ? configInicial.skinColor[0] : configInicial.skinColor;
 
       setIndices({
         cabello: OPCIONES.cabello.indexOf(hairConfig) >= 0 ? OPCIONES.cabello.indexOf(hairConfig) : 0,
@@ -40,6 +43,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         colorRopa: OPCIONES.colorRopa.indexOf(clothingColorConfig) >= 0 ? OPCIONES.colorRopa.indexOf(clothingColorConfig) : 0,
         accesorios: OPCIONES.accesorios.indexOf(featuresConfig) >= 0 ? OPCIONES.accesorios.indexOf(featuresConfig) : 0,
         expresion: OPCIONES.expresion.indexOf(eyebrowsConfig) >= 0 ? OPCIONES.expresion.indexOf(eyebrowsConfig) : 0,
+        colorPiel: OPCIONES.colorPiel.indexOf(skinColorConfig) >= 0 ? OPCIONES.colorPiel.indexOf(skinColorConfig) : 2,
       });
     }
   }, [configInicial]);
@@ -65,7 +69,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         hairProbability: 100,
         hair: [OPCIONES.cabello[indices.cabello]], 
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
-        eyebrows: [OPCIONES.expresion[indices.expresion]]
+        eyebrows: [OPCIONES.expresion[indices.expresion]],
+        skinColor: [OPCIONES.colorPiel[indices.colorPiel]] // 🚀 Piel amarrada nativamente al motor
       };
 
       if (indices.accesorios > 0) {
@@ -89,7 +94,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         clothing: [OPCIONES.ropa[indices.ropa]],
         clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
         features: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
-        eyebrows: [OPCIONES.expresion[indices.expresion]]
+        eyebrows: [OPCIONES.expresion[indices.expresion]],
+        skinColor: [OPCIONES.colorPiel[indices.colorPiel]] // Se guarda la piel en tu JSON de la BD
       };
       
       const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
@@ -225,7 +231,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         position: 'relative'
       }}>
         {/* 1. SECCIÓN DE LA CABEZA */}
-        {/* 🚀 ENCUADRE FINAL PERFECTO: Bajamos el marginTop de 26px a 48px para unir la mandíbula con los trazos vectoriales cortos */}
         <div style={{ 
           width: '110px', 
           height: '110px', 
@@ -253,7 +258,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
           { label: 'Tipo de Ropa', campo: 'ropa' },
           { label: 'Color de Ropa', campo: 'colorRopa' },
           { label: 'Accesorios', campo: 'accesorios' },
-          { label: 'Expresión', campo: 'expresion' }
+          { label: 'Expresión', campo: 'expresion' },
+          { label: 'Color de Piel', campo: 'colorPiel' } // 🚀 SE AÑADE EL BOTÓN SELECTOR DE PIEL
         ].map((item) => (
           <div key={item.campo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '12px', border: '1px solid #30363d', boxSizing: 'border-box' }}>
             <span style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>{item.label}</span>
