@@ -178,7 +178,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         - Para mover a la IZQUIERDA: Resta al valor de 'cx' (ej. de 58 a 55)
         - Para mover a la DERECHA: Suma al valor de 'cx' (ej. de 58 a 61)
         - Para mover ARRIBA/ABAJO: Modifica el valor de 'cy' (actualmente en 53) */}
-    <ellipse cx="58" cy="53" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
+    <ellipse cx="55" cy="53" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
     
     {/* Detalle de costura */}
     <path d="M 55,49 L 61,57" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
