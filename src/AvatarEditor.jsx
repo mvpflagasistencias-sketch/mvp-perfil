@@ -67,14 +67,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     try {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
-      const opcionesDiceBear = {
-        // ✂️ Comentamos el cabello para dejarlo pelón temporalmente y probar los accesorios nativos
-        // hair: [OPCIONES.cabello[indices.cabello]], 
-        // hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
-        eyebrows: [OPCIONES.expresion[indices.expresion]],
-        skinColor: [OPCIONES.colorPiel[indices.colorPiel]],
-        features: []
-      };
+      
 
       // 🚀 PRUEBA: Mandamos el accesorio original directamente a DiceBear
       if (indices.accesorios > 0) {
