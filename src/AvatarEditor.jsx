@@ -68,20 +68,13 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
       const opcionesDiceBear = {
-        // ✂️ Comentamos el cabello para dejarlo pelón temporalmente y probar los accesorios nativos
-        // hair: [OPCIONES.cabello[indices.cabello]], 
-        // hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
+        hair: [OPCIONES.cabello[indices.cabello]], 
+        hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
         eyebrows: [OPCIONES.expresion[indices.expresion]],
         skinColor: [OPCIONES.colorPiel[indices.colorPiel]],
-        features: []
+        features: [],
+        accessories: [] // Deshabilitado el render nativo debido a la incompatibilidad en servidor
       };
-
-      // 🚀 PRUEBA: Mandamos el accesorio original directamente a DiceBear
-      if (indices.accesorios > 0) {
-        opcionesDiceBear.accessories = [OPCIONES.accesorios[indices.accesorios]];
-      } else {
-        opcionesDiceBear.accessories = [];
-      }
 
       const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
       return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
@@ -123,6 +116,66 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
   const imagenSrc = obtenerDataUriAvatar();
   const colorJerseyActual = `#${OPCIONES.colorRopa[indices.colorRopa]}`;
+
+  // 🚀 NUEVA LÓGICA DE CONTROL TOTAL: Calibración milimétrica para situar los accesorios sobre los ojos
+  const renderAccesoriosEstilizados = () => {
+    if (indices.accesorios === 0) return null;
+
+    const colorBordeNegro = '#1a1a1a';
+    const tipoAccesorio = indices.accesorios;
+
+    return (
+      <div style={{ 
+        position: 'absolute',
+        top: '48px', // Sincronizado exactamente con el inicio del contenedor de la cabeza
+        width: '110px', // Conserva la escala exacta de la etiqueta img del rostro
+        height: '110px',
+        zIndex: 3,
+        pointerEvents: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        {tipoAccesorio === 1 && (
+          /* 👓 LENTES DEPORTIVOS AJUSTADOS A LA MIRADA REAL */
+          <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
+            {/* Montura izquierda */}
+            <rect x="30" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
+            {/* Cristal izquierdo */}
+            <rect x="32" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
+            <path d="M 34,49 L 42,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+
+            {/* Montura derecha */}
+            <rect x="58" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
+            {/* Cristal derecho */}
+            <rect x="60" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
+            <path d="M 62,49 L 70,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+
+            {/* Puente del medio */}
+            <path d="M 50,53 L 58,53" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
+            {/* Patas laterales sujetadoras */}
+            <path d="M 16,51 L 30,50" stroke={colorBordeNegro} strokeWidth="3" />
+            <path d="M 78,50 L 92,51" stroke={colorBordeNegro} strokeWidth="3" />
+          </svg>
+        )}
+
+        {tipoAccesorio === 2 && (
+          /* 🏴‍☠️ PARCHE DE OJO RUDO AJUSTADO A LA MIRADA REAL */
+          <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
+            {/* Correas de sujeción inclinadas hacia las orejas */}
+            <path d="M 18,44 L 92,56" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
+            <path d="M 18,56 L 40,49" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
+            
+            {/* Cuerpo del parche centrado sobre el ojo izquierdo del avatar */}
+            <ellipse cx="40" cy="52" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
+            
+            {/* Detalle de costura ruda */}
+            <path d="M 37,48 L 43,56" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        )}
+      </div>
+    );
+  };
 
   const renderJerseyEstilizado = () => {
     const tipoRopa = indices.ropa + 1;
@@ -243,6 +296,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
             />
           )}
         </div>
+
+        {/* 🚀 INYECCIÓN DE LA CAPA VECTORIAL CONTROLADA */}
+        {renderAccesoriosEstilizados()}
 
         {/* 2. UNIFORME DEPORTIVO VECTORIAL DINÁMICO */}
         {renderJerseyEstilizado()}
