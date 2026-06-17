@@ -136,44 +136,54 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         alignItems: 'center',
         justifyContent: 'center'
       }}>
+       
+
        {tipoAccesorio === 1 && (
-  /* 👓 LENTES DEPORTIVOS - DESPLAZAMIENTO FINAL 2px A LA IZQUIERDA */
+  /* 👓 LENTES DEPORTIVOS - DESPLAZAMIENTO 2px MÁS A LA IZQUIERDA */
   <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
-    {/* Montura izquierda (Movida de 23 a 21) */}
-    <rect x="21" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
-    {/* Cristal izquierdo */}
-    <rect x="23" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
-    <path d="M 25,49 L 33,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+    {/* 💡 GUÍA PARA AJUSTE MANUAL: 
+        - Para mover a la IZQUIERDA: Resta a las 'x' (ej. de 19 a 17)
+        - Para mover a la DERECHA: Suma a las 'x' (ej. de 19 a 21)
+        - Para mover ARRIBA/ABAJO: Modifica las 'y' de las monturas y cristales */}
 
-    {/* Montura derecha (Movida de 51 a 49) */}
-    <rect x="49" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
-    {/* Cristal derecho */}
-    <rect x="51" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
-    <path d="M 53,49 L 61,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+    {/* Montura izquierda (Movida de 21 a 19) */}
+    <rect x="19" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Cristal izquierdo (Movido de 23 a 21) */}
+    <rect x="21" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
+    <path d="M 23,49 L 31,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
 
-    {/* Puente del medio (Ajustado de 43 a 41) */}
-    <path d="M 41,53 L 49,53" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
+    {/* Montura derecha (Movida de 49 a 47) */}
+    <rect x="47" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Cristal derecho (Movido de 51 a 49) */}
+    <rect x="49" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
+    <path d="M 51,49 L 59,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+
+    {/* Puente del medio (Ajustado de 41 a 39) */}
+    <path d="M 39,53 L 47,53" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
     {/* Patas laterales sujetadoras */}
-    <path d="M 10,51 L 21,50" stroke={colorBordeNegro} strokeWidth="3" />
-    <path d="M 69,50 L 85,51" stroke={colorBordeNegro} strokeWidth="3" />
+    <path d="M 10,51 L 19,50" stroke={colorBordeNegro} strokeWidth="3" />
+    <path d="M 67,50 L 85,51" stroke={colorBordeNegro} strokeWidth="3" />
   </svg>
 )}
 
+
 {tipoAccesorio === 2 && (
-  /* 🏴‍☠️ PARCHE DE OJO - DESPLAZAMIENTO FINAL 2px A LA IZQUIERDA */
+  /* 🏴‍☠️ PARCHE DE OJO - DESPLAZAMIENTO 2px MÁS A LA IZQUIERDA */
   <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
     {/* Correas de sujeción ajustadas al nuevo centro */}
     <path d="M 25,46 L 95,56" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
-    <path d="M 25,58 L 60,51" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
+    <path d="M 25,58 L 58,51" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
     
-    {/* Cuerpo del parche (Movido cx de 62 a 60) */}
-    <ellipse cx="60" cy="53" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* 💡 GUÍA PARA AJUSTE MANUAL DEL PARCHE:
+        - Para mover a la IZQUIERDA: Resta al valor de 'cx' (ej. de 58 a 55)
+        - Para mover a la DERECHA: Suma al valor de 'cx' (ej. de 58 a 61)
+        - Para mover ARRIBA/ABAJO: Modifica el valor de 'cy' (actualmente en 53) */}
+    <ellipse cx="58" cy="53" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
     
     {/* Detalle de costura */}
-    <path d="M 57,49 L 63,57" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M 55,49 L 61,57" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 )}
-
 
       </div>
     );
