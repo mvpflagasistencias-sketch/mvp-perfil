@@ -166,7 +166,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
             <path d="M 0,2 L 100,22" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
             <path d="M 0,22 L 40,11" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
             {/* Cuerpo del parche sobre el ojo izquierdo del avatar */}
-            <dropShadow id="shadow" dx="1" dy="1" stdDeviation="1" />
             <ellipse cx="28" cy="14" rx="15" ry="12" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3.5" />
             {/* Costura de detalle rudo */}
             <path d="M 23,8 L 33,20" stroke="#334155" strokeWidth="2" strokeLinecap="round" />
@@ -296,8 +295,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
           )}
         </div>
 
-        {/* 🚀 NUEVA CAPA ABSOLUTA: Inyecta los lentes hechos a mano sobre la cara */}
-        {renderAccesoriosInteractivos || renderAccesoriosEstilizados()}
+        {/* 🚀 CORREGIDO: Se removió la variable rota para renderizar limpiamente la función vectorial de accesorios */}
+        {renderAccesoriosEstilizados()}
 
         {/* 2. UNIFORME DEPORTIVO VECTORIAL DINÁMICO */}
         {renderJerseyEstilizado()}
