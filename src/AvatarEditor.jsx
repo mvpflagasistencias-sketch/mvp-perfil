@@ -137,40 +137,40 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         justifyContent: 'center'
       }}>
         {tipoAccesorio === 1 && (
-  /* 👓 LENTES DEPORTIVOS VECTORIALES AJUSTADOS 3px A LA IZQUIERDA */
+  /* 👓 LENTES DEPORTIVOS VECTORIALES - AJUSTE FINO DEFINITIVO */
   <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
-    {/* Montura izquierda (Movida de 30 a 27) */}
-    <rect x="27" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Montura izquierda (Ajustada a x="24" y subida a y="46") */}
+    <rect x="24" y="46" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
     {/* Cristal izquierdo */}
-    <rect x="29" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
-    <path d="M 31,49 L 39,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+    <rect x="26" y="48" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
+    <path d="M 28,48 L 36,56" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
 
-    {/* Montura derecha (Movida de 58 a 55) */}
-    <rect x="55" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Montura derecha (Ajustada a x="52" y subida a y="46") */}
+    <rect x="52" y="46" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
     {/* Cristal derecho */}
-    <rect x="57" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
-    <path d="M 59,49 L 67,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+    <rect x="54" y="48" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
+    <path d="M 56,48 L 64,56" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
 
-    {/* Puente del medio (Ajustado de 47 a 55) */}
-    <path d="M 47,53 L 55,53" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
+    {/* Puente del medio */}
+    <path d="M 44,52 L 52,52" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
     {/* Patas laterales sujetadoras */}
-    <path d="M 13,51 L 27,50" stroke={colorBordeNegro} strokeWidth="3" />
-    <path d="M 75,50 L 89,51" stroke={colorBordeNegro} strokeWidth="3" />
+    <path d="M 10,50 L 24,49" stroke={colorBordeNegro} strokeWidth="3" />
+    <path d="M 72,49 L 86,50" stroke={colorBordeNegro} strokeWidth="3" />
   </svg>
 )}
 
         {tipoAccesorio === 2 && (
-  /* 🏴‍☠️ PARCHE DE OJO RUDO AJUSTADO 3px A LA IZQUIERDA */
+  /* 🏴‍☠️ PARCHE DE OJO RUDO - AJUSTADO AL OJO DE LA DERECHA */
   <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
-    {/* Correas de sujeción */}
-    <path d="M 15,44 L 89,56" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
-    <path d="M 15,56 L 37,49" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
+    {/* Correas de sujeción cruzando el rostro de forma natural */}
+    <path d="M 25,44 L 95,54" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
+    <path d="M 25,56 L 62,49" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
     
-    {/* Cuerpo del parche (Movido cx de 40 a 37) */}
-    <ellipse cx="37" cy="52" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Cuerpo del parche centrado exactamente en el ojo derecho del lienzo (cx="62") */}
+    <ellipse cx="62" cy="51" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
     
-    {/* Detalle de costura */}
-    <path d="M 34,48 L 40,56" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
+    {/* Detalle de costura ruda */}
+    <path d="M 59,47 L 65,55" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 )}
       </div>
