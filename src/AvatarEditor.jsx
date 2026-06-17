@@ -136,42 +136,45 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        {tipoAccesorio === 1 && (
-  /* 👓 LENTES DEPORTIVOS - AJUSTE FINAL ABSOLUTO */
+       {tipoAccesorio === 1 && (
+  /* 👓 LENTES DEPORTIVOS - DESPLAZAMIENTO FINAL 2px A LA IZQUIERDA */
   <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
-    {/* Montura izquierda (Movida a x="23" y bajada a y="47") */}
-    <rect x="23" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Montura izquierda (Movida de 23 a 21) */}
+    <rect x="21" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
     {/* Cristal izquierdo */}
-    <rect x="25" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
-    <path d="M 27,49 L 35,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+    <rect x="23" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
+    <path d="M 25,49 L 33,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
 
-    {/* Montura derecha (Movida a x="51" y bajada a y="47") */}
-    <rect x="51" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Montura derecha (Movida de 51 a 49) */}
+    <rect x="49" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
     {/* Cristal derecho */}
-    <rect x="53" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
-    <path d="M 55,49 L 63,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+    <rect x="51" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
+    <path d="M 53,49 L 61,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
 
-    {/* Puente del medio (Ajustado a x="43") */}
-    <path d="M 43,53 L 51,53" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
-    {/* Patas laterales sujetadoras alineadas */}
-    <path d="M 10,51 L 23,50" stroke={colorBordeNegro} strokeWidth="3" />
-    <path d="M 71,50 L 85,51" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Puente del medio (Ajustado de 43 a 41) */}
+    <path d="M 41,53 L 49,53" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
+    {/* Patas laterales sujetadoras */}
+    <path d="M 10,51 L 21,50" stroke={colorBordeNegro} strokeWidth="3" />
+    <path d="M 69,50 L 85,51" stroke={colorBordeNegro} strokeWidth="3" />
   </svg>
 )}
+
 {tipoAccesorio === 2 && (
-  /* 🏴‍☠️ PARCHE DE OJO - BAJADO AL CENTRO DEL OJO (cy="53") */
+  /* 🏴‍☠️ PARCHE DE OJO - DESPLAZAMIENTO FINAL 2px A LA IZQUIERDA */
   <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
-    {/* Correas de sujeción niveladas */}
+    {/* Correas de sujeción ajustadas al nuevo centro */}
     <path d="M 25,46 L 95,56" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
-    <path d="M 25,58 L 62,51" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
+    <path d="M 25,58 L 60,51" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
     
-    {/* Cuerpo del parche centrado en la pupila (cy="53") */}
-    <ellipse cx="62" cy="53" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Cuerpo del parche (Movido cx de 62 a 60) */}
+    <ellipse cx="60" cy="53" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
     
     {/* Detalle de costura */}
-    <path d="M 59,49 L 65,57" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
+    <path d="M 57,49 L 63,57" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
 )}
+
+
       </div>
     );
   };
