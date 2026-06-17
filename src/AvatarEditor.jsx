@@ -137,40 +137,42 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         justifyContent: 'center'
       }}>
         {tipoAccesorio === 1 && (
-          /* 👓 LENTES DEPORTIVOS VECTORIALES */
-          <svg viewBox="0 0 100 32" style={{ width: '100%', height: '100%' }}>
-            {/* Montura izquierda */}
-            <rect x="12" y="4" width="32" height="22" rx="6" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3.5" />
-            {/* Cristal izquierdo con reflejo deportivo */}
-            <rect x="15" y="7" width="26" height="16" rx="4" fill="#38bdf8" opacity="0.75" />
-            <path d="M 18,7 L 28,19" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+  /* 👓 LENTES DEPORTIVOS VECTORIALES AJUSTADOS */
+  <svg viewBox="0 0 100 32" style={{ width: '80%', height: '100%', transform: 'translateY(-2px)' }}>
+    {/* Montura izquierda */}
+    <rect x="22" y="8" width="24" height="16" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Cristal izquierdo */}
+    <rect x="24" y="10" width="20" height="12" rx="2" fill="#38bdf8" opacity="0.75" />
+    <path d="M 26,10 L 32,18" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
 
-            {/* Montura derecha */}
-            <rect x="56" y="4" width="32" height="22" rx="6" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3.5" />
-            {/* Cristal derecho con reflejo deportivo */}
-            <rect x="59" y="7" width="26" height="16" rx="4" fill="#38bdf8" opacity="0.75" />
-            <path d="M 62,7 L 72,19" stroke="#ffffff" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
+    {/* Montura derecha */}
+    <rect x="54" y="8" width="24" height="16" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
+    {/* Cristal derecho */}
+    <rect x="56" y="10" width="20" height="12" rx="2" fill="#38bdf8" opacity="0.75" />
+    <path d="M 58,10 L 64,18" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
 
-            {/* Puente nasal */}
-            <path d="M 44,12 L 56,12" stroke={colorBordeNegro} strokeWidth="4" strokeLinecap="round" />
-            {/* Patas laterales sujetadoras */}
-            <path d="M 0,10 L 12,9" stroke={colorBordeNegro} strokeWidth="3.5" />
-            <path d="M 88,9 L 100,10" stroke={colorBordeNegro} strokeWidth="3.5" />
-          </svg>
-        )}
+    {/* Puente nasal */}
+    <path d="M 46,14 L 54,14" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
+    {/* Patas laterales sujetadoras */}
+    <path d="M 10,13 L 22,12" stroke={colorBordeNegro} strokeWidth="3" />
+    <path d="M 78,12 L 90,13" stroke={colorBordeNegro} strokeWidth="3" />
+  </svg>
+)}
 
         {tipoAccesorio === 2 && (
-          /* 🏴‍☠️ PARCHE DE OJO VECTORIAL RUDO */
-          <svg viewBox="0 0 100 32" style={{ width: '100%', height: '100%' }}>
-            {/* Correas de sujeción inclinadas */}
-            <path d="M 0,2 L 100,22" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
-            <path d="M 0,22 L 40,11" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
-            {/* Cuerpo del parche sobre el ojo izquierdo del avatar */}
-            <ellipse cx="28" cy="14" rx="15" ry="12" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3.5" />
-            {/* Costura de detalle rudo */}
-            <path d="M 23,8 L 33,20" stroke="#334155" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        )}
+  /* 🏴‍☠️ PARCHE DE OJO VECTORIAL RUDO AJUSTADO */
+  <svg viewBox="0 0 100 32" style={{ width: '80%', height: '100%', transform: 'translateY(-2px)' }}>
+    {/* Correas de sujeción inclinadas hacia las orejas */}
+    <path d="M 15,6 L 85,20" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
+    <path d="M 15,22 L 35,14" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
+    
+    {/* Cuerpo del parche centrado sobre el ojo izquierdo (coordenada X modificada a 34) */}
+    <ellipse cx="34" cy="15" rx="11" ry="9" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3.5" />
+    
+    {/* Detalle de costura ruda */}
+    <path d="M 30,10 L 38,20" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
+  </svg>
+)}
       </div>
     );
   };
