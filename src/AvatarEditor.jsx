@@ -8,7 +8,7 @@ const OPCIONES = {
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
   ropa: ['jersey01', 'jersey02', 'jersey03', 'jersey04', 'jersey05'],
   colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
-  accesorios: ['none', 'glasses01', 'eyepatch'], // 👈 ¡Cambiaste 'glasses' por 'glasses01' y 'patch' por 'eyepatch'!
+  accesorios: ['none', 'glasses01', 'eyepatch'], // 👈 Variantes reales de la librería adventurer
   expresion: ['variant01', 'variant02', 'variant03', 'variant04'],
   colorPiel: ['f2d3b1', 'ecad80', 'c1885a', '94613c', '613b1e'] 
 };
@@ -33,7 +33,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const clothingConfig = Array.isArray(configInicial.clothing) ? configInicial.clothing[0] : configInicial.clothing;
       const clothingColorConfig = Array.isArray(configInicial.clothingColor) ? configInicial.clothingColor[0] : configInicial.clothingColor;
       
-      // 🚀 AJUSTE SEGURO: Mapeamos de 'accessories' primero para leer los nuevos datos sin romper el index
       const rawAccessories = configInicial.accessories || configInicial.features;
       const targetAccessory = Array.isArray(rawAccessories) ? rawAccessories[0] : rawAccessories;
       
@@ -45,7 +44,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         colorCabello: OPCIONES.colorCabello.indexOf(hairColorConfig) >= 0 ? OPCIONES.colorCabello.indexOf(hairColorConfig) : 0,
         ropa: OPCIONES.ropa.indexOf(clothingConfig) >= 0 ? OPCIONES.ropa.indexOf(clothingConfig) : 0,
         colorRopa: OPCIONES.colorRopa.indexOf(clothingColorConfig) >= 0 ? OPCIONES.colorRopa.indexOf(clothingColorConfig) : 0,
-        // 🚀 SE CORRIGE EL ÍNDICE: Evaluamos con targetAccessory para asegurar un entero válido del catálogo
         accesorios: OPCIONES.accesorios.indexOf(targetAccessory) >= 0 ? OPCIONES.accesorios.indexOf(targetAccessory) : 0,
         expresion: OPCIONES.expresion.indexOf(eyebrowsConfig) >= 0 ? OPCIONES.expresion.indexOf(eyebrowsConfig) : 0,
         colorPiel: OPCIONES.colorPiel.indexOf(skinColorConfig) >= 0 ? OPCIONES.colorPiel.indexOf(skinColorConfig) : 2,
@@ -69,21 +67,23 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     try {
       const estiloAvatar = adventurer.adventurer || adventurer;
       
+      // 🚀 CORRECCIÓN CRUCIAL: Se removieron los sufijos "Probability" incorrectos que causaban el crash silencioso en DiceBear
       const opcionesDiceBear = {
-        accessoriesProbability: indices.accesorios === 0 ? 0 : 100, // 🚀 Ajuste: Controla lentes nativos
-        featuresProbability: 0, // 🚀 Ajuste: Apaga bigotes permanentes
-        hairProbability: 100,
         hair: [OPCIONES.cabello[indices.cabello]], 
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
         eyebrows: [OPCIONES.expresion[indices.expresion]],
-        skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
+        skinColor: [OPCIONES.colorPiel[indices.colorPiel]],
+        features: [] // Forzamos vello facial vacío para asegurar que no salgan bigotes intrusos
       };
 
+      // Si hay un accesorio seleccionado diferente de 'none', se inyecta directamente en la propiedad nativa 'accessories'
       if (indices.accesorios > 0) {
-        opcionesDiceBear.accessories = [OPCIONES.accesorios[indices.accesorios]]; // 🚀 Ajuste: Pasa los lentes o parche
+        opcionesDiceBear.accessories = [OPCIONES.accesorios[indices.accesorios]];
+      } else {
+        opcionesDiceBear.accessories = [];
       }
 
-      const avatar = createAvatar(estiloAvatar, opcionesDiceBear); // 👈 Corregido el renderizador nativo
+      const avatar = createAvatar(estiloAvatar, opcionesDiceBear);
       return `data:image/svg+xml;utf8,${encodeURIComponent(avatar.toString())}`;
     } catch (e) {
       console.error("Error generando avatar local:", e);
@@ -99,7 +99,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
         clothing: [OPCIONES.ropa[indices.ropa]],
         clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
-        // 🚀 CORRECCIÓN AQUÍ: Guardamos bajo la clave correcta 'accessories' esperada por el backend y el motor
         accessories: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
         eyebrows: [OPCIONES.expresion[indices.expresion]],
         skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
@@ -141,12 +140,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         transition: 'all 0.2s ease'
       }}>
         <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%', transform: 'translateY(-12px)' }}>
-          
-          {/* Líneas cortas perfectas de cuello (Eje Y fijo en 28) */}
           <path d="M 53,35 L 53,28" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
           <path d="M 67,35 L 67,28" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
 
-          {/* Silueta base del jersey */}
           <path 
             d="M 25,100 C 25,60 35,42 45,35 C 50,32 70,32 75,35 C 85,42 95,60 95,100 Z" 
             fill={colorJerseyActual} 
@@ -155,7 +151,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
             strokeLinejoin="round"
           />
 
-          {/* Diseños dinámicos */}
           {tipoRopa === 1 && (
             <>
               <path d="M 28,65 C 30,52 35,45 40,41" fill="none" stroke={colorDetalles} strokeWidth="4" opacity="0.8" />
@@ -185,14 +180,11 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
             </>
           )}
 
-          {/* Arrugas */}
           <path d="M 29,82 C 34,80 36,83 34,86" fill="none" stroke={colorSombras} strokeWidth="2" strokeLinecap="round" />
           <path d="M 91,82 C 86,80 84,83 86,86" fill="none" stroke={colorSombras} strokeWidth="2" strokeLinecap="round" />
 
-          {/* Sombra cuello */}
           <path d="M 45,35 C 50,42 70,42 75,35 Z" fill={colorSombras} />
 
-          {/* Cuello en V */}
           <path 
             d="M 46,34 L 60,46 L 74,34" 
             fill="none" 
@@ -201,7 +193,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
             strokeLinecap="round"
           />
 
-          {/* Número */}
           <text 
             x="60" 
             y="78" 
@@ -221,7 +212,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
     <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
       <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
       
-      {/* Tarjeta contenedora vertical */}
       <div style={{ 
         width: '160px', 
         height: '240px', 
@@ -237,7 +227,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         justifyContent: 'flex-start',
         position: 'relative'
       }}>
-        {/* 1. SECCIÓN DE LA CABEZA */}
         <div style={{ 
           width: '110px', 
           height: '110px', 
@@ -254,7 +243,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
           )}
         </div>
 
-        {/* 2. UNIFORME DEPORTIVO VECTORIAL DINÁMICO */}
         {renderJerseyEstilizado()}
       </div>
 
