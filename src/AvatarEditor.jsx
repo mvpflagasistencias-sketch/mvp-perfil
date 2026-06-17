@@ -33,9 +33,9 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       const clothingConfig = Array.isArray(configInicial.clothing) ? configInicial.clothing[0] : configInicial.clothing;
       const clothingColorConfig = Array.isArray(configInicial.clothingColor) ? configInicial.clothingColor[0] : configInicial.clothingColor;
       
-      // Intentamos leer tanto de 'accessories' como de 'features' por retrocompatibilidad
+      // 🚀 AJUSTE SEGURO: Mapeamos de 'accessories' primero para leer los nuevos datos sin romper el index
       const rawAccessories = configInicial.accessories || configInicial.features;
-      const featuresConfig = Array.isArray(rawAccessories) ? rawAccessories[0] : rawAccessories;
+      const targetAccessory = Array.isArray(rawAccessories) ? rawAccessories[0] : rawAccessories;
       
       const eyebrowsConfig = Array.isArray(configInicial.eyebrows) ? configInicial.eyebrows[0] : configInicial.eyebrows;
       const skinColorConfig = Array.isArray(configInicial.skinColor) ? configInicial.skinColor[0] : configInicial.skinColor;
@@ -45,8 +45,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         colorCabello: OPCIONES.colorCabello.indexOf(hairColorConfig) >= 0 ? OPCIONES.colorCabello.indexOf(hairColorConfig) : 0,
         ropa: OPCIONES.ropa.indexOf(clothingConfig) >= 0 ? OPCIONES.ropa.indexOf(clothingConfig) : 0,
         colorRopa: OPCIONES.colorRopa.indexOf(clothingColorConfig) >= 0 ? OPCIONES.colorRopa.indexOf(clothingColorConfig) : 0,
-        // 🚀 CORRECCIÓN AQUÍ: Si el valor guardado no coincide con el nuevo catálogo, se fuerza por defecto un índice seguro de 0 (none)
-        accesorios: OPCIONES.accesorios.indexOf(featuresConfig) >= 0 ? OPCIONES.accesorios.indexOf(featuresConfig) : 0,
+        // 🚀 SE CORRIGE EL ÍNDICE: Evaluamos con targetAccessory para asegurar un entero válido del catálogo
+        accesorios: OPCIONES.accesorios.indexOf(targetAccessory) >= 0 ? OPCIONES.accesorios.indexOf(targetAccessory) : 0,
         expresion: OPCIONES.expresion.indexOf(eyebrowsConfig) >= 0 ? OPCIONES.expresion.indexOf(eyebrowsConfig) : 0,
         colorPiel: OPCIONES.colorPiel.indexOf(skinColorConfig) >= 0 ? OPCIONES.colorPiel.indexOf(skinColorConfig) : 2,
       });
