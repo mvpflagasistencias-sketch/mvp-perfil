@@ -310,12 +310,13 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '14px' }}>
+          {/* 🛠️ SOLUCIÓN: Metidos juntos en el mismo div contenedor calibrado a 48px de separación superior */}
+          <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '48px' }}>
             {imagenSrc && (
               <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
             )}
+            {renderAccesoriosEstilizados()}
           </div>
-          {renderAccesoriosEstilizados()}
           {renderJerseyEstilizado()}
         </div>
       )}
