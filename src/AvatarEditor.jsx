@@ -153,11 +153,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
        {tipoAccesorio === 1 && (
   /* 👓 LENTES DEPORTIVOS - DESPLAZAMIENTO 2px MÁS A LA IZQUIERDA */
   <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
-    {/* 💡 GUÍA PARA AJUSTE MANUAL: 
-        - Para mover a la IZQUIERDA: Resta a las 'x' (ej. de 19 a 17)
-        - Para mover a la DERECHA: Suma a las 'x' (ej. de 19 a 21)
-        - Para mover ARRIBA/ABAJO: Modifica las 'y' de las monturas y cristales */}
-
     {/* Montura izquierdo (Movida de 21 a 19) */}
     <rect x="19" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
     {/* Cristal izquierdo (Movido de 23 a 21) */}
@@ -185,13 +180,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
     {/* Correas de sujeción ajustadas al nuevo centro */}
     <path d="M 25,46 L 95,56" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
     <path d="M 25,58 L 58,51" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
-    
-    {/* 💡 GUÍA PARA AJUSTE MANUAL DEL PARCHE:
-        - Para mover a la IZQUIERDA: Resta al valor de 'cx' (ej. de 58 a 55)
-        - Para mover a la DERECHA: Suma al valor de 'cx' (ej. de 58 a 61)
-        - Para mover ARRIBA/ABAJO: Modifica el valor de 'cy' (actualmente en 53) */}
     <ellipse cx="55" cy="57" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
-    
     {/* Detalle de costura */}
     <path d="M 55,49 L 61,57" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
@@ -287,7 +276,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
   return (
     <>
-      {/* 1. DISPARADOR INTERACTIVO (Se oculta por completo si pasas soloModal={true}) */}
+      {/* 1. DISPARADOR INTERACTIVO (CÍRCULO EXTERIOR EN LA CREDENCIAL) */}
       {!soloModal && (
         <div 
           onClick={() => setIsOpen(true)}
@@ -295,7 +284,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
             width: '130px', 
             height: '130px', 
             backgroundColor: '#0f172a', 
-            borderRadius: '50%', // Lo volvemos círculo perfecto para que ensamble en la credencial
+            borderRadius: '50%', 
             border: '4px solid #60a5fa', 
             overflow: 'hidden', 
             boxSizing: 'border-box', 
@@ -310,8 +299,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          {/* 🛠️ SOLUCIÓN: Metidos juntos en el mismo div contenedor calibrado a 48px de separación superior */}
-          <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '48px' }}>
+          {/* 🎯 CORREGIDO: Alineación centralizada idéntica a la del modal de edición */}
+          <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '14px' }}>
             {imagenSrc && (
               <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
             )}
