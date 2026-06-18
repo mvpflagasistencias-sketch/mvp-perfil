@@ -13,7 +13,7 @@ const OPCIONES = {
   colorPiel: ['f2d3b1', 'ecad80', 'c1885a', '94613c', '613b1e'] 
 };
 
-const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
+const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = false }) => {
   const [indices, setIndices] = useState({
     cabello: 0,
     colorCabello: 0,
@@ -51,6 +51,13 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
       });
     }
   }, [configInicial]);
+
+  // 🚀 ESCUCHA GLOBAL: Permite abrir el modal de forma remota al cliquear la foto integrada de la credencial
+  useEffect(() => {
+    const escucharApertura = () => setIsOpen(true);
+    window.addEventListener('abrir-editor-avatar', escucharApertura);
+    return () => window.removeEventListener('abrir-editor-avatar', escucharApertura);
+  }, []);
 
   const cambiarOpcion = (key, direccion) => {
     setIndices((prev) => {
@@ -151,7 +158,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         - Para mover a la DERECHA: Suma a las 'x' (ej. de 19 a 21)
         - Para mover ARRIBA/ABAJO: Modifica las 'y' de las monturas y cristales */}
 
-    {/* Montura izquierda (Movida de 21 a 19) */}
+    {/* Montura izquierdo (Movida de 21 a 19) */}
     <rect x="19" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
     {/* Cristal izquierdo (Movido de 23 a 21) */}
     <rect x="21" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
@@ -280,38 +287,40 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
   return (
     <>
-      {/* 1. DISPARADOR INTERACTIVO (Se renderiza estático en el espacio blanco de tu licencia digital) */}
-      <div 
-        onClick={() => setIsOpen(true)}
-        style={{ 
-          width: '130px', 
-          height: '130px', 
-          backgroundColor: '#0f172a', 
-          borderRadius: '50%', // Lo volvemos círculo perfecto para que ensamble en la credencial
-          border: '4px solid #60a5fa', 
-          overflow: 'hidden', 
-          boxSizing: 'border-box', 
-          display: 'flex', 
-          flexDirection: 'column',
-          alignItems: 'center', 
-          justifyContent: 'flex-start',
-          position: 'relative',
-          cursor: 'pointer',
-          transition: 'transform 0.2s ease',
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-      >
-        <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '14px' }}>
-          {imagenSrc && (
-            <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
-          )}
+      {/* 1. DISPARADOR INTERACTIVO (Se oculta por completo si pasas soloModal={true}) */}
+      {!soloModal && (
+        <div 
+          onClick={() => setIsOpen(true)}
+          style={{ 
+            width: '130px', 
+            height: '130px', 
+            backgroundColor: '#0f172a', 
+            borderRadius: '50%', // Lo volvemos círculo perfecto para que ensamble en la credencial
+            border: '4px solid #60a5fa', 
+            overflow: 'hidden', 
+            boxSizing: 'border-box', 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center', 
+            justifyContent: 'flex-start',
+            position: 'relative',
+            cursor: 'pointer',
+            transition: 'transform 0.2s ease',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '14px' }}>
+            {imagenSrc && (
+              <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+            )}
+          </div>
+          {renderAccesoriosEstilizados()}
+          {renderJerseyEstilizado()}
         </div>
-        {renderAccesoriosEstilizados()}
-        {renderJerseyEstilizado()}
-      </div>
+      )}
 
-      {/* 2. MODAL FLOTANTE (Opción B: Emerge al dar clic sobre el círculo de la credencial) */}
+      {/* 2. MODAL FLOTANTE (Emerge al dar clic sobre el círculo asignado) */}
       {isOpen && (
         <div style={{ 
           position: 'fixed', 
