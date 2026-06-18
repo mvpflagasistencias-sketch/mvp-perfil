@@ -210,15 +210,13 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
     return (
       <div style={{ 
         position: 'absolute',
-        bottom: '-24px', // 🚀 CALIBRACIÓN FINAL: Lo bajamos un poco más para que no choque arriba
-        width: '130px', // Reducido levemente para una simetría perfecta en la base del círculo
-        height: '120px',
-        zIndex: 4, // Pasa por encima del borde recortado del círculo base
-        transition: 'all 0.2s ease',
-        left: '50%',
-        transform: 'translateX(-50%)'
+        bottom: '-15px', 
+        width: '150px',
+        height: '140px',
+        zIndex: 1,
+        transition: 'all 0.2s ease'
       }}>
-        <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%' }}>
+        <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%', transform: 'translateY(-12px)' }}>
           <path d="M 53,35 L 53,28" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
           <path d="M 67,35 L 67,28" fill="none" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
 
@@ -289,40 +287,35 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
   return (
     <>
-      {/* 1. DISPARADOR INTERACTIVO EXTERNO CORREGIDO SIN CORTE INTERNO */}
+      {/* 1. DISPARADOR INTERACTIVO (Se oculta por completo si pasas soloModal={true}) */}
       {!soloModal && (
-        <div style={{ position: 'relative', width: '130px', height: '150px', margin: '0 auto' }}>
-          <div 
-            onClick={() => setIsOpen(true)}
-            style={{ 
-              width: '130px', 
-              height: '130px', 
-              backgroundColor: '#0f172a', 
-              borderRadius: '50%', 
-              border: '4px solid #60a5fa', 
-              overflow: 'hidden', // ✂️ Recorta perfectamente el cabello excedente del rostro
-              boxSizing: 'border-box', 
-              display: 'flex', 
-              flexDirection: 'column',
-              alignItems: 'center', 
-              justifyContent: 'flex-start',
-              position: 'relative',
-              cursor: 'pointer',
-              transition: 'transform 0.2s ease',
-              zIndex: 2
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-          >
-            {/* 🚀 ENCUADRE DE CONTENEDOR: Rostro estilizado con zoom inverso para evitar amontonamiento */}
-            <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '16px', transform: 'scale(1.22)', transformOrigin: 'top center' }}>
-              {imagenSrc && (
-                <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
-              )}
-            </div>
-            {renderAccesoriosEstilizados()}
+        <div 
+          onClick={() => setIsOpen(true)}
+          style={{ 
+            width: '130px', 
+            height: '130px', 
+            backgroundColor: '#0f172a', 
+            borderRadius: '50%', // Lo volvemos círculo perfecto para que ensamble en la credencial
+            border: '4px solid #60a5fa', 
+            overflow: 'hidden', 
+            boxSizing: 'border-box', 
+            display: 'flex', 
+            flexDirection: 'column',
+            alignItems: 'center', 
+            justifyContent: 'flex-start',
+            position: 'relative',
+            cursor: 'pointer',
+            transition: 'transform 0.2s ease',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '14px' }}>
+            {imagenSrc && (
+              <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+            )}
           </div>
-          {/* El jersey se inyecta por fuera de la máscara circular para evitar deformación */}
+          {renderAccesoriosEstilizados()}
           {renderJerseyEstilizado()}
         </div>
       )}
@@ -364,48 +357,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
                   <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
                 )}
               </div>
-              {/* Aquí los renderizadores se acoplan al lienzo extendido original sin salirse */}
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 3, pointerEvents: 'none' }}>
-                {indices.accesorios > 0 && (
-                  <div style={{ position: 'absolute', top: '48px', left: '25px', width: '110px', height: '110px' }}>
-                    {indices.accesorios === 1 && (
-                      <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
-                        <rect x="19" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke="#1a1a1a" strokeWidth="3" />
-                        <rect x="21" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
-                        <path d="M 23,49 L 31,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-                        <rect x="47" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke="#1a1a1a" strokeWidth="3" />
-                        <rect x="49" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
-                        <path d="M 51,49 L 59,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-                        <path d="M 39,53 L 47,53" stroke="#1a1a1a" strokeWidth="3.5" strokeLinecap="round" />
-                        <path d="M 10,51 L 19,50" stroke="#1a1a1a" strokeWidth="3" />
-                        <path d="M 67,50 L 85,51" stroke="#1a1a1a" strokeWidth="3" />
-                      </svg>
-                    )}
-                    {indices.accesorios === 2 && (
-                      <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
-                        <path d="M 25,46 L 95,56" stroke="#1a1a1a" strokeWidth="3" strokeLinecap="round" />
-                        <path d="M 25,58 L 58,51" stroke="#1a1a1a" strokeWidth="3" strokeLinecap="round" />
-                        <ellipse cx="55" cy="57" rx="10" ry="8" fill="#1a1a1a" stroke="#1a1a1a" strokeWidth="3" />
-                        <path d="M 55,49 L 61,57" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
-                      </svg>
-                    )}
-                  </div>
-                )}
-              </div>
-              {/* Jersey adaptado al modal interno original */}
-              <div style={{ position: 'absolute', bottom: '-12px', left: '50%', transform: 'translateX(-50%)', width: '150px', height: '140px' }}>
-                <svg viewBox="0 0 120 110" style={{ width: '100%', height: '100%' }}>
-                  <path d="M 53,35 L 53,28" fill="none" stroke="#1a1a1a" strokeWidth="3.5" strokeLinecap="round" />
-                  <path d="M 67,35 L 67,28" fill="none" stroke="#1a1a1a" strokeWidth="3.5" strokeLinecap="round" />
-                  <path d="M 25,100 C 25,60 35,42 45,35 C 50,32 70,32 75,35 C 85,42 95,60 95,100 Z" fill={colorJerseyActual} stroke="#1a1a1a" strokeWidth="3.5" strokeLinejoin="round" />
-                  {tipoRopa === 1 && (<><path d="M 28,65 C 30,52 35,45 40,41" fill="none" stroke="#ffffff" strokeWidth="4" opacity="0.8" /><path d="M 92,65 C 90,52 85,45 80,41" fill="none" stroke="#ffffff" strokeWidth="4" opacity="0.8" /></>)}
-                  {tipoRopa === 2 && (<><path d="M 23,100 C 24,68 33,52 38,44" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="6" /><path d="M 97,100 C 96,68 87,52 82,44" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="6" /></>)}
-                  {tipoRopa === 3 && (<path d="M 27,62 C 40,58 80,58 93,62 L 94,74 C 80,70 40,70 26,74 Z" fill="#ffffff" opacity="0.85" />)}
-                  {tipoRopa === 4 && (<path d="M 45,35 C 48,45 72,45 75,35 C 72,48 48,48 45,35" fill="#ffffff" />)}
-                  {tipoRopa === 5 && (<><path d="M 42,36 C 44,55 40,75 32,95" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="2.5" /><path d="M 78,36 C 76,55 80,75 88,95" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="2.5" /></>)}
-                  <path d="M 29,82 C 34,80 36,83 34,86" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeLinecap="round" /><path d="M 91,82 C 86,80 84,83 86,86" fill="none" stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeLinecap="round" /><path d="M 45,35 C 50,42 70,42 75,35 Z" fill="rgba(0,0,0,0.15)" /><path d="M 46,34 L 60,46 L 74,34" fill="none" stroke="#1a1a1a" strokeWidth="3.5" strokeLinecap="round" /><text x="60" y="78" textAnchor="middle" fill="#ffffff" opacity="0.25" style={{ fontSize: '26px', fontWeight: '900', fontFamily: 'Impact, sans-serif', letterSpacing: '-0.5px' }}>{tipoRopa}</text>
-                </svg>
-              </div>
+              {renderAccesoriosEstilizados()}
+              {renderJerseyEstilizado()}
             </div>
 
             {/* Selectores del catálogo */}
@@ -430,7 +383,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
               ))}
             </div>
 
-            {/* Botón para guardar y cerrar */}
+            {/* Botón para impactar backend y cerrar */}
             <button 
               onClick={handleGuardar} 
               disabled={guardando}
