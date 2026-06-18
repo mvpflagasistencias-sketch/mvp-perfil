@@ -97,7 +97,10 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
       };
       
-      const response = await fetch(`/api/jugadores/${jugadorId}/avatar`, {
+      // 🚀 ASIGNACIÓN DE BASEURL: Apunta al subdominio del backend configurado en Railway
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      
+      const response = await fetch(`${baseUrl}/api/jugadores/${jugadorId}/avatar`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ avatar_config: configAEnviar }),
@@ -136,7 +139,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-       
+        
 
        {tipoAccesorio === 1 && (
   /* 👓 LENTES DEPORTIVOS - DESPLAZAMIENTO 2px MÁS A LA IZQUIERDA */
