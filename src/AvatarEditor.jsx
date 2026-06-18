@@ -281,7 +281,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
         <div 
           onClick={() => setIsOpen(true)}
           style={{ 
-            width: '130px', 
+            width: '150px', 
             height: '130px', 
             backgroundColor: '#0f172a', 
             borderRadius: '50%', 
@@ -300,7 +300,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
           {/* 🎯 CORREGIDO: Alineación centralizada idéntica a la del modal de edición */}
-          <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '-25px' }}>
+          <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '-30px' }}>
             {imagenSrc && (
               <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
             )}
