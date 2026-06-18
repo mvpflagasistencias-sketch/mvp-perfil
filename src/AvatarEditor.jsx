@@ -25,6 +25,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   });
 
   const [guardando, setGuardando] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // 🚀 Control del modal flotante (Opción B)
 
   useEffect(() => {
     if (configInicial) {
@@ -108,6 +109,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
 
       if (!response.ok) throw new Error("Error en servidor");
       alert("✅ ¡Avatar deportivo guardado!");
+      setIsOpen(false); // Cierra automáticamente el modal tras un guardado exitoso
       if (onGuardarExito) onGuardarExito(configAEnviar);
     } catch (err) {
       console.error("Error al guardar avatar:", err);
@@ -277,77 +279,113 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito }) => {
   };
 
   return (
-    <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', margin: '0 auto', color: 'white', textAlign: 'center', boxSizing: 'border-box' }}>
-      <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
-      
-      <div style={{ 
-        width: '160px', 
-        height: '240px', 
-        backgroundColor: '#0f172a', 
-        borderRadius: '20px', 
-        margin: '0 auto 20px', 
-        border: '4px solid #60a5fa', 
-        overflow: 'hidden', 
-        boxSizing: 'border-box', 
-        display: 'flex', 
-        flexDirection: 'column',
-        alignItems: 'center', 
-        justifyContent: 'flex-start',
-        position: 'relative'
-      }}>
-        {/* 1. SECCIÓN DE LA CABEZA (DiceBear base) */}
-        <div style={{ 
-          width: '110px', 
-          height: '110px', 
-          zIndex: 2, 
-          position: 'relative', 
-          marginTop: '48px'
-        }}>
+    <>
+      {/* 1. DISPARADOR INTERACTIVO (Se renderiza estático en el espacio blanco de tu licencia digital) */}
+      <div 
+        onClick={() => setIsOpen(true)}
+        style={{ 
+          width: '130px', 
+          height: '130px', 
+          backgroundColor: '#0f172a', 
+          borderRadius: '50%', // Lo volvemos círculo perfecto para que ensamble en la credencial
+          border: '4px solid #60a5fa', 
+          overflow: 'hidden', 
+          boxSizing: 'border-box', 
+          display: 'flex', 
+          flexDirection: 'column',
+          alignItems: 'center', 
+          justifyContent: 'flex-start',
+          position: 'relative',
+          cursor: 'pointer',
+          transition: 'transform 0.2s ease',
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '14px' }}>
           {imagenSrc && (
-            <img 
-              src={imagenSrc} 
-              alt="Rostro" 
-              style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }}
-            />
+            <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
           )}
         </div>
-
-        {/* 🚀 INYECCIÓN DE LA CAPA VECTORIAL CONTROLADA */}
         {renderAccesoriosEstilizados()}
-
-        {/* 2. UNIFORME DEPORTIVO VECTORIAL DINÁMICO */}
         {renderJerseyEstilizado()}
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {[
-          { label: 'Estilo de Cabello', campo: 'cabello' },
-          { label: 'Color de Cabello', campo: 'colorCabello' },
-          { label: 'Tipo de Ropa', campo: 'ropa' },
-          { label: 'Color de Ropa', campo: 'colorRopa' },
-          { label: 'Accesorios', campo: 'accesorios' },
-          { label: 'Expresión', campo: 'expresion' },
-          { label: 'Color de Piel', campo: 'colorPiel' } 
-        ].map((item) => (
-          <div key={item.campo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '12px', border: '1px solid #30363d', boxSizing: 'border-box' }}>
-            <span style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>{item.label}</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <button type="button" onClick={() => cambiarOpcion(item.campo, -1)} style={{ background: 'none', border: 'none', color: '#60a5fa', fontWeight: '900', cursor: 'pointer', fontSize: '14px', padding: 0 }}>◀</button>
-              <span style={{ fontSize: '10px', fontWeight: '900', minWidth: '16px', textAlign: 'center' }}>{indices[item.campo] + 1}</span>
-              <button type="button" onClick={() => cambiarOpcion(item.campo, 1)} style={{ background: 'none', border: 'none', color: '#60a5fa', fontWeight: '900', cursor: 'pointer', fontSize: '14px', padding: 0 }}>▶</button>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* 2. MODAL FLOTANTE (Opción B: Emerge al dar clic sobre el círculo de la credencial) */}
+      {isOpen && (
+        <div style={{ 
+          position: 'fixed', 
+          top: 0, 
+          left: 0, 
+          width: '100vw', 
+          height: '100vh', 
+          backgroundColor: 'rgba(15, 23, 42, 0.75)', 
+          backdropFilter: 'blur(4px)', 
+          zIndex: 9999, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          padding: '20px',
+          boxSizing: 'border-box'
+        }}>
+          {/* Fondo del modal con tu menú original y selectores */}
+          <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', width: '100%', color: 'white', textAlign: 'center', boxSizing: 'border-box', position: 'relative' }}>
+            
+            {/* Botón X superior para cerrar manualmente */}
+            <button 
+              onClick={() => setIsOpen(false)}
+              style={{ position: 'absolute', top: '14px', right: '16px', background: 'none', border: 'none', color: '#9ca3af', fontSize: '18px', fontWeight: '900', cursor: 'pointer' }}
+            >
+              ✕
+            </button>
 
-      <button 
-        onClick={handleGuardar} 
-        disabled={guardando}
-        style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', marginTop: '18px', cursor: 'pointer', letterSpacing: '0.05em' }}
-      >
-        {guardando ? 'Guardando...' : '💾 Fijar en mi Credencial'}
-      </button>
-    </div>
+            <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
+            
+            {/* Vista previa interna del modal */}
+            <div style={{ width: '160px', height: '240px', backgroundColor: '#0f172a', borderRadius: '20px', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', position: 'relative' }}>
+              <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '48px' }}>
+                {imagenSrc && (
+                  <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
+                )}
+              </div>
+              {renderAccesoriosEstilizados()}
+              {renderJerseyEstilizado()}
+            </div>
+
+            {/* Selectores del catálogo */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {[
+                { label: 'Estilo de Cabello', campo: 'cabello' },
+                { label: 'Color de Cabello', campo: 'colorCabello' },
+                { label: 'Tipo de Ropa', campo: 'ropa' },
+                { label: 'Color de Ropa', campo: 'colorRopa' },
+                { label: 'Accesorios', campo: 'accesorios' },
+                { label: 'Expresión', campo: 'expresion' },
+                { label: 'Color de Piel', campo: 'colorPiel' } 
+              ].map((item) => (
+                <div key={item.campo} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '12px', border: '1px solid #30363d', boxSizing: 'border-box' }}>
+                  <span style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>{item.label}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <button type="button" onClick={() => cambiarOpcion(item.campo, -1)} style={{ background: 'none', border: 'none', color: '#60a5fa', fontWeight: '900', cursor: 'pointer', fontSize: '14px', padding: 0 }}>◀</button>
+                    <span style={{ fontSize: '10px', fontWeight: '900', minWidth: '16px', textAlign: 'center' }}>{indices[item.campo] + 1}</span>
+                    <button type="button" onClick={() => cambiarOpcion(item.campo, 1)} style={{ background: 'none', border: 'none', color: '#60a5fa', fontWeight: '900', cursor: 'pointer', fontSize: '14px', padding: 0 }}>▶</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Botón para impactar backend y cerrar */}
+            <button 
+              onClick={handleGuardar} 
+              disabled={guardando}
+              style={{ width: '100%', backgroundColor: '#22c55e', color: 'white', border: 'none', padding: '14px', borderRadius: '12px', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', marginTop: '18px', cursor: 'pointer', letterSpacing: '0.05em' }}
+            >
+              {guardando ? 'Guardando...' : '💾 Fijar en mi Credencial'}
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
