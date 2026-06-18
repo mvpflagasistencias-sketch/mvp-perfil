@@ -8,7 +8,6 @@ const OPCIONES = {
   colorCabello: ['0e0e10', '4a3728', 'b58143', 'af3838', '2c5282'],
   ropa: ['jersey01', 'jersey02', 'jersey03', 'jersey04', 'jersey05'],
   colorRopa: ['9b2c2c', '2b6cb0', '2f855a', 'd69e2e', '4a5568'],
-  accesorios: ['none', 'glasses01', 'eyepatch'], // 👈 Variantes reales de la librería adventurer
   expresion: ['variant01', 'variant02', 'variant03', 'variant04'],
   colorPiel: ['f2d3b1', 'ecad80', 'c1885a', '94613c', '613b1e'] 
 };
@@ -19,7 +18,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
     colorCabello: 0,
     ropa: 0,
     colorRopa: 0,
-    accesorios: 0,
     expresion: 0,
     colorPiel: 2, 
   });
@@ -33,10 +31,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
       const hairColorConfig = Array.isArray(configInicial.hairColor) ? configInicial.hairColor[0] : configInicial.hairColor;
       const clothingConfig = Array.isArray(configInicial.clothing) ? configInicial.clothing[0] : configInicial.clothing;
       const clothingColorConfig = Array.isArray(configInicial.clothingColor) ? configInicial.clothingColor[0] : configInicial.clothingColor;
-      
-      const rawAccessories = configInicial.accessories || configInicial.features;
-      const targetAccessory = Array.isArray(rawAccessories) ? rawAccessories[0] : rawAccessories;
-      
       const eyebrowsConfig = Array.isArray(configInicial.eyebrows) ? configInicial.eyebrows[0] : configInicial.eyebrows;
       const skinColorConfig = Array.isArray(configInicial.skinColor) ? configInicial.skinColor[0] : configInicial.skinColor;
 
@@ -45,7 +39,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
         colorCabello: OPCIONES.colorCabello.indexOf(hairColorConfig) >= 0 ? OPCIONES.colorCabello.indexOf(hairColorConfig) : 0,
         ropa: OPCIONES.ropa.indexOf(clothingConfig) >= 0 ? OPCIONES.ropa.indexOf(clothingConfig) : 0,
         colorRopa: OPCIONES.colorRopa.indexOf(clothingColorConfig) >= 0 ? OPCIONES.colorRopa.indexOf(clothingColorConfig) : 0,
-        accesorios: OPCIONES.accesorios.indexOf(targetAccessory) >= 0 ? OPCIONES.accesorios.indexOf(targetAccessory) : 0,
         expresion: OPCIONES.expresion.indexOf(eyebrowsConfig) >= 0 ? OPCIONES.expresion.indexOf(eyebrowsConfig) : 0,
         colorPiel: OPCIONES.colorPiel.indexOf(skinColorConfig) >= 0 ? OPCIONES.colorPiel.indexOf(skinColorConfig) : 2,
       });
@@ -100,7 +93,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
         hairColor: [OPCIONES.colorCabello[indices.colorCabello]],
         clothing: [OPCIONES.ropa[indices.ropa]],
         clothingColor: [OPCIONES.colorRopa[indices.colorRopa]],
-        accessories: OPCIONES.accesorios[indices.accesorios] !== 'none' ? [OPCIONES.accesorios[indices.accesorios]] : [],
+        accessories: [], // Se envía vacío al servidor de forma segura
         eyebrows: [OPCIONES.expresion[indices.expresion]],
         skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
       };
@@ -128,67 +121,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
   const imagenSrc = obtenerDataUriAvatar();
   const colorJerseyActual = `#${OPCIONES.colorRopa[indices.colorRopa]}`;
-
-  // 🚀 NUEVA LÓGICA DE CONTROL TOTAL: Calibración milimétrica para situar los accesorios sobre los ojos
-  const renderAccesoriosEstilizados = () => {
-    if (indices.accesorios === 0) return null;
-
-    const colorBordeNegro = '#1a1a1a';
-    const tipoAccesorio = indices.accesorios;
-
-    return (
-      <div style={{ 
-        position: 'absolute',
-        top: '48px', // Sincronizado exactamente con el inicio del contenedor de la cabeza
-        width: '110px', // Conserva la escala exacta de la etiqueta img del rostro
-        height: '110px',
-        zIndex: 3,
-        pointerEvents: 'none',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        
-
-       {tipoAccesorio === 1 && (
-  /* 👓 LENTES DEPORTIVOS - DESPLAZAMIENTO 2px MÁS A LA IZQUIERDA */
-  <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
-    {/* Montura izquierdo (Movida de 21 a 19) */}
-    <rect x="19" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
-    {/* Cristal izquierdo (Movido de 23 a 21) */}
-    <rect x="21" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
-    <path d="M 23,49 L 31,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-
-    {/* Montura derecha (Movida de 49 a 47) */}
-    <rect x="47" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
-    {/* Cristal derecho (Movido de 51 a 49) */}
-    <rect x="49" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
-    <path d="M 51,49 L 59,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-
-    {/* Puente del medio (Ajustado de 41 a 39) */}
-    <path d="M 39,53 L 47,53" stroke={colorBordeNegro} strokeWidth="3.5" strokeLinecap="round" />
-    {/* Patas laterales sujetadoras */}
-    <path d="M 10,51 L 19,50" stroke={colorBordeNegro} strokeWidth="3" />
-    <path d="M 67,50 L 85,51" stroke={colorBordeNegro} strokeWidth="3" />
-  </svg>
-)}
-
-
-{tipoAccesorio === 2 && (
-  /* 🏴‍☠️ PARCHE DE OJO - DESPLAZAMIENTO 2px MÁS A LA IZQUIERDA */
-  <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
-    {/* Correas de sujeción ajustadas al nuevo centro */}
-    <path d="M 25,46 L 95,56" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
-    <path d="M 25,58 L 58,51" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
-    <ellipse cx="55" cy="57" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
-    {/* Detalle de costura */}
-    <path d="M 55,49 L 61,57" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
-  </svg>
-)}
-
-      </div>
-    );
-  };
 
   const renderJerseyEstilizado = () => {
     const tipoRopa = indices.ropa + 1;
@@ -299,12 +231,10 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          {/* 🎯 CORREGIDO: Alineación centralizada idéntica a la del modal de edición */}
           <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '-15px' }}>
             {imagenSrc && (
               <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
             )}
-            {renderAccesoriosEstilizados()}
           </div>
           {renderJerseyEstilizado()}
         </div>
@@ -347,7 +277,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
                   <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
                 )}
               </div>
-              {renderAccesoriosEstilizados()}
               {renderJerseyEstilizado()}
             </div>
 
@@ -358,7 +287,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
                 { label: 'Color de Cabello', campo: 'colorCabello' },
                 { label: 'Tipo de Ropa', campo: 'ropa' },
                 { label: 'Color de Ropa', campo: 'colorRopa' },
-                { label: 'Accesorios', campo: 'accesorios' },
                 { label: 'Expresión', campo: 'expresion' },
                 { label: 'Color de Piel', campo: 'colorPiel' } 
               ].map((item) => (
