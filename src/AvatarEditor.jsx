@@ -116,7 +116,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
       if (!response.ok) throw new Error("Error en servidor");
       alert("✅ ¡Avatar deportivo guardado!");
-      setIsOpen(false); // Cierra automáticamente el modal tras un guardado exitoso
+      isOpen && setIsOpen(false); // Cierra automáticamente el modal tras un guardado exitoso
       if (onGuardarExito) onGuardarExito(configAEnviar);
     } catch (err) {
       console.error("Error al guardar avatar:", err);
@@ -153,6 +153,11 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
        {tipoAccesorio === 1 && (
   /* 👓 LENTES DEPORTIVOS - DESPLAZAMIENTO 2px MÁS A LA IZQUIERDA */
   <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
+    {/* 💡 GUÍA PARA AJUSTE MANUAL: 
+        - Para mover a la IZQUIERDA: Resta a las 'x' (ej. de 19 a 17)
+        - Para mover a la DERECHA: Suma a las 'x' (ej. de 19 a 21)
+        - Para mover ARRIBA/ABAJO: Modifica las 'y' de las monturas y cristales */}
+
     {/* Montura izquierdo (Movida de 21 a 19) */}
     <rect x="19" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke={colorBordeNegro} strokeWidth="3" />
     {/* Cristal izquierdo (Movido de 23 a 21) */}
@@ -180,7 +185,13 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
     {/* Correas de sujeción ajustadas al nuevo centro */}
     <path d="M 25,46 L 95,56" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
     <path d="M 25,58 L 58,51" stroke={colorBordeNegro} strokeWidth="3" strokeLinecap="round" />
+    
+    {/* 💡 GUÍA PARA AJUSTE MANUAL DEL PARCHE:
+        - Para mover a la IZQUIERDA: Resta al valor de 'cx' (ej. de 58 a 55)
+        - Para mover a la DERECHA: Suma al valor de 'cx' (ej. de 58 a 61)
+        - Para mover ARRIBA/ABAJO: Modifica el valor de 'cy' (actualmente en 53) */}
     <ellipse cx="55" cy="57" rx="10" ry="8" fill="#1a1a1a" stroke={colorBordeNegro} strokeWidth="3" />
+    
     {/* Detalle de costura */}
     <path d="M 55,49 L 61,57" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
@@ -278,17 +289,17 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
   return (
     <>
-      {/* 1. DISPARADOR INTERACTIVO (CORREGIDO PARA CORTAR HORIZONTALMENTE PERO MANTENER LA CURVA PERFECTA) */}
+      {/* 1. DISPARADOR INTERACTIVO (CORREGIDO: CENTRADO ABSOLUTO MATEMÁTICO AL ROSTRO) */}
       {!soloModal && (
         <div 
           onClick={() => setIsOpen(true)}
           style={{ 
-            width: '126px', // Ajustado al tamaño de tu borde interno de la credencial
+            width: '126px', 
             height: '126px', 
             backgroundColor: '#0f172a', 
             borderRadius: '50%', 
             border: '4px solid #60a5fa', 
-            overflow: 'hidden', // ✂️ Corta los extremos del jersey para que siga la forma circular limpia sin desbordar los lados
+            overflow: 'hidden', 
             boxSizing: 'border-box', 
             display: 'flex', 
             flexDirection: 'column',
@@ -301,15 +312,52 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.04)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          {/* Contenedor del Rostro y Accesorios */}
-          <div style={{ width: '100px', height: '100px', zIndex: 2, position: 'relative', marginTop: '10px', transform: 'scale(1.3)', transformOrigin: 'top center' }}>
+          {/* 🎯 CONTENEDOR ANIDADO COHESIVO: Escala tanto el rostro como su capa SVG en simultáneo sobre el origen central */}
+          <div style={{ 
+            width: '100px', 
+            height: '100px', 
+            zIndex: 2, 
+            position: 'relative', 
+            marginTop: '-5px', // Sube la cabeza milimétricamente para centrar el mentón al cuello del jersey
+            transform: 'scale(1.22)', 
+            transformOrigin: 'top center',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
             {imagenSrc && (
               <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
             )}
+            
+            {/* Capa de accesorios integrada al mismo nodo transformado de la cabeza */}
+            {indices.accesorios > 0 && (
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 3, pointerEvents: 'none' }}>
+                {indices.accesorios === 1 && (
+                  <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
+                    <rect x="19" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke="#1a1a1a" strokeWidth="3" />
+                    <rect x="21" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
+                    <path d="M 23,49 L 31,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+                    <rect x="47" y="47" width="20" height="15" rx="4" fill="#1e293b" stroke="#1a1a1a" strokeWidth="3" />
+                    <rect x="49" y="49" width="16" height="11" rx="2" fill="#38bdf8" opacity="0.75" />
+                    <path d="M 51,49 L 59,57" stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+                    <path d="M 39,53 L 47,53" stroke="#1a1a1a" strokeWidth="3.5" strokeLinecap="round" />
+                    <path d="M 10,51 L 19,50" stroke="#1a1a1a" strokeWidth="3" />
+                    <path d="M 67,50 L 85,51" stroke="#1a1a1a" strokeWidth="3" />
+                  </svg>
+                )}
+                {indices.accesorios === 2 && (
+                  <svg viewBox="0 0 110 110" style={{ width: '100%', height: '100%' }}>
+                    <path d="M 25,46 L 95,56" stroke="#1a1a1a" strokeWidth="3" strokeLinecap="round" />
+                    <path d="M 25,58 L 58,51" stroke="#1a1a1a" strokeWidth="3" strokeLinecap="round" />
+                    <ellipse cx="55" cy="57" rx="10" ry="8" fill="#1a1a1a" stroke="#1a1a1a" strokeWidth="3" />
+                    <path d="M 55,49 L 61,57" stroke="#334155" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                )}
+              </div>
+            )}
           </div>
           
-          {renderAccesoriosEstilizados()}
-          {/* El jersey ahora se dibuja aquí adentro, por lo que el overflow: hidden lo corta de forma circular exacta en la base */}
+          {/* El jersey se corta limpiamente de forma circular por el corte general inferior */}
           {renderJerseyEstilizado()}
         </div>
       )}
