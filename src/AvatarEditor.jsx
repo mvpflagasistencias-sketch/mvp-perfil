@@ -25,6 +25,12 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
   const [guardando, setGuardando] = useState(false);
   const [isOpen, setIsOpen] = useState(false); // 🚀 Control del modal flotante (Opción B)
 
+  // 🎈 ESTADOS PARA EL EFECTO BURBUJA DRAGGABLE (MESSENGER STYLE)
+  const [posicion, setPosicion] = useState({ x: window.innerWidth - 200, y: window.innerHeight / 2 - 80 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [seMovio, setSeMovio] = useState(false); // Evita abrir el modal por accidente al arrastrar
+
   useEffect(() => {
     if (configInicial) {
       const hairConfig = Array.isArray(configInicial.hair) ? configInicial.hair[0] : configInicial.hair;
@@ -44,6 +50,39 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
       });
     }
   }, [configInicial]);
+
+  // Manejo global del movimiento del mouse para un arrastre fluido
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDragging) return;
+      
+      // Calculamos la nueva posición restando el offset inicial
+      let nuevaX = e.clientX - dragStart.x;
+      let nuevaY = e.clientY - dragStart.y;
+
+      // 🛑 Límites de pantalla elementales (Evita que el mono se pierda fuera de los bordes)
+      nuevaX = Math.max(10, Math.min(nuevaX, window.innerWidth - 170));
+      nuevaY = Math.max(10, Math.min(nuevaY, window.innerHeight - 170));
+
+      setPosicion({ x: nuevaX, y: nuevaY });
+      setSeMovio(true);
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeUpEventListener?.('mouseup', handleMouseUp);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, dragStart]);
 
   // 🚀 ESCUCHA GLOBAL: Permite abrir el modal de forma remota al cliquear la foto integrada de la credencial
   useEffect(() => {
@@ -98,7 +137,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
         skinColor: [OPCIONES.colorPiel[indices.colorPiel]] 
       };
       
-      // 🚀 ASIGNACIÓN DE BASEURL: Apunta al subdominio del backend configurado en Railway
       const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
       
       const response = await fetch(`${baseUrl}/api/jugadores/${jugadorId}/avatar`, {
@@ -206,12 +244,30 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
     );
   };
 
+  // Funciones controladoras del arrastre interactivo burbuja
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setSeMovio(false);
+    setDragStart({
+      x: e.clientX - posicion.x,
+      y: e.clientY - posicion.y
+    });
+  };
+
+  const handleElementClick = () => {
+    // Si solo se arrastró la burbuja, no disparamos la apertura del editor
+    if (!seMovio) {
+      setIsOpen(true);
+    }
+  };
+
   return (
     <>
-      {/* 1. DISPARADOR INTERACTIVO (CÍRCULO EXTERIOR EN LA CREDENCIAL) */}
+      {/* 1. DISPARADOR INTERACTIVO MODIFICADO A BURBUJA FLOTANTE (DRAGGABLE) */}
       {!soloModal && (
         <div 
-          onClick={() => setIsOpen(true)}
+          onMouseDown={handleMouseDown}
+          onClick={handleElementClick}
           style={{ 
             width: '160px', 
             height: '160px', 
@@ -224,19 +280,25 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
             flexDirection: 'column',
             alignItems: 'center', 
             justifyContent: 'flex-start',
-            position: 'relative',
-            cursor: 'pointer',
-            transition: 'transform 0.2s ease',
+            position: 'fixed', // 🚀 CAPA INDEPENDIENTE: Sale del flujo para dejar la credencial al centro
+            left: `${posicion.x}px`, // Posición X dinámica en píxeles
+            top: `${posicion.y}px`,  // Posición Y dinámica en píxeles
+            zIndex: 999, // Se mantiene flotando por encima del contenido
+            cursor: isDragging ? 'grabbing' : 'grab', // Icono dinámico de mano
+            transition: isDragging ? 'none' : 'transform 0.2s ease', // Evita retrasos durante el drag
+            userSelect: 'none',
           }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          onMouseEnter={(e) => !isDragging && (e.currentTarget.style.transform = 'scale(1.05)')}
+          onMouseLeave={(e) => !isDragging && (e.currentTarget.style.transform = 'scale(1)')}
         >
-          <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '-15px' }}>
+          <div style={{ width: '90px', height: '90px', zIndex: 2, position: 'relative', marginTop: '-15px', pointerEvents: 'none' }}>
             {imagenSrc && (
               <img src={imagenSrc} alt="Rostro" style={{ width: '100%', height: '100%', display: 'block', objectFit: 'contain' }} />
             )}
           </div>
-          {renderJerseyEstilizado()}
+          <div style={{ pointerEvents: 'none', position: 'absolute', width: '100%', height: '100%' }}>
+            {renderJerseyEstilizado()}
+          </div>
         </div>
       )}
 
@@ -257,10 +319,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
           padding: '20px',
           boxSizing: 'border-box'
         }}>
-          {/* Fondo del modal con tu menú original y selectores */}
           <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', width: '100%', color: 'white', textAlign: 'center', boxSizing: 'border-box', position: 'relative' }}>
             
-            {/* Botón X superior para cerrar manualmente */}
             <button 
               onClick={() => setIsOpen(false)}
               style={{ position: 'absolute', top: '14px', right: '16px', background: 'none', border: 'none', color: '#9ca3af', fontSize: '18px', fontWeight: '900', cursor: 'pointer' }}
@@ -270,7 +330,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
             <h4 style={{ fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', marginBottom: '16px', letterSpacing: '0.1em', margin: '0 0 16px' }}>Diseña tu Personaje</h4>
             
-            {/* Vista previa interna del modal */}
             <div style={{ width: '160px', height: '240px', backgroundColor: '#0f172a', borderRadius: '20px', margin: '0 auto 20px', border: '4px solid #60a5fa', overflow: 'hidden', boxSizing: 'border-box', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start', position: 'relative' }}>
               <div style={{ width: '110px', height: '110px', zIndex: 2, position: 'relative', marginTop: '48px' }}>
                 {imagenSrc && (
@@ -301,7 +360,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
               ))}
             </div>
 
-            {/* Botón para impactar backend y cerrar */}
             <button 
               onClick={handleGuardar} 
               disabled={guardando}
