@@ -92,7 +92,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeUpEventListener?.('mouseup', handleMouseUp);
       window.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDragging, dragStart, esMovil]);
@@ -165,7 +164,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
     } catch (err) {
       console.error("Error al guardar avatar:", err);
       alert("❌ No se pudo guardar el avatar en el servidor");
-    } finally {
+    } fillany {
       setGuardando(false);
     }
   };
@@ -269,7 +268,6 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
   };
 
   const handleElementClick = () => {
-    // Si solo se arrastró la burbuja, no disparamos la apertura del editor
     if (esMovil || !seMovio) {
       setIsOpen(true);
     }
@@ -277,7 +275,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
   return (
     <>
-      {/* 1. DISPARADOR INTERACTIVO MODIFICADO A BURBUJA FLOTANTE (RESPONSIVE) */}
+      {/* 1. DISPARADOR INTERACTIVO MODIFICADO A BURBUJA FLOTANTE (RESPONSIVE CORREGIDO) */}
       {!soloModal && (
         <div 
           onMouseDown={handleMouseDown}
@@ -294,11 +292,11 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
             flexDirection: 'column',
             alignItems: 'center', 
             justifyContent: 'flex-start',
-            // 🚀 DETECCIÓN ADAPTATIVA: Si es móvil se integra al final del flujo, si es web flota libremente
-            position: esMovil ? 'static' : 'fixed', 
+            // 🚀 CORRECCIÓN CLAVE: Mantenemos position: 'relative' en móvil para que los hijos absolutos no se desarmen
+            position: esMovil ? 'relative' : 'fixed', 
             left: esMovil ? 'auto' : `${posicion.x}px`, 
             top: esMovil ? 'auto' : `${posicion.y}px`, 
-            margin: esMovil ? '24px auto 0' : '0',
+            margin: esMovil ? '40px auto 40px' : '0', // Le da espacio arriba y abajo en la lista
             zIndex: 99, 
             cursor: esMovil ? 'pointer' : (isDragging ? 'grabbing' : 'grab'), 
             transition: isDragging ? 'none' : 'transform 0.2s ease', 
