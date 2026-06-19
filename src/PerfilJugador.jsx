@@ -29,8 +29,8 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
   // Información del equipo (para jalar de tu API en Railway)
   const [datosEquipo, setDatosEquipo] = useState({
-    asistencias: 14,
-    totalesPartidos: 16,
+    asistencias: 0, // Inicia en 0 en lugar de hardcodeado
+    totalesPartidos: 16, // Base por defecto, se actualizará dinámicamente
     fotos: [
       'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?q=80&w=400&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?q=80&w=400&auto=format&fit=crop',
@@ -48,9 +48,11 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       if (!idActual) { setLoading(false); return; }
 
       try {
-        const [resPerfil, resEquipos] = await Promise.all([
+        // Realizamos las 3 peticiones en paralelo para optimizar la velocidad de carga en Railway
+        const [resPerfil, resEquipos, resAsistencias] = await Promise.all([
           api.get(`/api/jugadores/perfil/${idActual}`),
-          api.get('/api/equipos')
+          api.get('/api/equipos'),
+          api.get(`/api/jugadores/${idActual}/contador-asistencias`)
         ]);
 
         let data = resPerfil.data;
@@ -60,6 +62,16 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         
         setPerfil(data);
         setEquipos(resEquipos.data);
+
+        // Mantenemos intactas tus galerías y promos, inyectando las asistencias reales de la base de datos
+        if (resAsistencias.data) {
+          setDatosEquipo(prev => ({
+            ...prev,
+            asistencias: resAsistencias.data.asistencias,
+            totalesPartidos: resAsistencias.data.totalesPartidos
+          }));
+        }
+
         // Sincronizamos los datos editables con el formulario
         setDatosForm({
           nombre: data.nombre || '',
@@ -73,7 +85,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         // Sincronizamos la foto inicial en el estado de preview
         setFotoBase64(data.foto_perfil || '');
       } catch (err) {
-        console.error("Error al obtener perfil del atleta", err);
+        console.error("Error al obtener perfil del atleta o asistencias", err);
       } finally {
         setLoading(false);
       }
