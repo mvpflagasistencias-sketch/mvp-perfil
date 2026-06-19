@@ -8,6 +8,24 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
   const [equipos, setEquipos] = useState([]);
+  
+  // 🚀 NUEVO ESTADO: Pestaña activa del centro de control
+  const [tabActiva, setTabActiva] = useState('promos');
+
+  // ⚡ MOCK DATA: Simulación de la información del equipo que llegará desde tu API en Railway
+  const [datosEquipo, setDatosEquipo] = useState({
+    asistencias: 14,
+    totalesPartidos: 16,
+    fotos: [
+      'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?q=80&w=400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?q=80&w=400&auto=format&fit=crop',
+      'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=400&auto=format&fit=crop'
+    ],
+    promociones: [
+      { id: 1, titulo: "🔥 ¡20% EN JERSEY OFICIAL!", desc: "Usa el cupón MVPJERSEY26 en la tienda física de la liga y personaliza tu uniforme.", expira: "30/06/2026" },
+      { id: 2, titulo: "🏈 INSCRIPCIONES ABIERTAS", desc: "Asegura el lugar de tu escuadra para el torneo relámpago de Verano. Cierre de registros: Julio 5.", expira: "05/07/2026" }
+    ]
+  });
 
   useEffect(() => {
     const fetchPerfilYEquipos = async () => {
@@ -27,6 +45,11 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         
         setPerfil(data);
         setEquipos(resEquipos.data);
+
+        // 💡 NOTA DE ESTADÍA: Aquí harías tu llamada filtrada usando el equipo del jugador:
+        // const resExtra = await api.get(`/api/equipos/${data.nombre_equipo}/dashboard`);
+        // setDatosEquipo(resExtra.data);
+
       } catch (err) {
         console.error("Error al obtener perfil del atleta", err);
       } finally {
@@ -78,16 +101,18 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     <div style={{ 
       minHeight: '100vh', 
       display: 'flex', 
+      flexDirection: 'column', // 🎯 Alineación vertical para alojar el centro de control abajo
       alignItems: 'center', 
-      justifyContent: 'center', 
+      justifyContent: 'flex-start', 
       backgroundColor: '#0f172a', 
-      padding: '24px', 
+      padding: '40px 24px', 
       boxSizing: 'border-box',
       width: '100%',
-      position: 'relative'
+      position: 'relative',
+      gap: '32px'
     }}>
       
-      {/* 💳 ESTA ES TU LICENCIA DIGITAL (Centrada perfectamente al 100% de la pantalla) */}
+      {/* 💳 ESTA ES TU LICENCIA DIGITAL */}
       <div style={{ 
         backgroundColor: '#1e293b',
         padding: 'clamp(20px, 6vw, 32px)', 
@@ -163,7 +188,96 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         </button>
       </div>
 
-      {/* 🔵 PANEL DEL AVATAR (Inyectado directamente de forma absoluta/fija al layout) */}
+      {/* 🏟️ NUEVO CONTENEDOR: CENTRO DE CONTROL DEL JUGADOR */}
+      <div style={{
+        backgroundColor: '#1e293b',
+        borderRadius: '24px',
+        border: '1px solid #30363d',
+        width: '100%',
+        maxWidth: '450px',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+        boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)',
+        color: 'white'
+      }}>
+        {/* Barra de Pestañas Navegables */}
+        <div style={{ display: 'flex', backgroundColor: '#0f172a', borderBottom: '1px solid #30363d' }}>
+          {[
+            { id: 'promos', label: '📢 Promos' },
+            { id: 'asistencias', label: '📊 Asistencias' },
+            { id: 'fotos', label: '📸 Galería' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setTabActiva(tab.id)}
+              style={{
+                flex: 1,
+                padding: '14px 10px',
+                background: tabActiva === tab.id ? '#1e293b' : 'transparent',
+                border: 'none',
+                color: tabActiva === tab.id ? '#60a5fa' : '#9ca3af',
+                fontWeight: '900',
+                fontSize: '11px',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                outline: 'none'
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Contenido Dinámico de las Pestañas */}
+        <div style={{ padding: '20px', boxSizing: 'border-box', minHeight: '180px' }}>
+          
+          {/* TAB 1: PROMOCIONES */}
+          {tabActiva === 'promos' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {datosEquipo.promociones.map((p) => (
+                <div key={p.id} style={{ backgroundColor: '#0f172a', padding: '14px', borderRadius: '14px', border: '1px solid #30363d', textAlign: 'left' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#22c55e', letterSpacing: '0.05em' }}>{p.titulo}</span>
+                    <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700' }}>Expira: {p.expira}</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '11px', color: '#9ca3af', lineHeight: '1.4' }}>{p.desc}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* TAB 2: ASISTENCIAS */}
+          {tabActiva === 'asistencias' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', paddingTop: '10px' }}>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100px', height: '100px', borderRadius: '50%', border: '6px solid #0f172a', borderTopColor: '#22c55e', marginBottom: '14px' }}>
+                <span style={{ fontSize: '24px', fontWeight: '900' }}>{datosEquipo.asistencias}</span>
+              </div>
+              <p style={{ margin: '0 0 4px', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa' }}>Récord de Asistencia</p>
+              <span style={{ fontSize: '11px', color: '#9ca3af' }}>Tu equipo ha asistido a {datosEquipo.asistencias} de {datosEquipo.totalesPartidos} juegos programados.</span>
+            </div>
+          )}
+
+          {/* TAB 3: FOTOS DEL ÁRBITRO */}
+          {tabActiva === 'fotos' && (
+            <div>
+              <p style={{ margin: '0 0 12px 0', fontSize: '10px', fontWeight: '900', color: '#9ca3af', textTransform: 'uppercase', textAlign: 'left' }}>
+                📷 Capturas de Oficiales ({obtenerNombreEquipo()})
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                {datosEquipo.fotos.map((url, index) => (
+                  <div key={index} style={{ width: '100%', aspectRatio: '1', backgroundColor: '#0f172a', borderRadius: '10px', overflow: 'hidden', border: '1px solid #30363d' }}>
+                    <img src={url} alt={`Partido ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.2s', cursor: 'zoom-in' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {/* 🔵 PANEL DEL AVATAR (Mantiene su comportamiento flotante independiente sin alterar nada) */}
       <AvatarEditor 
         key={`editor-atleta-${perfil.id}`}
         jugadorId={perfil.id} 
