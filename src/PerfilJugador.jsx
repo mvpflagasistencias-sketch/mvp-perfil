@@ -13,6 +13,10 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [tabActiva, setTabActiva] = useState('promos');
 
+  // 📝 ESTADO PARA CONTROLAR EL NUEVO FORMULARIO DE EDICIÓN DE PERFIL
+  const [modalPerfilAbierto, setModalPerfilAbierto] = useState(false);
+  const [datosForm, setDatosForm] = useState({ numero_jersey: '', telefono: '' });
+
   // Información del equipo (para jalar de tu API en Railway)
   const [datosEquipo, setDatosEquipo] = useState({
     asistencias: 14,
@@ -46,6 +50,10 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         
         setPerfil(data);
         setEquipos(resEquipos.data);
+        setDatosForm({
+          numero_jersey: data.numero_jersey || '',
+          telefono: data.telefono || ''
+        });
       } catch (err) {
         console.error("Error al obtener perfil del atleta", err);
       } finally {
@@ -62,6 +70,23 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       onLogout();
     } else {
       window.location.reload();
+    }
+  };
+
+  // Manejador del submit para impactar el backend en Railway
+  const handleActualizarPerfil = async (e) => {
+    e.preventDefault();
+    try {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
+      const response = await api.put(`/api/jugadores/perfil/${perfil.id}`, datosForm);
+      if (response.status === 200) {
+        setPerfil({ ...perfil, ...datosForm });
+        alert("✅ ¡Datos actualizados!");
+        setModalPerfilAbierto(false);
+      }
+    } catch (err) {
+      console.error("Error al actualizar datos:", err);
+      alert("❌ No se pudieron guardar los cambios");
     }
   };
 
@@ -167,7 +192,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         </div>
 
         {/* Info Jugador */}
-        <div style={{ marginBottom: '24px', width: '100%' }}>
+        <div style={{ marginBottom: '12px', width: '100%' }}>
           <h2 style={{ fontSize: 'clamp(20px, 6vw, 24px)', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 6px', wordBreak: 'break-word' }}>{perfil.nombre}</h2>
           <p style={{ color: '#22c55e', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', margin: 0 }}>{obtenerNombreEquipo().toUpperCase()}</p>
           
@@ -178,7 +203,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         </div>
 
         {/* QR Area Responsivo */}
-        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', marginBottom: '24px', boxSizing: 'border-box' }}>
+        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', boxSizing: 'border-box' }}>
           <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
           {perfil ? (
             <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
@@ -200,21 +225,13 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
             <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
           )}
         </div>
-
-        {/* Botón Salir */}
-        <button 
-          onClick={handleLogout}
-          style={{ width: '100%', padding: '12px', backgroundColor: 'transparent', border: 'none', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.15em', cursor: 'pointer', boxSizing: 'border-box' }}
-        >
-          Cerrar Sesión
-        </button>
       </div>
 
-      {/* 🎴 SIDESHEET / PANEL LATERAL DESPLEGABLE (MENÚ HAMBURGUESA INTERACTIVO) */}
+      {/* 🎴 SIDESHEET / PANEL LATERAL DESPLEGABLE */}
       <div style={{
         position: 'fixed',
         top: 0,
-        left: menuAbierto ? 0 : '-400px', // Animación de entrada por la izquierda
+        left: menuAbierto ? 0 : '-400px',
         width: '100%',
         maxWidth: '360px',
         height: '100vh',
@@ -222,7 +239,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         borderRight: '1px solid #30363d',
         boxShadow: '25px 0 50px -12px rgba(0,0,0,0.5)',
         zIndex: 100,
-        transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)', // Transición suave
+        transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         display: 'flex',
         flexDirection: 'column',
         color: 'white'
@@ -230,12 +247,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         {/* Cabecera del Menú */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 20px', backgroundColor: '#0f172a', borderBottom: '1px solid #30363d' }}>
           <span style={{ fontSize: '12px', fontWeight: '900', color: '#60a5fa', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Centro de Control</span>
-          <button 
-            onClick={() => setMenuAbierto(false)}
-            style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '18px', fontWeight: '900', cursor: 'pointer' }}
-          >
-            ✕
-          </button>
+          <button onClick={() => setMenuAbierto(false)} style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '18px', fontWeight: '900', cursor: 'pointer' }}>✕</button>
         </div>
 
         {/* Links de Pestañas */}
@@ -266,9 +278,8 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           ))}
         </div>
 
-        {/* Zona del Contenido del Panel */}
+        {/* Zona Central: Contenido del Dashboard */}
         <div style={{ padding: '20px', flex: 1, overflowY: 'auto', boxSizing: 'border-box' }}>
-          
           {tabActiva === 'promos' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {datosEquipo.promociones.map((p) => (
@@ -307,28 +318,70 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
               </div>
             </div>
           )}
-
         </div>
+
+        {/* 🛑 2 OPCIONES EXCLUSIVAS (Alineadas abajo con la línea divisoria roja de edited-image_2.png) */}
+        <div style={{ 
+          padding: '20px', 
+          backgroundColor: '#0f172a', 
+          borderTop: '2px solid #ef4444', // Línea roja divisoria estilizada
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '10px',
+          boxSizing: 'border-box'
+        }}>
+          {/* Botón A: Editar Perfil */}
+          <button 
+            onClick={() => { setModalPerfilAbierto(true); setMenuAbierto(false); }}
+            style={{ width: '100%', padding: '12px', backgroundColor: '#2563eb', border: 'none', borderRadius: '10px', color: 'white', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em', cursor: 'pointer', transition: 'background-color 0.2s' }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
+          >
+            ⚙️ Editar Información
+          </button>
+
+          {/* Botón B: Cerrar Sesión */}
+          <button 
+            onClick={handleLogout}
+            style={{ width: '100%', padding: '12px', backgroundColor: 'transparent', border: '1px solid #475569', borderRadius: '10px', color: '#9ca3af', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em', cursor: 'pointer', transition: 'all 0.2s' }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#475569'; e.currentTarget.style.color = '#9ca3af'; }}
+          >
+            🚪 Cerrar Sesión
+          </button>
+        </div>
+
       </div>
 
-      {/* Fondo oscuro traslúcido de apoyo (Cierra el menú si haces clic fuera de él) */}
-      {menuAbierto && (
-        <div 
-          onClick={() => setMenuAbierto(false)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            backgroundColor: 'rgba(15, 23, 42, 0.4)',
-            backdropFilter: 'blur(2px)',
-            zIndex: 98
-          }}
-        ></div>
+      {/* 📋 MODAL EMERGENTE: FORMULARIO ACTUALIZAR DATOS */}
+      {modalPerfilAbierto && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', width: '100%', color: 'white', boxSizing: 'border-box' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', margin: '0 0 20px', letterSpacing: '0.05em' }}>Actualizar Perfil</h4>
+            <form onSubmit={handleActualizarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
+                <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Número de Jersey</label>
+                <input type="text" value={datosForm.numero_jersey} onChange={(e) => setDatosForm({ ...datosForm, numero_jersey: e.target.value })} style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
+                <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Teléfono de Contacto</label>
+                <input type="text" value={datosForm.telefono} onChange={(e) => setDatosForm({ ...datosForm, telefono: e.target.value })} style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setModalPerfilAbierto(false)} style={{ flex: 1, backgroundColor: 'transparent', border: '1px solid #475569', padding: '12px', borderRadius: '10px', color: 'white', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer' }}>Cancelar</button>
+                <button type="submit" style={{ flex: 1, backgroundColor: '#22c55e', border: 'none', padding: '12px', borderRadius: '10px', color: 'white', fontWeight: '900', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer' }}>Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
-      {/* 🔵 PANEL DEL AVATAR (Mantiene su comportamiento flotante independiente sin alterar nada) */}
+      {/* Fondo oscuro traslúcido de apoyo para cerrar el menú */}
+      {menuAbierto && (
+        <div onClick={() => setMenuAbierto(false)} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(2px)', zIndex: 98 }}></div>
+      )}
+
+      {/* 🔵 PANEL DEL AVATAR */}
       <AvatarEditor 
         key={`editor-atleta-${perfil.id}`}
         jugadorId={perfil.id} 
