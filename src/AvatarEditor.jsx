@@ -25,6 +25,17 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
   const [guardando, setGuardando] = useState(false);
   const [isOpen, setIsOpen] = useState(false); // 🚀 Control del modal flotante (Opción B)
 
+  // 📱 DETECCIÓN EN VIVO: Monitorea si se está visualizando desde un dispositivo móvil
+  const [esMovil, setEsMovil] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const controlarCambioTamaño = () => {
+      setEsMovil(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', controlarCambioTamaño);
+    return () => window.removeEventListener('resize', controlarCambioTamaño);
+  }, []);
+
   // 🎈 ESTADOS PARA EL EFECTO BURBUJA DRAGGABLE (MESSENGER STYLE)
   const [posicion, setPosicion] = useState({ x: window.innerWidth - 200, y: window.innerHeight / 2 - 80 });
   const [isDragging, setIsDragging] = useState(false);
@@ -53,6 +64,8 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
   // Manejo global del movimiento del mouse para un arrastre fluido
   useEffect(() => {
+    if (esMovil) return; // Rompe el arrastre si estamos en celulares para no interferir con el scroll
+
     const handleMouseMove = (e) => {
       if (!isDragging) return;
       
@@ -82,7 +95,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
       window.removeUpEventListener?.('mouseup', handleMouseUp);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragStart]);
+  }, [isDragging, dragStart, esMovil]);
 
   // 🚀 ESCUCHA GLOBAL: Permite abrir el modal de forma remota al cliquear la foto integrada de la credencial
   useEffect(() => {
@@ -246,6 +259,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
   // Funciones controladoras del arrastre interactivo burbuja
   const handleMouseDown = (e) => {
+    if (esMovil) return; // Desactiva la inicialización de captura si es táctil móvil
     setIsDragging(true);
     setSeMovio(false);
     setDragStart({
@@ -256,14 +270,14 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
 
   const handleElementClick = () => {
     // Si solo se arrastró la burbuja, no disparamos la apertura del editor
-    if (!seMovio) {
+    if (esMovil || !seMovio) {
       setIsOpen(true);
     }
   };
 
   return (
     <>
-      {/* 1. DISPARADOR INTERACTIVO MODIFICADO A BURBUJA FLOTANTE (DRAGGABLE) */}
+      {/* 1. DISPARADOR INTERACTIVO MODIFICADO A BURBUJA FLOTANTE (RESPONSIVE) */}
       {!soloModal && (
         <div 
           onMouseDown={handleMouseDown}
@@ -280,12 +294,14 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
             flexDirection: 'column',
             alignItems: 'center', 
             justifyContent: 'flex-start',
-            position: 'fixed', // 🚀 CAPA INDEPENDIENTE: Sale del flujo para dejar la credencial al centro
-            left: `${posicion.x}px`, // Posición X dinámica en píxeles
-            top: `${posicion.y}px`,  // Posición Y dinámica en píxeles
-            zIndex: 999, // Se mantiene flotando por encima del contenido
-            cursor: isDragging ? 'grabbing' : 'grab', // Icono dinámico de mano
-            transition: isDragging ? 'none' : 'transform 0.2s ease', // Evita retrasos durante el drag
+            // 🚀 DETECCIÓN ADAPTATIVA: Si es móvil se integra al final del flujo, si es web flota libremente
+            position: esMovil ? 'static' : 'fixed', 
+            left: esMovil ? 'auto' : `${posicion.x}px`, 
+            top: esMovil ? 'auto' : `${posicion.y}px`, 
+            margin: esMovil ? '24px auto 0' : '0',
+            zIndex: 99, 
+            cursor: esMovil ? 'pointer' : (isDragging ? 'grabbing' : 'grab'), 
+            transition: isDragging ? 'none' : 'transform 0.2s ease', 
             userSelect: 'none',
           }}
           onMouseEnter={(e) => !isDragging && (e.currentTarget.style.transform = 'scale(1.05)')}
