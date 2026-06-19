@@ -9,10 +9,11 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [loading, setLoading] = useState(true);
   const [equipos, setEquipos] = useState([]);
   
-  // Pestaña activa del centro de control
+  // 🍔 ESTADOS PARA EL MENÚ HAMBURGUESA DESPLEGABLE
+  const [menuAbierto, setMenuAbierto] = useState(false);
   const [tabActiva, setTabActiva] = useState('promos');
 
-  // Información del equipo que llega desde tu API
+  // Información del equipo (para jalar de tu API en Railway)
   const [datosEquipo, setDatosEquipo] = useState({
     asistencias: 14,
     totalesPartidos: 16,
@@ -102,187 +103,230 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       padding: '24px', 
       boxSizing: 'border-box',
       width: '100%',
-      position: 'relative'
+      position: 'relative',
+      overflowX: 'hidden'
     }}>
       
-      {/* 🚀 CONTENEDOR CONTROLLER + CARD (Alineados horizontalmente) */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row', 
-        flexWrap: 'wrap-reverse', // Hace que en móviles el centro de control baje de forma limpia
-        gap: '40px',
-        justifyContent: 'center',
-        alignItems: 'center',
-        width: '100%',
-        maxWidth: '900px',
+      {/* 🍔 BOTÓN DE HAMBURGUESA FLOTANTE */}
+      <button 
+        onClick={() => setMenuAbierto(true)}
+        style={{
+          position: 'fixed',
+          top: '24px',
+          left: '24px',
+          backgroundColor: '#1e293b',
+          border: '1px solid #30363d',
+          borderRadius: '12px',
+          padding: '12px 14px',
+          cursor: 'pointer',
+          zIndex: 99,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          transition: 'transform 0.2s'
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        <div style={{ width: '20px', height: '3px', backgroundColor: '#60a5fa', borderRadius: '2px' }}></div>
+        <div style={{ width: '20px', height: '3px', backgroundColor: '#60a5fa', borderRadius: '2px' }}></div>
+        <div style={{ width: '20px', height: '3px', backgroundColor: '#60a5fa', borderRadius: '2px' }}></div>
+      </button>
+
+      {/* 💳 ESTA ES TU LICENCIA DIGITAL (Alineada en el centro absoluto) */}
+      <div style={{ 
+        backgroundColor: '#1e293b',
+        padding: 'clamp(20px, 6vw, 32px)', 
+        borderRadius: '24px', 
+        border: '1px solid #30363d', 
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', 
+        width: '100%', 
+        maxWidth: '380px', 
+        boxSizing: 'border-box',
+        textAlign: 'center',
+        color: 'white',
         zIndex: 5
       }}>
+        
+        {/* Header Visual */}
+        <div style={{ marginBottom: '24px' }}>
+          <span style={{ color: '#60a5fa', fontSize: '10px', fontWeight: '900', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Licencia Digital</span>
+          <h3 style={{ fontSize: 'clamp(18px, 5vw, 20px)', fontWeight: '900', marginTop: '8px', textTransform: 'uppercase', margin: '8px 0 0' }}>MVP Flag</h3>
+        </div>
 
-        {/* 🏟️ DERECHA EN CÓDIGO / IZQUIERDA EN PANTALLA: EL CENTRO DE CONTROL DEL JUGADOR */}
-        <div style={{
-          backgroundColor: '#1e293b',
-          borderRadius: '24px',
-          border: '1px solid #30363d',
-          width: '100%',
-          maxWidth: '380px', // Exactamente el mismo ancho que la credencial para que se vea simétrico
-          boxSizing: 'border-box',
-          overflow: 'hidden',
-          boxShadow: '0 20px 40px -15px rgba(0,0,0,0.5)',
-          color: 'white'
-        }}>
-          {/* Barra de Pestañas */}
-          <div style={{ display: 'flex', backgroundColor: '#0f172a', borderBottom: '1px solid #30363d' }}>
-            {[
-              { id: 'promos', label: '📢 Promos' },
-              { id: 'asistencias', label: '📊 Asistencias' },
-              { id: 'fotos', label: '📸 Galería' }
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setTabActiva(tab.id)}
-                style={{
-                  flex: 1,
-                  padding: '14px 10px',
-                  background: tabActiva === tab.id ? '#1e293b' : 'transparent',
-                  border: 'none',
-                  color: tabActiva === tab.id ? '#60a5fa' : '#9ca3af',
-                  fontWeight: '900',
-                  fontSize: '11px',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  outline: 'none'
-                }}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Contenido Dinámico */}
-          <div style={{ padding: '20px', boxSizing: 'border-box', minHeight: '220px' }}>
-            
-            {/* TAB: PROMOCIONES */}
-            {tabActiva === 'promos' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {datosEquipo.promociones.map((p) => (
-                  <div key={p.id} style={{ backgroundColor: '#0f172a', padding: '14px', borderRadius: '14px', border: '1px solid #30363d', textAlign: 'left' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                      <span style={{ fontSize: '11px', fontWeight: '900', color: '#22c55e' }}>{p.titulo}</span>
-                      <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700' }}>{p.expira}</span>
-                    </div>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#9ca3af', lineHeight: '1.4' }}>{p.desc}</p>
-                  </div>
-                ))}
-              </div>
+        {/* Avatar y Foto Responsivos */}
+        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: '24px', width: '100%' }}>
+          <div style={{ width: '112px', height: '112px', backgroundColor: '#0f172a', borderRadius: '50%', border: '4px solid #30363d', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.3)', boxSizing: 'border-box' }}>
+            {perfil.foto_perfil ? (
+              <img src={perfil.foto_perfil} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <div style={{ color: '#374151', fontSize: '10px', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>SIN FOTO</div>
             )}
-
-            {/* TAB: ASISTENCIAS */}
-            {tabActiva === 'asistencias' && (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '10px' }}>
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '90px', height: '90px', borderRadius: '50%', border: '6px solid #0f172a', borderTopColor: '#22c55e', marginBottom: '14px' }}>
-                  <span style={{ fontSize: '22px', fontWeight: '900' }}>{datosEquipo.asistencias}</span>
-                </div>
-                <p style={{ margin: '0 0 4px', fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa' }}>Récord de Asistencia</p>
-                <span style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'center' }}>Has asistido a {datosEquipo.asistencias} de {datosEquipo.totalesPartidos} juegos de tu equipo.</span>
-              </div>
-            )}
-
-            {/* TAB: FOTOS */}
-            {tabActiva === 'fotos' && (
-              <div>
-                <p style={{ margin: '0 0 12px 0', fontSize: '10px', fontWeight: '900', color: '#9ca3af', textTransform: 'uppercase', textAlign: 'left' }}>
-                  📷 Fotos de tu Equipo ({obtenerNombreEquipo()})
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                  {datosEquipo.fotos.map((url, index) => (
-                    <div key={index} style={{ width: '100%', aspectRatio: '1', backgroundColor: '#0f172a', borderRadius: '10px', overflow: 'hidden', border: '1px solid #30363d' }}>
-                      <img src={url} alt={`Partido ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
           </div>
         </div>
 
-        {/* 💳 ESTA ES TU LICENCIA DIGITAL (El cuadro central) */}
-        <div style={{ 
-          backgroundColor: '#1e293b',
-          padding: 'clamp(20px, 6vw, 32px)', 
-          borderRadius: '24px', 
-          border: '1px solid #30363d', 
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)', 
-          width: '100%', 
-          maxWidth: '380px', 
-          boxSizing: 'border-box',
-          textAlign: 'center',
-          color: 'white'
-        }}>
+        {/* Info Jugador */}
+        <div style={{ marginBottom: '24px', width: '100%' }}>
+          <h2 style={{ fontSize: 'clamp(20px, 6vw, 24px)', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 6px', wordBreak: 'break-word' }}>{perfil.nombre}</h2>
+          <p style={{ color: '#22c55e', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', margin: 0 }}>{obtenerNombreEquipo().toUpperCase()}</p>
           
-          {/* Header Visual */}
-          <div style={{ marginBottom: '24px' }}>
-            <span style={{ color: '#60a5fa', fontSize: '10px', fontWeight: '900', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Licencia Digital</span>
-            <h3 style={{ fontSize: 'clamp(18px, 5vw, 20px)', fontWeight: '900', marginTop: '8px', textTransform: 'uppercase', margin: '8px 0 0' }}>MVP Flag</h3>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', fontSize: '10px', fontWeight: '900', color: '#9ca3af', marginTop: '16px', textTransform: 'uppercase', width: '100%', boxSizing: 'border-box' }}>
+            <span style={{ backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '8px', border: '1px solid #30363d', flex: '1', minWidth: '0', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>Cat: {perfil.categoria?.toUpperCase() || 'S/C'}</span>
+            <span style={{ backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '8px', border: '1px solid #30363d', color: '#60a5fa', flex: '1', minWidth: '0' }}># {perfil.numero_jersey || 'S/N'}</span>
           </div>
+        </div>
 
-          {/* Avatar y Foto Responsivos */}
-          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: '24px', width: '100%' }}>
-            <div style={{ width: '112px', height: '112px', backgroundColor: '#0f172a', borderRadius: '50%', border: '4px solid #30363d', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.3)', boxSizing: 'border-box' }}>
-              {perfil.foto_perfil ? (
-                <img src={perfil.foto_perfil} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <div style={{ color: '#374151', fontSize: '10px', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>SIN FOTO</div>
-              )}
+        {/* QR Area Responsivo */}
+        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', marginBottom: '24px', boxSizing: 'border-box' }}>
+          <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
+          {perfil ? (
+            <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
+              <QRCodeSVG 
+                value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
+                size={120} 
+                level={"H"} 
+                includeMargin={true}
+                imageSettings={{
+                  src: logoMvp,
+                  height: 35,
+                  width: 35,
+                  align: 'center',
+                  excavate: true,
+                }}
+              />
             </div>
-          </div>
+          ) : (
+            <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
+          )}
+        </div>
 
-          {/* Info Jugador */}
-          <div style={{ marginBottom: '24px', width: '100%' }}>
-            <h2 style={{ fontSize: 'clamp(20px, 6vw, 24px)', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 6px', wordBreak: 'break-word' }}>{perfil.nombre}</h2>
-            <p style={{ color: '#22c55e', fontSize: '14px', fontWeight: '800', textTransform: 'uppercase', margin: 0 }}>{obtenerNombreEquipo().toUpperCase()}</p>
-            
-            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', fontSize: '10px', fontWeight: '900', color: '#9ca3af', marginTop: '16px', textTransform: 'uppercase', width: '100%', boxSizing: 'border-box' }}>
-              <span style={{ backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '8px', border: '1px solid #30363d', flex: '1', minWidth: '0', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>Cat: {perfil.categoria?.toUpperCase() || 'S/C'}</span>
-              <span style={{ backgroundColor: '#0f172a', padding: '8px 12px', borderRadius: '8px', border: '1px solid #30363d', color: '#60a5fa', flex: '1', minWidth: '0' }}># {perfil.numero_jersey || 'S/N'}</span>
-            </div>
-          </div>
+        {/* Botón Salir */}
+        <button 
+          onClick={handleLogout}
+          style={{ width: '100%', padding: '12px', backgroundColor: 'transparent', border: 'none', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.15em', cursor: 'pointer', boxSizing: 'border-box' }}
+        >
+          Cerrar Sesión
+        </button>
+      </div>
 
-          {/* QR Area Responsivo */}
-          <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', marginBottom: '24px', boxSizing: 'border-box' }}>
-            <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
-            {perfil ? (
-              <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
-                <QRCodeSVG 
-                  value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
-                  size={120} 
-                  level={"H"} 
-                  includeMargin={true}
-                  imageSettings={{
-                    src: logoMvp,
-                    height: 35,
-                    width: 35,
-                    align: 'center',
-                    excavate: true,
-                  }}
-                />
-              </div>
-            ) : (
-              <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
-            )}
-          </div>
-
-          {/* Botón Salir */}
+      {/* 🎴 SIDESHEET / PANEL LATERAL DESPLEGABLE (MENÚ HAMBURGUESA INTERACTIVO) */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: menuAbierto ? 0 : '-400px', // Animación de entrada por la izquierda
+        width: '100%',
+        maxWidth: '360px',
+        height: '100vh',
+        backgroundColor: '#1e293b',
+        borderRight: '1px solid #30363d',
+        boxShadow: '25px 0 50px -12px rgba(0,0,0,0.5)',
+        zIndex: 100,
+        transition: 'left 0.3s cubic-bezier(0.4, 0, 0.2, 1)', // Transición suave
+        display: 'flex',
+        flexDirection: 'column',
+        color: 'white'
+      }}>
+        {/* Cabecera del Menú */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 20px', backgroundColor: '#0f172a', borderBottom: '1px solid #30363d' }}>
+          <span style={{ fontSize: '12px', fontWeight: '900', color: '#60a5fa', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Centro de Control</span>
           <button 
-            onClick={handleLogout}
-            style={{ width: '100%', padding: '12px', backgroundColor: 'transparent', border: 'none', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.15em', cursor: 'pointer', boxSizing: 'border-box' }}
+            onClick={() => setMenuAbierto(false)}
+            style={{ background: 'none', border: 'none', color: '#9ca3af', fontSize: '18px', fontWeight: '900', cursor: 'pointer' }}
           >
-            Cerrar Sesión
+            ✕
           </button>
         </div>
 
+        {/* Links de Pestañas */}
+        <div style={{ display: 'flex', backgroundColor: '#111827', borderBottom: '1px solid #30363d' }}>
+          {[
+            { id: 'promos', label: '📢 Promos' },
+            { id: 'asistencias', label: '📊 Asistencias' },
+            { id: 'fotos', label: '📸 Galería' }
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setTabActiva(tab.id)}
+              style={{
+                flex: 1,
+                padding: '14px 5px',
+                background: tabActiva === tab.id ? '#1e293b' : 'transparent',
+                border: 'none',
+                color: tabActiva === tab.id ? '#60a5fa' : '#9ca3af',
+                fontWeight: '900',
+                fontSize: '11px',
+                textTransform: 'uppercase',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Zona del Contenido del Panel */}
+        <div style={{ padding: '20px', flex: 1, overflowY: 'auto', boxSizing: 'border-box' }}>
+          
+          {tabActiva === 'promos' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {datosEquipo.promociones.map((p) => (
+                <div key={p.id} style={{ backgroundColor: '#0f172a', padding: '14px', borderRadius: '14px', border: '1px solid #30363d' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#22c55e' }}>{p.titulo}</span>
+                    <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700' }}>{p.expira}</span>
+                  </div>
+                  <p style={{ margin: 0, fontSize: '11px', color: '#9ca3af', lineHeight: '1.4' }}>{p.desc}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {tabActiva === 'asistencias' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '95px', height: '95px', borderRadius: '50%', border: '6px solid #0f172a', borderTopColor: '#22c55e', marginBottom: '16px' }}>
+                <span style={{ fontSize: '24px', fontWeight: '900' }}>{datosEquipo.asistencias}</span>
+              </div>
+              <p style={{ margin: '0 0 6px', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa' }}>Récord de Asistencia</p>
+              <span style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'center', lineHeight: '1.4' }}>Tu escuadra registra asistencia en {datosEquipo.asistencias} de {datosEquipo.totalesPartidos} partidos oficiales.</span>
+            </div>
+          )}
+
+          {tabActiva === 'fotos' && (
+            <div>
+              <p style={{ margin: '0 0 12px 0', fontSize: '10px', fontWeight: '900', color: '#9ca3af', textTransform: 'uppercase' }}>
+                📸 Capturas de Árbitros ({obtenerNombreEquipo()})
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+                {datosEquipo.fotos.map((url, index) => (
+                  <div key={index} style={{ width: '100%', aspectRatio: '1', backgroundColor: '#0f172a', borderRadius: '10px', overflow: 'hidden', border: '1px solid #30363d' }}>
+                    <img src={url} alt={`Partido ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
+
+      {/* Fondo oscuro traslúcido de apoyo (Cierra el menú si haces clic fuera de él) */}
+      {menuAbierto && (
+        <div 
+          onClick={() => setMenuAbierto(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            backgroundColor: 'rgba(15, 23, 42, 0.4)',
+            backdropFilter: 'blur(2px)',
+            zIndex: 98
+          }}
+        ></div>
+      )}
 
       {/* 🔵 PANEL DEL AVATAR (Mantiene su comportamiento flotante independiente sin alterar nada) */}
       <AvatarEditor 
