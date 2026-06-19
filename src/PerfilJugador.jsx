@@ -13,9 +13,16 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [tabActiva, setTabActiva] = useState('promos');
 
-  // 📝 ESTADO PARA CONTROLAR EL NUEVO FORMULARIO DE EDICIÓN DE PERFIL
+  // 📝 ESTADO EXTENDIDO: Ahora incluye Nombre, Equipo, Teléfono, Jersey y Password
   const [modalPerfilAbierto, setModalPerfilAbierto] = useState(false);
-  const [datosForm, setDatosForm] = useState({ numero_jersey: '', telefono: '' });
+  const [datosForm, setDatosForm] = useState({ 
+    nombre: '',
+    nombre_equipo: '', // Se guardará el ID o el nombre seleccionado
+    numero_jersey: '', 
+    telefono: '',
+    password: '', 
+    confirmPassword: ''
+  });
 
   // Información del equipo (para jalar de tu API en Railway)
   const [datosEquipo, setDatosEquipo] = useState({
@@ -50,9 +57,14 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         
         setPerfil(data);
         setEquipos(resEquipos.data);
+        // Sincronizamos los datos editables con el formulario
         setDatosForm({
+          nombre: data.nombre || '',
+          nombre_equipo: data.nombre_equipo || '',
           numero_jersey: data.numero_jersey || '',
-          telefono: data.telefono || ''
+          telefono: data.telefono || '',
+          password: '',
+          confirmPassword: ''
         });
       } catch (err) {
         console.error("Error al obtener perfil del atleta", err);
@@ -76,17 +88,38 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   // Manejador del submit para impactar el backend en Railway
   const handleActualizarPerfil = async (e) => {
     e.preventDefault();
+
+    // 🛑 VALIDACIÓN BÁSICA: Asegurar que las contraseñas coinciden
+    if (datosForm.password && datosForm.password !== datosForm.confirmPassword) {
+      alert("❌ Las contraseñas no coinciden.");
+      return;
+    }
+
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-      const response = await api.put(`/api/jugadores/perfil/${perfil.id}`, datosForm);
+      
+      // Estructuramos el payload de forma segura (sin incluir password si está vacío)
+      const payloadAEnviar = { ...datosForm };
+      if (!payloadAEnviar.password) {
+        delete payloadAEnviar.password;
+        delete payloadAEnviar.confirmPassword;
+      }
+
+      const response = await api.put(`/api/jugadores/perfil/${perfil.id}`, payloadAEnviar);
+      
       if (response.status === 200) {
-        setPerfil({ ...perfil, ...datosForm });
-        alert("✅ ¡Datos actualizados!");
+        // Actualizamos el estado local del perfil con la info guardada (sin la password)
+        const {...perfilActualizado} = datosForm;
+        delete perfilActualizado.password;
+        delete perfilActualizado.confirmPassword;
+
+        setPerfil({ ...perfil, ...perfilActualizado });
+        alert("✅ ¡Perfil actualizado correctamente!");
         setModalPerfilAbierto(false);
       }
     } catch (err) {
       console.error("Error al actualizar datos:", err);
-      alert("❌ No se pudieron guardar los cambios");
+      alert("❌ No se pudieron guardar los cambios en el servidor");
     }
   };
 
@@ -320,24 +353,24 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           )}
         </div>
 
-        {/* 🛑 2 OPCIONES EXCLUSIVAS (Alineadas abajo con la línea divisoria roja de edited-image_2.png) */}
+        {/* 🛑 OPCIONES EXCLUSIVAS (Bottom del menú con línea divisoria roja) */}
         <div style={{ 
           padding: '20px', 
           backgroundColor: '#0f172a', 
-          borderTop: '2px solid #ef4444', // Línea roja divisoria estilizada
+          borderTop: '2px solid #ef4444', 
           display: 'flex', 
           flexDirection: 'column', 
           gap: '10px',
           boxSizing: 'border-box'
         }}>
-          {/* Botón A: Editar Perfil */}
+          {/* Botón A: Editar Perfil (Ahora abre el modal con TODOS los campos nuevos) */}
           <button 
             onClick={() => { setModalPerfilAbierto(true); setMenuAbierto(false); }}
             style={{ width: '100%', padding: '12px', backgroundColor: '#2563eb', border: 'none', borderRadius: '10px', color: 'white', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em', cursor: 'pointer', transition: 'background-color 0.2s' }}
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1d4ed8'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2563eb'}
           >
-            ⚙️ Editar Información
+            ⚙️ Administrar Cuenta
           </button>
 
           {/* Botón B: Cerrar Sesión */}
@@ -353,30 +386,79 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
       </div>
 
-      {/* 📋 MODAL EMERGENTE: FORMULARIO ACTUALIZAR DATOS */}
+      {/* 📋 MODAL EMERGENTE: FORMULARIO UNIFICADO (Contraseña, Foto, Nombre, Jersey, Teléfono, Equipo) */}
       {modalPerfilAbierto && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
-          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '360px', width: '100%', color: 'white', boxSizing: 'border-box' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', margin: '0 0 20px', letterSpacing: '0.05em' }}>Actualizar Perfil</h4>
-            <form onSubmit={handleActualizarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
-                <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Número de Jersey</label>
-                <input type="text" value={datosForm.numero_jersey} onChange={(e) => setDatosForm({ ...datosForm, numero_jersey: e.target.value })} style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none' }} />
+          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '400px', width: '100%', color: 'white', boxSizing: 'border-box', overflowY: 'auto', maxHeight: '90vh' }}>
+            <h4 style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', margin: '0 0 20px', letterSpacing: '0.05em' }}>Administrar Cuenta MVP FLAG</h4>
+            
+            <form onSubmit={handleActualizarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              
+              {/* 📷 FOTO DE PERFIL (Carga de archivo) */}
+              <div style={{ textAlign: 'center', marginBottom: '10px' }}>
+                <img src={perfil.foto_perfil || logoMvp} alt="Preview" style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #30363d', marginBottom: '8px' }}/>
+                <input type="file" accept="image/*" style={{ fontSize: '10px', color: '#9ca3af' }}/>
+                <p style={{fontSize: '9px', color: '#64748b', margin: '4px 0 0'}}>Formatos: JPG, PNG. Máx: 2MB.</p>
               </div>
+
+              {/* 🧑 DATOS PERSONALES */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
+                <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Nombre Completo</label>
+                <input type="text" value={datosForm.nombre} onChange={(e) => setDatosForm({ ...datosForm, nombre: e.target.value })} style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none' }} />
+              </div>
+
+              {/* 🏈 IDENTIDAD DEPORTIVA (Selector de Equipo y Jersey) */}
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left', flex: '1' }}>
+                  <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>N° Jersey</label>
+                  <input type="text" value={datosForm.numero_jersey} onChange={(e) => setDatosForm({ ...datosForm, numero_jersey: e.target.value })} style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none' }} />
+                </div>
+                
+                {/* 🛡️ SELECTOR DE EQUIPO DINDÁMICO (Jalado de Railway) */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left', flex: '2' }}>
+                  <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Equipo Actual</label>
+                  <select 
+                    value={datosForm.nombre_equipo} 
+                    onChange={(e) => setDatosForm({ ...datosForm, nombre_equipo: e.target.value })}
+                    style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none', appearance: 'none', cursor: 'pointer' }}
+                  >
+                    <option value="" disabled>Selecciona tu equipo</option>
+                    <option value="AGENTE LIBRE">Agente Libre</option>
+                    {equipos.map(e => (
+                      <option key={e.id} value={e.id}>{e.nombre_equipo.toUpperCase()}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* 📞 TELÉFONO */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
                 <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Teléfono de Contacto</label>
                 <input type="text" value={datosForm.telefono} onChange={(e) => setDatosForm({ ...datosForm, telefono: e.target.value })} style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none' }} />
               </div>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+
+              {/* 🔐 SEGURIDAD: ACTUALIZAR CONTRASEÑA */}
+              <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #30363d', paddingTop: '16px', marginTop: '4px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left', flex: 1 }}>
+                  <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#60a5fa' }}>Nueva Password</label>
+                  <input type="password" placeholder="••••••••" value={datosForm.password} onChange={(e) => setDatosForm({ ...datosForm, password: e.target.value })} style={{ backgroundColor: '#111827', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', outline: 'none' }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left', flex: 1 }}>
+                  <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#60a5fa' }}>Confirmar</label>
+                  <input type="password" placeholder="••••••••" value={datosForm.confirmPassword} onChange={(e) => setDatosForm({ ...datosForm, confirmPassword: e.target.value })} style={{ backgroundColor: '#111827', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', outline: 'none' }} />
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', marginTop: '16px', borderTop: '1px solid #30363d', paddingTop: '16px' }}>
                 <button type="button" onClick={() => setModalPerfilAbierto(false)} style={{ flex: 1, backgroundColor: 'transparent', border: '1px solid #475569', padding: '12px', borderRadius: '10px', color: 'white', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer' }}>Cancelar</button>
-                <button type="submit" style={{ flex: 1, backgroundColor: '#22c55e', border: 'none', padding: '12px', borderRadius: '10px', color: 'white', fontWeight: '900', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer' }}>Guardar</button>
+                <button type="submit" style={{ flex: 1, backgroundColor: '#22c55e', border: 'none', padding: '12px', borderRadius: '10px', color: 'white', fontWeight: '900', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer' }}>Guardar Cambios</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Fondo oscuro traslúcido de apoyo para cerrar el menú */}
+      {/* Fondo oscuro traslúcido de apoyo */}
       {menuAbierto && (
         <div onClick={() => setMenuAbierto(false)} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(2px)', zIndex: 98 }}></div>
       )}
