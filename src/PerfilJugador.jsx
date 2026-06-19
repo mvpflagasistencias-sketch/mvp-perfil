@@ -27,6 +27,10 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   // 🚀 FOTO: Estado local para manejar el string de previsualización y guardado
   const [fotoBase64, setFotoBase64] = useState('');
 
+  // 🔒 CONTROL DE EDICIÓN: Bloquea o desbloquea secciones de forma independiente
+  const [editandoCampos, setEditandoCampos] = useState(false);
+  const [verSeccionPassword, setVerSeccionPassword] = useState(false);
+
   // Información del equipo (para jalar de tu API en Railway)
   const [datosEquipo, setDatosEquipo] = useState({
     asistencias: 0, // Inicia en 0 en lugar de hardcodeado
@@ -115,48 +119,70 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     }
   };
 
-  // Manejador del submit para impactar el backend en Railway
-  const handleActualizarPerfil = async (e) => {
-    e.preventDefault();
-
-    // 🛑 VALIDACIÓN BÁSICA: Asegurar que las contraseñas coinciden
-    if (datosForm.password && datosForm.password !== datosForm.confirmPassword) {
-      alert("❌ Las contraseñas no coinciden.");
-      return;
-    }
-
+  // 🛠️ SECCIÓN INDEPENDIENTE 1: GUARDAR EXCLUSIVAMENTE LA NUEVA FOTO
+  const handleGuardarFoto = async () => {
     try {
-      const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
-      
-      // Estructuramos el payload de forma segura (sin incluir password si está vacío)
-      // 🚀 FOTO: Inyectamos la foto convertida en Base64 al JSON que espera tu endpoint unificado
-      const payloadAEnviar = { 
-        ...datosForm,
-        foto_perfil: fotoBase64 
-      };
-      
-      if (!payloadAEnviar.password) {
-        delete payloadAEnviar.password;
-        delete payloadAEnviar.confirmPassword;
-      }
-
-      // 🚀 CORRECCIÓN CRÍTICA: Extraemos de forma garantizada el ID real para evitar el 'undefined'
       const idActual = jugadorId || localStorage.getItem('atleta_id');
-      const response = await api.put(`/api/jugadores/perfil/actualizar/${idActual}`, payloadAEnviar);
-      
-      if (response.status === 200) {
-        // Actualizamos el estado local del perfil con la info guardada (sin la password)
-        const {...perfilActualizado} = payloadAEnviar;
-        delete perfilActualizado.password;
-        delete perfilActualizado.confirmPassword;
+      const payload = { ...datosForm, foto_perfil: fotoBase64 };
+      if (!payload.password) { delete payload.password; delete payload.confirmPassword; }
 
-        setPerfil({ ...perfil, ...perfilActualizado });
-        alert("✅ ¡Perfil actualizado correctamente!");
-        setModalPerfilAbierto(false);
+      const response = await api.put(`/api/jugadores/perfil/actualizar/${idActual}`, payload);
+      if (response.status === 200) {
+        setPerfil({ ...perfil, foto_perfil: fotoBase64 });
+        alert("✅ ¡Foto de perfil guardada con éxito!");
+      }
+    } catch (err) {
+      console.error("Error al guardar foto:", err);
+      alert("❌ No se pudo guardar la nueva foto.");
+    }
+  };
+
+  // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES
+  const handleGuardarDatosPersonales = async () => {
+    try {
+      const idActual = jugadorId || localStorage.getItem('atleta_id');
+      const payload = { ...datosForm, foto_perfil: perfil.foto_perfil };
+      delete payload.password;
+      delete payload.confirmPassword;
+
+      const response = await api.put(`/api/jugadores/perfil/actualizar/${idActual}`, payload);
+      if (response.status === 200) {
+        setPerfil({ ...perfil, ...payload });
+        setEditandoCampos(false);
+        alert("✅ ¡Datos personales guardados con éxito!");
       }
     } catch (err) {
       console.error("Error al actualizar datos:", err);
-      alert("❌ No se pudieron guardar los cambios en el servidor");
+      alert("❌ Error al intentar guardar los cambios.");
+    }
+  };
+
+  // 🛠️ SECCIÓN INDEPENDIENTE 3: GUARDAR EXCLUSIVAMENTE LA NUEVA CONTRASEÑA
+  const handleGuardarPassword = async () => {
+    if (!datosForm.password || datosForm.password !== datosForm.confirmPassword) {
+      alert("❌ Las contraseñas están vacías o no coinciden.");
+      return;
+    }
+    try {
+      const idActual = jugadorId || localStorage.getItem('atleta_id');
+      const payload = {
+        nombre: perfil.nombre,
+        telefono: perfil.telefono,
+        nombre_equipo: perfil.nombre_equipo,
+        numero_jersey: perfil.numero_jersey,
+        foto_perfil: perfil.foto_perfil,
+        password: datosForm.password
+      };
+
+      const response = await api.put(`/api/jugadores/perfil/actualizar/${idActual}`, payload);
+      if (response.status === 200) {
+        setDatosForm(prev => ({ ...prev, password: '', confirmPassword: '' }));
+        setVerSeccionPassword(false);
+        alert("✅ ¡Contraseña actualizada con éxito!");
+      }
+    } catch (err) {
+      console.error("Error al cambiar contraseña:", err);
+      alert("❌ No se pudo guardar la contraseña.");
     }
   };
 
@@ -423,74 +449,109 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
       </div>
 
-      {/* 📋 MODAL EMERGENTE: FORMULARIO UNIFICADO (Contraseña, Foto, Nombre, Jersey, Teléfono, Equipo) */}
+      {/* 📋 MODAL EMERGENTE: FORMULARIO MODULAR INDEPENDIENTE */}
       {modalPerfilAbierto && (
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
-          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '400px', width: '100%', color: 'white', boxSizing: 'border-box', overflowY: 'auto', maxHeight: '90vh' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', margin: '0 0 20px', letterSpacing: '0.05em' }}>Administrar Cuenta MVP FLAG</h4>
+          <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '420px', width: '100%', color: 'white', boxSizing: 'border-box', overflowY: 'auto', maxHeight: '90vh' }}>
             
-            <form onSubmit={handleActualizarPerfil} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', margin: 0, letterSpacing: '0.05em' }}>Ajustes de Cuenta MVP</h4>
+              <button onClick={() => { setModalPerfilAbierto(false); setEditandoCampos(false); setVerSeccionPassword(false); }} style={{ background: 'none', border: 'none', color: '#64748b', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>✕</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               
-              {/* 📷 FOTO DE PERFIL (Carga de archivo) */}
-              <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-                <img src={fotoBase64 || logoMvp} alt="Preview" style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #30363d', marginBottom: '8px' }}/>
-                <input type="file" accept="image/*" onChange={handleFotoChange} style={{ fontSize: '10px', color: '#9ca3af' }}/>
-                <p style={{fontSize: '9px', color: '#64748b', margin: '4px 0 0'}}>Formatos: JPG, PNG. Máx: 2MB.</p>
-              </div>
-
-              {/* 🧑 DATOS PERSONALES */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
-                <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Nombre Completo</label>
-                <input type="text" value={datosForm.nombre} onChange={(e) => setDatosForm({ ...datosForm, nombre: e.target.value })} style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none' }} />
-              </div>
-
-              {/* 🏈 IDENTIDAD DEPORTIVA (Selector de Equipo y Jersey) */}
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left', flex: '1' }}>
-                  <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>N° Jersey</label>
-                  <input type="text" value={datosForm.numero_jersey} onChange={(e) => setDatosForm({ ...datosForm, numero_jersey: e.target.value })} style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none' }} />
-                </div>
-                
-                {/* 🛡️ SELECTOR DE EQUIPO DINDÁMICO (Jalado de Railway) */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left', flex: '2' }}>
-                  <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Equipo Actual</label>
-                  <select 
-                    value={datosForm.nombre_equipo} 
-                    onChange={(e) => setDatosForm({ ...datosForm, nombre_equipo: e.target.value })}
-                    style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none', appearance: 'none', cursor: 'pointer' }}
-                  >
-                    <option value="" disabled>Selecciona tu equipo</option>
-                    <option value="AGENTE LIBRE">Agente Libre</option>
-                    {equipos.map(e => (
-                      <option key={e.id} value={e.id}>{e.nombre_equipo.toUpperCase()}</option>
-                    ))}
-                  </select>
+              {/* 📷 SECCIÓN 1: IDENTIDAD VISUAL (FOTO SEPARADA) */}
+              <div style={{ textAlign: 'center', backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d' }}>
+                <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', textTransform: 'uppercase', marginBottom: '12px', textAlign: 'left' }}>Visual del Atleta</span>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
+                  <img src={fotoBase64 || logoMvp} alt="Preview" style={{ width: '65px', height: '65px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #30363d' }}/>
+                  <div style={{ flex: 1, textAlign: 'left' }}>
+                    <input type="file" accept="image/*" onChange={handleFotoChange} style={{ fontSize: '11px', color: '#9ca3af', width: '100%' }} />
+                    {fotoBase64 !== perfil.foto_perfil && (
+                      <button onClick={handleGuardarFoto} type="button" style={{ marginTop: '8px', padding: '6px 12px', backgroundColor: '#3b82f6', border: 'none', borderRadius: '6px', color: 'white', fontWeight: '900', fontSize: '10px', textTransform: 'uppercase', cursor: 'pointer' }}>
+                        ⚡ Guardar Foto
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* 📞 TELÉFONO */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left' }}>
-                <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Teléfono de Contacto</label>
-                <input type="text" value={datosForm.telefono} onChange={(e) => setDatosForm({ ...datosForm, telefono: e.target.value })} style={{ backgroundColor: '#0f172a', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', fontWeight: '700', outline: 'none' }} />
+              {/* 🧑 SECCIÓN 2: DATOS PERSONALES (CLICK INDEPENDIENTE PARA ACTUALIZAR) */}
+              <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase' }}>Información de Ficha</span>
+                  {!editandoCampos ? (
+                    <button onClick={() => setEditandoCampos(true)} type="button" style={{ background: 'none', border: '1px solid #475569', padding: '4px 10px', borderRadius: '6px', color: '#60a5fa', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', cursor: 'pointer' }}>✏️ Editar</button>
+                  ) : (
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button onClick={() => setEditandoCampos(false)} type="button" style={{ background: 'none', border: '1px solid #ef4444', padding: '4px 8px', borderRadius: '6px', color: '#ef4444', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', cursor: 'pointer' }}>X</button>
+                      <button onClick={handleGuardarDatosPersonales} type="button" style={{ backgroundColor: '#22c55e', border: 'none', padding: '4px 10px', borderRadius: '6px', color: 'white', fontSize: '10px', fontWeight: '900', textTransform: 'uppercase', cursor: 'pointer' }}>💾 Guardar</button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Nombre Completo */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Nombre Completo</label>
+                  <input type="text" disabled={!editandoCampos} value={datosForm.nombre} onChange={(e) => setDatosForm({ ...datosForm, nombre: e.target.value })} style={{ backgroundColor: editandoCampos ? '#1e293b' : '#0f172a', border: '1px solid #30363d', borderRadius: '8px', padding: '10px', color: editandoCampos ? 'white' : '#64748b', fontWeight: '700', outline: 'none' }} />
+                </div>
+
+                {/* Identidad Deportiva */}
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: '1' }}>
+                    <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Jersey</label>
+                    <input type="text" disabled={!editandoCampos} value={datosForm.numero_jersey} onChange={(e) => setDatosForm({ ...datosForm, numero_jersey: e.target.value })} style={{ backgroundColor: editandoCampos ? '#1e293b' : '#0f172a', border: '1px solid #30363d', borderRadius: '8px', padding: '10px', color: editandoCampos ? 'white' : '#64748b', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
+                  </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: '2' }}>
+                    <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Escuadra Actual</label>
+                    <select disabled={!editandoCampos} value={datosForm.nombre_equipo} onChange={(e) => setDatosForm({ ...datosForm, nombre_equipo: e.target.value })} style={{ backgroundColor: editandoCampos ? '#1e293b' : '#0f172a', border: '1px solid #30363d', borderRadius: '8px', padding: '10px', color: editandoCampos ? 'white' : '#64748b', fontWeight: '700', outline: 'none', cursor: editandoCampos ? 'pointer' : 'default' }}>
+                      <option value="" disabled>Selecciona equipo</option>
+                      <option value="AGENTE LIBRE">Agente Libre</option>
+                      {equipos.map(e => (
+                        <option key={e.id} value={e.id}>{e.nombre_equipo.toUpperCase()}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Teléfono */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Teléfono de Contacto</label>
+                  <input type="text" disabled={!editandoCampos} value={datosForm.telefono} onChange={(e) => setDatosForm({ ...datosForm, telefono: e.target.value })} style={{ backgroundColor: editandoCampos ? '#1e293b' : '#0f172a', border: '1px solid #30363d', borderRadius: '8px', padding: '10px', color: editandoCampos ? 'white' : '#64748b', fontWeight: '700', outline: 'none' }} />
+                </div>
               </div>
 
-              {/* 🔐 SEGURIDAD: ACTUALIZAR CONTRASEÑA */}
-              <div style={{ display: 'flex', gap: '12px', borderTop: '1px solid #30363d', paddingTop: '16px', marginTop: '4px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left', flex: 1 }}>
-                  <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#60a5fa' }}>Nueva Password</label>
-                  <input type="password" placeholder="••••••••" value={datosForm.password} onChange={(e) => setDatosForm({ ...datosForm, password: e.target.value })} style={{ backgroundColor: '#111827', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', outline: 'none' }} />
+              {/* 🔐 SECCIÓN 3: SEGURIDAD (CONTRASENAS OCULTAS POR DEFECTO) */}
+              <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase' }}>Credenciales de Acceso</span>
+                  <button onClick={() => setVerSeccionPassword(!verSeccionPassword)} type="button" style={{ background: 'none', border: '1px solid #475569', padding: '4px 10px', borderRadius: '6px', color: '#60a5fa', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', cursor: 'pointer' }}>
+                    {verSeccionPassword ? "Ocultar" : "Cambiar"}
+                  </button>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', textAlign: 'left', flex: 1 }}>
-                  <label style={{ fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', color: '#60a5fa' }}>Confirmar</label>
-                  <input type="password" placeholder="••••••••" value={datosForm.confirmPassword} onChange={(e) => setDatosForm({ ...datosForm, confirmPassword: e.target.value })} style={{ backgroundColor: '#111827', border: '1px solid #30363d', borderRadius: '10px', padding: '12px', color: 'white', outline: 'none' }} />
-                </div>
+
+                {verSeccionPassword && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '14px', borderTop: '1px solid #242b3d', paddingTop: '14px' }}>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                        <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#60a5fa' }}>Nueva Password</label>
+                        <input type="password" placeholder="••••••••" value={datosForm.password} onChange={(e) => setDatosForm({ ...datosForm, password: e.target.value })} style={{ backgroundColor: '#111827', border: '1px solid #30363d', borderRadius: '8px', padding: '10px', color: 'white', outline: 'none', fontSize: '12px' }} />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                        <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#60a5fa' }}>Confirmar</label>
+                        <input type="password" placeholder="••••••••" value={datosForm.confirmPassword} onChange={(e) => setDatosForm({ ...datosForm, confirmPassword: e.target.value })} style={{ backgroundColor: '#111827', border: '1px solid #30363d', borderRadius: '8px', padding: '10px', color: 'white', outline: 'none', fontSize: '12px' }} />
+                      </div>
+                    </div>
+                    <button onClick={handleGuardarPassword} type="button" style={{ width: '100%', padding: '10px', backgroundColor: '#e11d48', border: 'none', borderRadius: '8px', color: 'white', fontWeight: '900', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer', marginTop: '4px' }}>
+                      🔒 Actualizar Contraseña
+                    </button>
+                  </div>
+                )}
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginTop: '16px', borderTop: '1px solid #30363d', paddingTop: '16px' }}>
-                <button type="button" onClick={() => setModalPerfilAbierto(false)} style={{ flex: 1, backgroundColor: 'transparent', border: '1px solid #475569', padding: '12px', borderRadius: '10px', color: 'white', fontWeight: '800', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer' }}>Cancelar</button>
-                <button type="submit" style={{ flex: 1, backgroundColor: '#22c55e', border: 'none', padding: '12px', borderRadius: '10px', color: 'white', fontWeight: '900', fontSize: '11px', textTransform: 'uppercase', cursor: 'pointer' }}>Guardar Cambios</button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
       )}
