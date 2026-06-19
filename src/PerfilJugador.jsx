@@ -24,6 +24,9 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     confirmPassword: ''
   });
 
+  // 🚀 FOTO: Estado local para manejar el string de previsualización y guardado
+  const [fotoBase64, setFotoBase64] = useState('');
+
   // Información del equipo (para jalar de tu API en Railway)
   const [datosEquipo, setDatosEquipo] = useState({
     asistencias: 14,
@@ -66,6 +69,9 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           password: '',
           confirmPassword: ''
         });
+        
+        // Sincronizamos la foto inicial en el estado de preview
+        setFotoBase64(data.foto_perfil || '');
       } catch (err) {
         console.error("Error al obtener perfil del atleta", err);
       } finally {
@@ -85,6 +91,18 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     }
   };
 
+  // 🚀 FOTO: Lector de archivos binarios para convertirlos a Base64 antes de enviarlos al Servidor
+  const handleFotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFotoBase64(reader.result); // Almacena el string Base64 con el prefijo data:image/...
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   // Manejador del submit para impactar el backend en Railway
   const handleActualizarPerfil = async (e) => {
     e.preventDefault();
@@ -99,7 +117,12 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       const baseUrl = import.meta.env.VITE_API_BASE_URL || '';
       
       // Estructuramos el payload de forma segura (sin incluir password si está vacío)
-      const payloadAEnviar = { ...datosForm };
+      // 🚀 FOTO: Inyectamos la foto convertida en Base64 al JSON que espera tu endpoint unificado
+      const payloadAEnviar = { 
+        ...datosForm,
+        foto_perfil: fotoBase64 
+      };
+      
       if (!payloadAEnviar.password) {
         delete payloadAEnviar.password;
         delete payloadAEnviar.confirmPassword;
@@ -111,7 +134,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       
       if (response.status === 200) {
         // Actualizamos el estado local del perfil con la info guardada (sin la password)
-        const {...perfilActualizado} = datosForm;
+        const {...perfilActualizado} = payloadAEnviar;
         delete perfilActualizado.password;
         delete perfilActualizado.confirmPassword;
 
@@ -398,8 +421,8 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
               
               {/* 📷 FOTO DE PERFIL (Carga de archivo) */}
               <div style={{ textAlign: 'center', marginBottom: '10px' }}>
-                <img src={perfil.foto_perfil || logoMvp} alt="Preview" style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #30363d', marginBottom: '8px' }}/>
-                <input type="file" accept="image/*" style={{ fontSize: '10px', color: '#9ca3af' }}/>
+                <img src={fotoBase64 || logoMvp} alt="Preview" style={{ width: '70px', height: '70px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #30363d', marginBottom: '8px' }}/>
+                <input type="file" accept="image/*" onChange={handleFotoChange} style={{ fontSize: '10px', color: '#9ca3af' }}/>
                 <p style={{fontSize: '9px', color: '#64748b', margin: '4px 0 0'}}>Formatos: JPG, PNG. Máx: 2MB.</p>
               </div>
 
