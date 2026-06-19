@@ -164,7 +164,7 @@ const AvatarEditor = ({ jugadorId, configInicial, onGuardarExito, soloModal = fa
     } catch (err) {
       console.error("Error al guardar avatar:", err);
       alert("❌ No se pudo guardar el avatar en el servidor");
-    } fillany {
+    } finally {
       setGuardando(false);
     }
   };
