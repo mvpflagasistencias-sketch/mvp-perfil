@@ -105,7 +105,9 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         delete payloadAEnviar.confirmPassword;
       }
 
-      const response = await api.put(`/api/jugadores/perfil/${perfil.id}`, payloadAEnviar);
+      // 🚀 CORRECCIÓN CRÍTICA: Extraemos de forma garantizada el ID real para evitar el 'undefined'
+      const idActual = jugadorId || localStorage.getItem('atleta_id');
+      const response = await api.put(`/api/jugadores/perfil/actualizar/${idActual}`, payloadAEnviar);
       
       if (response.status === 200) {
         // Actualizamos el estado local del perfil con la info guardada (sin la password)
@@ -363,7 +365,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           gap: '10px',
           boxSizing: 'border-box'
         }}>
-          {/* Botón A: Editar Perfil (Ahora abre el modal con TODOS los campos nuevos) */}
+          {/* Botón A: Editar Perfil */}
           <button 
             onClick={() => { setModalPerfilAbierto(true); setMenuAbierto(false); }}
             style={{ width: '100%', padding: '12px', backgroundColor: '#2563eb', border: 'none', borderRadius: '10px', color: 'white', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em', cursor: 'pointer', transition: 'background-color 0.2s' }}
