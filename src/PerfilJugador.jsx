@@ -74,17 +74,17 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           }));
         }
 
-        // 🚀 FILTRADO DE PROMOCIÓN REAL: Corregido para mapear usando las llaves de la base de datos (descripcion y fecha_fin)
+        // 🚀 FILTRADO DE PROMOCIÓN REAL CORREGIDO: Usamos doble igual (==) para parsear el ID de forma flexible sin importar el tipo
         if (resPromociones.data && data.promocion_id) {
-          const promoAsignada = resPromociones.data.find(p => p.id === data.promocion_id);
+          const promoAsignada = resPromociones.data.find(p => p.id == data.promocion_id);
           if (promoAsignada) {
             setDatosEquipo(prev => ({
               ...prev,
               promociones: [{
                 id: promoAsignada.id,
                 titulo: promoAsignada.titulo,
-                desc: promoAsignada.descripcion, // 🛠️ Cambiado de promoAsignada.desc a promoAsignada.descripcion
-                expira: promoAsignada.fecha_fin ? promoAsignada.fecha_fin.split('T')[0] : 'PERMANENTE' // 🛠️ Cambiado de promoAsignada.expira a promoAsignada.fecha_fin
+                desc: promoAsignada.descripcion, 
+                expira: promoAsignada.fecha_fin ? promoAsignada.fecha_fin.split('T')[0] : 'PERMANENTE' 
               }]
             }));
           } else {
@@ -486,7 +486,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               
               {/* 📷 SECCIÓN 1: IDENTIDAD VISUAL (FOTO SEPARADA) */}
-              <div style={{ textAlign: 'center', backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d' }}>
+              <div style={{ textalign: 'center', backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d' }}>
                 <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', textTransform: 'uppercase', marginBottom: '12px', textAlign: 'left' }}>Visual del Atleta</span>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
                   <img src={fotoBase64 || logoMvp} alt="Preview" style={{ width: '65px', height: '65px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #30363d' }}/>
