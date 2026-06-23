@@ -40,10 +40,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?q=80&w=400&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=400&auto=format&fit=crop'
     ],
-    promociones: [
-      { id: 1, titulo: "🔥 ¡20% EN JERSEY OFICIAL!", desc: "Usa el cupón MVPJERSEY26 en la tienda física de la liga y personaliza tu uniforme.", expira: "30/06/2026" },
-      { id: 2, titulo: "🏈 INSCRIPCIONES ABIERTAS", desc: "Asegura el lugar de tu escuadra para el torneo relámpago de Verano. Cierre de registros: Julio 5.", expira: "05/07/2026" }
-    ]
+    promociones: [] // Inicializado vacío para recibir la información real de la BD
   });
 
   useEffect(() => {
@@ -52,11 +49,12 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       if (!idActual) { setLoading(false); return; }
 
       try {
-        // Realizamos las 3 peticiones en paralelo para optimizar la velocidad de carga en Railway
-        const [resPerfil, resEquipos, resAsistencias] = await Promise.all([
+        // Realizamos las peticiones en paralelo para optimizar la velocidad de carga en Railway, incluyendo el listado de promociones
+        const [resPerfil, resEquipos, resAsistencias, resPromociones] = await Promise.all([
           api.get(`/api/jugadores/perfil/${idActual}`),
           api.get('/api/equipos'),
-          api.get(`/api/jugadores/${idActual}/contador-asistencias`)
+          api.get(`/api/jugadores/${idActual}/contador-asistencias`),
+          api.get('/api/promociones') // Jala todas las promos activas de la base de datos
         ]);
 
         let data = resPerfil.data;
@@ -67,13 +65,33 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         setPerfil(data);
         setEquipos(resEquipos.data);
 
-        // Mantenemos intactas tus galerías y promos, inyectando las asistencias reales de la base de datos
+        // Mantenemos intactas tus galerías e inyectamos las asistencias reales de la base de datos
         if (resAsistencias.data) {
           setDatosEquipo(prev => ({
             ...prev,
             asistencias: resAsistencias.data.asistencias,
             totalesPartidos: resAsistencias.data.totalesPartidos
           }));
+        }
+
+        // 🚀 FILTRADO DE PROMOCIÓN REAL: Evaluamos si el registro del jugador cuenta con un promocion_id asignado
+        if (resPromociones.data && data.promocion_id) {
+          const promoAsignada = resPromociones.data.find(p => p.id === data.promocion_id);
+          if (promoAsignada) {
+            setDatosEquipo(prev => ({
+              ...prev,
+              promociones: [{
+                id: promoAsignada.id,
+                titulo: promoAsignada.titulo,
+                desc: promoAsignada.descripcion,
+                expira: promoAsignada.fecha_fin ? promoAsignada.fecha_fin.split('T')[0] : 'PERMANENTE'
+              }]
+            }));
+          } else {
+            setDatosEquipo(prev => ({ ...prev, promociones: [] }));
+          }
+        } else {
+          setDatosEquipo(prev => ({ ...prev, promociones: [] }));
         }
 
         // Sincronizamos los datos editables con el formulario
@@ -378,15 +396,21 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         <div style={{ padding: '20px', flex: 1, overflowY: 'auto', boxSizing: 'border-box' }}>
           {tabActiva === 'promos' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {datosEquipo.promociones.map((p) => (
-                <div key={p.id} style={{ backgroundColor: '#0f172a', padding: '14px', borderRadius: '14px', border: '1px solid #30363d' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: '900', color: '#22c55e' }}>{p.titulo}</span>
-                    <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700' }}>{p.expira}</span>
-                  </div>
-                  <p style={{ margin: 0, fontSize: '11px', color: '#9ca3af', lineHeight: '1.4' }}>{p.desc}</p>
+              {datosEquipo.promociones.length === 0 ? (
+                <div style={{ fontSize: '11px', color: '#64748b', textAlign: 'center', padding: '20px', italic: 'true', fontWeight: '700' }}>
+                  📭 NO TIENES PROMOCIONES ACTIVAS EN ESTE MOMENTO.
                 </div>
-              ))}
+              ) : (
+                datosEquipo.promociones.map((p) => (
+                  <div key={p.id} style={{ backgroundColor: '#0f172a', padding: '14px', borderRadius: '14px', border: '1px solid #30363d' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <span style={{ fontSize: '11px', fontWeight: '900', color: '#22c55e' }}>{p.titulo}</span>
+                      <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700' }}>VENCE: {p.expira}</span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#9ca3af', lineHeight: '1.4' }}>{p.desc}</p>
+                  </div>
+                ))
+              )}
             </div>
           )}
 
@@ -451,7 +475,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
       {/* 📋 MODAL EMERGENTE: FORMULARIO MODULAR INDEPENDIENTE */}
       {modalPerfilAbierto && (
-        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}>
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifycontent: 'center', padding: '20px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '420px', width: '100%', color: 'white', boxSizing: 'border-box', overflowY: 'auto', maxHeight: '90vh' }}>
             
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
