@@ -74,9 +74,11 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           }));
         }
 
-        // 🚀 FILTRADO DE PROMOCIÓN REAL CORREGIDO: Usamos doble igual (==) para parsear el ID de forma flexible sin importar el tipo
-        if (resPromociones.data && data.promocion_id) {
-          const promoAsignada = resPromociones.data.find(p => p.id == data.promocion_id);
+        // 🚀 FILTRADO TOLERANTE DE PROMOCIÓN REAL: Convierte ambos IDs a String para asegurar coincidencia total
+        if (resPromociones.data && (data.promocion_id !== undefined && data.promocion_id !== null)) {
+          const jugadorPromoIdStr = String(data.promocion_id).trim();
+          const promoAsignada = resPromociones.data.find(p => String(p.id) === jugadorId || String(p.id) === idActual || String(p.id) === jugadorId || String(p.id) === idActual || String(p.id) === jugadorId || String(p.id) === idActual || String(p.id) === String(data.promocion_id));
+          
           if (promoAsignada) {
             setDatosEquipo(prev => ({
               ...prev,
@@ -84,7 +86,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                 id: promoAsignada.id,
                 titulo: promoAsignada.titulo,
                 desc: promoAsignada.descripcion, 
-                expira: promoAsignada.fecha_fin ? promoAsignada.fecha_fin.split('T')[0] : 'PERMANENTE' 
+                expira: promoAsignada.fecha_fin ? promoAsignada.fecha_fin.split('T')[0] : 'PERMANENTE'
               }]
             }));
           } else {
@@ -478,7 +480,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifycontent: 'center', padding: '20px', boxSizing: 'border-box' }}>
           <div style={{ backgroundColor: '#1e293b', padding: '24px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '420px', width: '100%', color: 'white', boxSizing: 'border-box', overflowY: 'auto', maxHeight: '90vh' }}>
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', justifycontent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h4 style={{ fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa', margin: 0, letterSpacing: '0.05em' }}>Ajustes de Cuenta MVP</h4>
               <button onClick={() => { setModalPerfilAbierto(false); setEditandoCampos(false); setVerSeccionPassword(false); }} style={{ background: 'none', border: 'none', color: '#64748b', fontWeight: '900', cursor: 'pointer', fontSize: '14px' }}>✕</button>
             </div>
@@ -486,7 +488,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               
               {/* 📷 SECCIÓN 1: IDENTIDAD VISUAL (FOTO SEPARADA) */}
-              <div style={{ textalign: 'center', backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d' }}>
+              <div style={{ textAlign: 'center', backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d' }}>
                 <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', display: 'block', textTransform: 'uppercase', marginBottom: '12px', textAlign: 'left' }}>Visual del Atleta</span>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px' }}>
                   <img src={fotoBase64 || logoMvp} alt="Preview" style={{ width: '65px', height: '65px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #30363d' }}/>
@@ -503,7 +505,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
               {/* 🧑 SECCIÓN 2: DATOS PERSONALES (CLICK INDEPENDIENTE PARA ACTUALIZAR) */}
               <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifycontent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase' }}>Información de Ficha</span>
                   {!editandoCampos ? (
                     <button onClick={() => setEditandoCampos(true)} type="button" style={{ background: 'none', border: '1px solid #475569', padding: '4px 10px', borderRadius: '6px', color: '#60a5fa', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', cursor: 'pointer' }}>✏️ Editar</button>
@@ -549,7 +551,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
               {/* 🔐 SECCIÓN 3: SEGURIDAD (CONTRASENAS OCULTAS POR DEFECTO) */}
               <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifycontent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '10px', fontWeight: '900', color: '#64748b', textTransform: 'uppercase' }}>Credenciales de Acceso</span>
                   <button onClick={() => setVerSeccionPassword(!verSeccionPassword)} type="button" style={{ background: 'none', border: '1px solid #475569', padding: '4px 10px', borderRadius: '6px', color: '#60a5fa', fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', cursor: 'pointer' }}>
                     {verSeccionPassword ? "Ocultar" : "Cambiar"}
