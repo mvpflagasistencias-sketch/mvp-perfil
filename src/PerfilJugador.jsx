@@ -31,6 +31,9 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [editandoCampos, setEditandoCampos] = useState(false);
   const [verSeccionPassword, setVerSeccionPassword] = useState(false);
 
+  // 📢 NUEVO ESTADO: Guarda la promoción seleccionada para el modal de detalle
+  const [promoSeleccionada, setPromoSeleccionada] = useState(null);
+
   // Información del equipo (para jalar de tu API en Railway)
   const [datosEquipo, setDatosEquipo] = useState({
     asistencias: 0, // Inicia en 0 en lugar de hardcodeado
@@ -54,7 +57,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           api.get(`/api/jugadores/perfil/${idActual}`),
           api.get('/api/equipos'),
           api.get(`/api/jugadores/${idActual}/contador-asistencias`),
-          api.get(`/api/promociones/jugador/${idActual}`) // 🚀 Pide la promo por el ID del jugador, igual que las asistencias
+          api.get(`/api/promociones/jugador/${idActual}`) // Pide la promo por el ID del jugador, igual que las asistencias
         ]);
 
         let data = resPerfil.data;
@@ -74,7 +77,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           }));
         }
 
-        // 🚀 SE MODIFICÓ: Mapeo masivo para formatear y acumular todas las promociones que devuelva la tabla intermedia
+        // Mapeo masivo para formatear y acumular todas las promociones que devuelva la tabla intermedia
         if (resPromociones.data && resPromociones.data.length > 0) {
           const listaFormateada = resPromociones.data.map(promo => ({
             id: promo.id,
@@ -85,7 +88,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
           setDatosEquipo(prev => ({
             ...prev,
-            promociones: listaFormateada // Mapea la lista entera en lugar de quedarse solo con la primera [0]
+            promociones: listaFormateada 
           }));
         } else {
           setDatosEquipo(prev => ({ ...prev, promociones: [] }));
@@ -399,12 +402,35 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                 </div>
               ) : (
                 datosEquipo.promociones.map((p) => (
-                  <div key={p.id} style={{ backgroundColor: '#0f172a', padding: '14px', borderRadius: '14px', border: '1px solid #30363d' }}>
+                  /* 🚀 SE MODIFICÓ: Añadidos estilos interactivos onClick, hover y active para hacerlas clicables */
+                  <div 
+                    key={p.id} 
+                    onClick={() => setPromoSeleccionada(p)}
+                    style={{ 
+                      backgroundColor: '#0f172a', 
+                      padding: '14px', 
+                      borderRadius: '14px', 
+                      border: '1px solid #30363d',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateY(-3px)';
+                      e.currentTarget.style.borderColor = '#22c55e';
+                      e.currentTarget.style.boxShadow = '0 6px 16px rgba(34, 197, 94, 0.15)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'none';
+                      e.currentTarget.style.borderColor = '#30363d';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }}
+                  >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                       <span style={{ fontSize: '11px', fontWeight: '900', color: '#22c55e' }}>{p.titulo}</span>
                       <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '700' }}>VENCE: {p.expira}</span>
                     </div>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#9ca3af', lineHeight: '1.4' }}>{p.desc}</p>
+                    {/* Se trunca el texto con elipsis para mantener el diseño simétrico en la lista */}
+                    <p style={{ margin: 0, fontSize: '11px', color: '#9ca3af', lineHeight: '1.4', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>{p.desc}</p>
                   </div>
                 ))
               )}
@@ -573,6 +599,36 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
               </div>
 
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🚀 NUEVO MODAL: DETALLE INMERSIVO DE LA PROMOCIÓN SELECCIONADA */}
+      {promoSeleccionada && (
+        <div 
+          onClick={() => setPromoSeleccionada(null)} 
+          style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(6px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()} 
+            style={{ backgroundColor: '#1e293b', padding: '28px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '400px', width: '100%', color: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6)', boxSizing: 'border-box' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #30363d', paddingBottom: '12px' }}>
+              <span style={{ fontSize: '12px', fontWeight: '900', color: '#22c55e', letterSpacing: '0.05em', textTransform: 'uppercase' }}>📢 Beneficio Activado</span>
+              <button onClick={() => setPromoSeleccionada(null)} style={{ background: 'none', border: 'none', color: '#64748b', fontWeight: '900', cursor: 'pointer', fontSize: '16px' }}>✕</button>
+            </div>
+            
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '900', color: '#60a5fa', textTransform: 'uppercase' }}>{promoSeleccionada.titulo}</h3>
+            <span style={{ fontSize: '10px', color: '#9ca3af', fontWeight: '800', display: 'block', marginBottom: '16px' }}>📅 FECHA LÍMITE DE CANJE: {promoSeleccionada.expira}</span>
+            
+            <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#cbd5e1', lineHeight: '1.6', wordBreak: 'break-word' }}>{promoSeleccionada.desc}</p>
+            
+            <button 
+              onClick={() => setPromoSeleccionada(null)} 
+              style={{ width: '100%', padding: '12px', backgroundColor: '#22c55e', border: 'none', borderRadius: '12px', color: 'white', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.2)' }}
+            >
+              Entendido
+            </button>
           </div>
         </div>
       )}
