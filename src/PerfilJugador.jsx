@@ -54,7 +54,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           api.get(`/api/jugadores/perfil/${idActual}`),
           api.get('/api/equipos'),
           api.get(`/api/jugadores/${idActual}/contador-asistencias`),
-          api.get(`/api/promociones/jugador/${idActual}`) // 🚀 SE MODIFICÓ: Ahora pide la promo por el ID del jugador, igual que las asistencias
+          api.get(`/api/promociones/jugador/${idActual}`) // 🚀 Pide la promo por el ID del jugador, igual que las asistencias
         ]);
 
         let data = resPerfil.data;
@@ -74,17 +74,18 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           }));
         }
 
-        // 🚀 SE MODIFICÓ: Reflejo directo de la promoción asignada (igual que el flujo de asistencias)
+        // 🚀 SE MODIFICÓ: Mapeo masivo para formatear y acumular todas las promociones que devuelva la tabla intermedia
         if (resPromociones.data && resPromociones.data.length > 0) {
-          const promo = resPromociones.data[0];
+          const listaFormateada = resPromociones.data.map(promo => ({
+            id: promo.id,
+            titulo: promo.titulo,
+            desc: promo.descripcion, 
+            expira: promo.fecha_fin ? promo.fecha_fin.split('T')[0] : 'PERMANENTE'
+          }));
+
           setDatosEquipo(prev => ({
             ...prev,
-            promociones: [{
-              id: promo.id,
-              titulo: promo.titulo,
-              desc: promo.descripcion, 
-              expira: promo.fecha_fin ? promo.fecha_fin.split('T')[0] : 'PERMANENTE'
-            }]
+            promociones: listaFormateada // Mapea la lista entera en lugar de quedarse solo con la primera [0]
           }));
         } else {
           setDatosEquipo(prev => ({ ...prev, promociones: [] }));
