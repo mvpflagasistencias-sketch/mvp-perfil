@@ -74,7 +74,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           }));
         }
 
-        // 🚀 FILTRADO DE PROMOCIÓN REAL: Evaluamos si el registro del jugador cuenta con un promocion_id asignado
+        // 🚀 FILTRADO DE PROMOCIÓN REAL: Corregido para mapear usando las llaves de la base de datos (descripcion y fecha_fin)
         if (resPromociones.data && data.promocion_id) {
           const promoAsignada = resPromociones.data.find(p => p.id === data.promocion_id);
           if (promoAsignada) {
@@ -83,8 +83,8 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
               promociones: [{
                 id: promoAsignada.id,
                 titulo: promoAsignada.titulo,
-                desc: promoAsignada.descripcion,
-                expira: promoAsignada.fecha_fin ? promoAsignada.fecha_fin.split('T')[0] : 'PERMANENTE'
+                desc: promoAsignada.descripcion, // 🛠️ Cambiado de promoAsignada.desc a promoAsignada.descripcion
+                expira: promoAsignada.fecha_fin ? promoAsignada.fecha_fin.split('T')[0] : 'PERMANENTE' // 🛠️ Cambiado de promoAsignada.expira a promoAsignada.fecha_fin
               }]
             }));
           } else {
