@@ -49,12 +49,12 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       if (!idActual) { setLoading(false); return; }
 
       try {
-        // Realizamos las peticiones en paralelo para optimizar la velocidad de carga en Railway, incluyendo el listado de promociones
+        // Realizamos las peticiones en paralelo para optimizar la velocidad de carga en Railway, consumiendo el endpoint por jugador_id
         const [resPerfil, resEquipos, resAsistencias, resPromociones] = await Promise.all([
           api.get(`/api/jugadores/perfil/${idActual}`),
           api.get('/api/equipos'),
           api.get(`/api/jugadores/${idActual}/contador-asistencias`),
-          api.get('/api/promociones') // Jala todas las promos activas de la base de datos
+          api.get(`/api/promociones/jugador/${idActual}`) // 🚀 SE MODIFICÓ: Ahora pide la promo por el ID del jugador, igual que las asistencias
         ]);
 
         let data = resPerfil.data;
@@ -74,24 +74,18 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           }));
         }
 
-        // 🚀 FILTRADO TOLERANTE DE PROMOCIÓN REAL: Convierte ambos IDs a String para asegurar coincidencia total
-        if (resPromociones.data && (data.promocion_id !== undefined && data.promocion_id !== null)) {
-          const jugadorPromoIdStr = String(data.promocion_id).trim();
-          const promoAsignada = resPromociones.data.find(p => String(p.id) === jugadorId || String(p.id) === idActual || String(p.id) === jugadorId || String(p.id) === idActual || String(p.id) === jugadorId || String(p.id) === idActual || String(p.id) === String(data.promocion_id));
-          
-          if (promoAsignada) {
-            setDatosEquipo(prev => ({
-              ...prev,
-              promociones: [{
-                id: promoAsignada.id,
-                titulo: promoAsignada.titulo,
-                desc: promoAsignada.descripcion, 
-                expira: promoAsignada.fecha_fin ? promoAsignada.fecha_fin.split('T')[0] : 'PERMANENTE'
-              }]
-            }));
-          } else {
-            setDatosEquipo(prev => ({ ...prev, promociones: [] }));
-          }
+        // 🚀 SE MODIFICÓ: Reflejo directo de la promoción asignada (igual que el flujo de asistencias)
+        if (resPromociones.data && resPromociones.data.length > 0) {
+          const promo = resPromociones.data[0];
+          setDatosEquipo(prev => ({
+            ...prev,
+            promociones: [{
+              id: promo.id,
+              titulo: promo.titulo,
+              desc: promo.descripcion, 
+              expira: promo.fecha_fin ? promo.fecha_fin.split('T')[0] : 'PERMANENTE'
+            }]
+          }));
         } else {
           setDatosEquipo(prev => ({ ...prev, promociones: [] }));
         }
