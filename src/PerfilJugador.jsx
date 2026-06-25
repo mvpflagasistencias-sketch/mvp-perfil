@@ -60,10 +60,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           api.get(`/api/promociones/jugador/${idActual}`) // Pide la promo por el ID del jugador, igual que las asistencias
         ]);
 
-        let data = resPerfil.data;
-        if (data.avatar_config && typeof data.avatar_config === 'string') {
-          data.avatar_config = JSON.parse(data.avatar_config);
-        }
         
         setPerfil(data);
         setEquipos(resEquipos.data);
