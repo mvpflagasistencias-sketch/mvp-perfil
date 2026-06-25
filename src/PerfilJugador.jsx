@@ -296,7 +296,15 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         
 
-      
+        {/* Avatar ocultable */}
+      <div className="avatar-ocultar-movil" style={{ marginLeft: '40px' }}>
+         <AvatarEditor 
+            key={`editor-atleta-${perfil.id}`}
+            jugadorId={perfil.id} 
+            configInicial={perfil.avatar_config} 
+            onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
+         />
+      </div>
 
         {/* Info Jugador */}
         <div style={{ marginBottom: '12px', width: '100%' }}>
@@ -631,7 +639,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         <div onClick={() => setMenuAbierto(false)} style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(2px)', zIndex: 98 }}></div>
       )}
 
-      
+     
 
     </div>
   );
