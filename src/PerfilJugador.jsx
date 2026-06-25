@@ -606,41 +606,53 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       {promoSeleccionada && (
   <div 
     onClick={() => setPromoSeleccionada(null)} 
-    style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(10px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}
+    style={{ 
+      position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
+      backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', 
+      zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' 
+    }}
   >
     <div 
+      className="modal-anim"
       onClick={(e) => e.stopPropagation()} 
       style={{ 
         backgroundColor: '#1e293b', 
-        borderRadius: '28px', 
+        borderRadius: '32px', 
         border: '1px solid rgba(255,255,255,0.1)', 
-        maxWidth: '400px', 
-        width: '100%', 
-        color: 'white', 
-        boxShadow: '0 40px 80px -20px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.05)', 
-        overflow: 'hidden'
+        maxWidth: '400px', width: '100%', color: 'white',
+        boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
+        position: 'relative', overflow: 'hidden'
       }}
     >
-      {/* Header con gradiente elegante */}
-      <div style={{ background: 'linear-gradient(180deg, #2d3748 0%, #1e293b 100%)', padding: '32px 24px 20px', textAlign: 'center' }}>
-        <div style={{ fontSize: '48px', marginBottom: '12px' }}>🎁</div>
-        <h3 style={{ margin: '0', fontSize: '22px', fontWeight: '800', color: '#f8fafc', textTransform: 'uppercase', letterSpacing: '0.02em' }}>{promoSeleccionada.titulo}</h3>
-      </div>
-      
-      {/* Cuerpo */}
-      <div style={{ padding: '0 24px 24px' }}>
-        <p style={{ margin: '0 0 24px 0', fontSize: '14px', color: '#94a3b8', lineHeight: '1.6', textAlign: 'center' }}>{promoSeleccionada.desc}</p>
+      {/* Efecto de luz superior (Glamour) */}
+      <div style={{ position: 'absolute', top: 0, left: '20%', width: '60%', height: '2px', background: 'linear-gradient(90deg, transparent, #38bdf8, transparent)' }}></div>
+
+      <div style={{ padding: '40px 32px 32px', textAlign: 'center' }}>
+        <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎁</div>
+        <h3 style={{ margin: '0 0 8px', fontSize: '24px', fontWeight: '800', color: '#f8fafc' }}>{promoSeleccionada.titulo}</h3>
+        <p style={{ margin: '0 0 28px', fontSize: '14px', color: '#94a3b8' }}>{promoSeleccionada.desc}</p>
         
-        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', marginBottom: '24px', border: '1px solid #30363d', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Válido hasta</span>
-          <span style={{ fontSize: '14px', color: '#38bdf8', fontWeight: '900', fontFamily: 'monospace' }}>{promoSeleccionada.expira}</span>
+        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '20px', marginBottom: '28px', border: '1px solid #334155' }}>
+          <p style={{ fontSize: '10px', color: '#475569', fontWeight: '900', margin: '0 0 4px', textTransform: 'uppercase' }}>Válido hasta</p>
+          <span style={{ fontSize: '18px', color: '#38bdf8', fontWeight: '900', fontFamily: 'monospace' }}>{promoSeleccionada.expira}</span>
         </div>
       
         <button 
-          onClick={() => setPromoSeleccionada(null)} 
-          style={{ width: '100%', padding: '16px', backgroundColor: '#3b82f6', border: 'none', borderRadius: '16px', color: 'white', fontWeight: '900', textTransform: 'uppercase', fontSize: '12px', cursor: 'pointer', boxShadow: '0 10px 15px -3px rgba(59, 130, 246, 0.3)' }}
+          onClick={() => {
+            // AQUÍ PUEDES METER LA LÓGICA DE CACHE SI LA NECESITAS
+            localStorage.setItem(`promo_vista_${promoSeleccionada.id}`, 'true');
+            setPromoSeleccionada(null);
+          }} 
+          style={{ 
+            width: '100%', padding: '18px', backgroundColor: '#38bdf8', 
+            border: 'none', borderRadius: '16px', color: '#0f172a', 
+            fontWeight: '900', fontSize: '14px', cursor: 'pointer',
+            transition: 'transform 0.2s, background-color 0.2s' 
+          }}
+          onMouseEnter={(e) => { e.target.style.transform = 'scale(1.03)'; e.target.style.backgroundColor = '#7dd3fc'; }}
+          onMouseLeave={(e) => { e.target.style.transform = 'scale(1)'; e.target.style.backgroundColor = '#38bdf8'; }}
         >
-          ¡Lo quiero!
+          ¡LO QUIERO!
         </button>
       </div>
     </div>
