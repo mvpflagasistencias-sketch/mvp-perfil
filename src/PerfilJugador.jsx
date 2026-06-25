@@ -245,16 +245,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       position: 'relative',
       overflowX: 'hidden'
     }}>
-      {/* 🚀 INYECCIÓN DE ESTILOS CSS PARA ANIMACIONES */}
-      <style>{`
-        @keyframes modalFadeIn {
-          from { opacity: 0; transform: scale(0.9) translateY(20px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .modal-anim {
-          animation: modalFadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      `}</style>
       
       {/* 🍔 BOTÓN DE HAMBURGUESA FLOTANTE */}
       <button 
@@ -613,58 +603,32 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         </div>
       )}
 
-      {/* 📋 MODAL EMERGENTE MEJORADO: DETALLE INMERSIVO CON ANIMACIONES */}
+      {/* 🚀 NUEVO MODAL: DETALLE INMERSIVO DE LA PROMOCIÓN SELECCIONADA */}
       {promoSeleccionada && (
         <div 
           onClick={() => setPromoSeleccionada(null)} 
-          style={{ 
-            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', 
-            backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(12px)', 
-            zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' 
-          }}
+          style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', backgroundColor: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(6px)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', boxSizing: 'border-box' }}
         >
           <div 
-            className="modal-anim"
             onClick={(e) => e.stopPropagation()} 
-            style={{ 
-              backgroundColor: '#1e293b', 
-              borderRadius: '32px', 
-              border: '1px solid rgba(255,255,255,0.1)', 
-              maxWidth: '400px', width: '100%', color: 'white',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
-              position: 'relative', overflow: 'hidden'
-            }}
+            style={{ backgroundColor: '#1e293b', padding: '28px', borderRadius: '24px', border: '1px solid #30363d', maxWidth: '400px', width: '100%', color: 'white', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6)', boxSizing: 'border-box' }}
           >
-            {/* Efecto de luz superior (Glamour) */}
-            <div style={{ position: 'absolute', top: 0, left: '20%', width: '60%', height: '2px', background: 'linear-gradient(90deg, transparent, #38bdf8, transparent)' }}></div>
-
-            <div style={{ padding: '40px 32px 32px', textAlign: 'center' }}>
-              <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎁</div>
-              <h3 style={{ margin: '0 0 8px', fontSize: '24px', fontWeight: '800', color: '#f8fafc' }}>{promoSeleccionada.titulo}</h3>
-              <p style={{ margin: '0 0 28px', fontSize: '14px', color: '#94a3b8' }}>{promoSeleccionada.desc}</p>
-              
-              <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '20px', marginBottom: '28px', border: '1px solid #334155' }}>
-                <p style={{ fontSize: '10px', color: '#475569', fontWeight: '900', margin: '0 0 4px', textTransform: 'uppercase' }}>Válido hasta</p>
-                <span style={{ fontSize: '18px', color: '#38bdf8', fontWeight: '900', fontFamily: 'monospace' }}>{promoSeleccionada.expira}</span>
-              </div>
-            
-              <button 
-                onClick={() => {
-                  localStorage.setItem(`promo_vista_${promoSeleccionada.id}`, 'true');
-                  setPromoSeleccionada(null);
-                }} 
-                style={{ 
-                  width: '100%', padding: '18px', backgroundColor: '#38bdf8', 
-                  border: 'none', borderRadius: '16px', color: '#0f172a', 
-                  fontWeight: '900', fontSize: '14px', cursor: 'pointer',
-                  transition: 'transform 0.2s, background-color 0.2s' 
-                }}
-                onMouseEnter={(e) => { e.target.style.transform = 'scale(1.03)'; e.target.style.backgroundColor = '#7dd3fc'; }}
-                onMouseLeave={(e) => { e.target.style.transform = 'scale(1)'; e.target.style.backgroundColor = '#38bdf8'; }}
-              >
-                ¡LO QUIERO!
-              </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #30363d', paddingBottom: '12px' }}>
+              <span style={{ fontSize: '12px', fontWeight: '900', color: '#22c55e', letterSpacing: '0.05em', textTransform: 'uppercase' }}>📢 Beneficio Activado</span>
+              <button onClick={() => setPromoSeleccionada(null)} style={{ background: 'none', border: 'none', color: '#64748b', fontWeight: '900', cursor: 'pointer', fontSize: '16px' }}>✕</button>
             </div>
+            
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '20px', fontWeight: '900', color: '#60a5fa', textTransform: 'uppercase' }}>{promoSeleccionada.titulo}</h3>
+            <span style={{ fontSize: '10px', color: '#9ca3af', fontWeight: '800', display: 'block', marginBottom: '16px' }}>📅 FECHA LÍMITE DE CANJE: {promoSeleccionada.expira}</span>
+            
+            <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#cbd5e1', lineHeight: '1.6', wordBreak: 'break-word' }}>{promoSeleccionada.desc}</p>
+            
+            <button 
+              onClick={() => setPromoSeleccionada(null)} 
+              style={{ width: '100%', padding: '12px', backgroundColor: '#22c55e', border: 'none', borderRadius: '12px', color: 'white', fontWeight: '900', textTransform: 'uppercase', fontSize: '11px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.2)' }}
+            >
+              Entendido
+            </button>
           </div>
         </div>
       )}
