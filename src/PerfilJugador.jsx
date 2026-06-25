@@ -294,16 +294,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           <h3 style={{ fontSize: 'clamp(18px, 5vw, 20px)', fontWeight: '900', marginTop: '8px', textTransform: 'uppercase', margin: '8px 0 0' }}>MVP Flag</h3>
         </div>
 
-        {/* Avatar y Foto Responsivos */}
-        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: '24px', width: '100%' }}>
-          <div style={{ width: '112px', height: '112px', backgroundColor: '#0f172a', borderRadius: '50%', border: '4px solid #30363d', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.3)', boxSizing: 'border-box' }}>
-            {perfil.foto_perfil ? (
-              <img src={perfil.foto_perfil} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <div style={{ color: '#374151', fontSize: '10px', display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', fontWeight: '700' }}>SIN FOTO</div>
-            )}
-          </div>
-        </div>
+        
 
         {/* Avatar ocultable */}
       <div className="avatar-ocultar-movil" style={{ marginLeft: '40px' }}>
