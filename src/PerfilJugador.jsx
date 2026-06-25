@@ -297,7 +297,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         
 
         {/* Avatar ocultable */}
-      <div className="avatar-ocultar-movil" style={{ marginLeft: '30px' }}>
+      <div className="avatar-ocultar-movil" style={{ marginLeft: '20px' }}>
          <AvatarEditor 
             key={`editor-atleta-${perfil.id}`}
             jugadorId={perfil.id} 
