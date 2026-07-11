@@ -205,13 +205,24 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   };
 
   const obtenerNombreEquipo = () => {
-    if (!perfil) return 'AGENTE LIBRE';
-    if (isNaN(perfil.nombre_equipo)) {
-      return perfil.nombre_equipo || 'AGENTE LIBRE';
-    }
-    const equipoEncontrado = equipos.find(e => e.id === Number(perfil.nombre_equipo));
-    return equipoEncontrado ? equipoEncontrado.nombre_equipo : 'AGENTE LIBRE';
-  };
+  if (!perfil || !perfil.nombre_equipo) return 'AGENTE LIBRE';
+
+  const valor = perfil.nombre_equipo.toString();
+
+  // 1. Si es "AGENTE LIBRE", no busques más
+  if (valor === 'AGENTE LIBRE') return 'AGENTE LIBRE';
+
+  // 2. Intentamos buscar por ID (si es un número válido)
+  const idEquipo = Number(valor);
+  
+  if (!isNaN(idEquipo) && idEquipo !== 0) {
+    const equipoEncontrado = equipos.find(e => e.id === idEquipo);
+    if (equipoEncontrado) return equipoEncontrado.nombre_equipo;
+  }
+
+  // 3. Si no es un ID o no se encontró en la lista, devolvemos el texto original
+  return valor.toUpperCase();
+};
 
   if (loading) {
     return (
@@ -576,7 +587,8 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                         <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Escuadra Actual</label>
                         <select 
                           disabled={!editandoCampos} 
-                          value={datosForm.nombre_equipo} 
+                          // Convertimos a string para asegurar comparación exacta
+                          value={datosForm.nombre_equipo ? datosForm.nombre_equipo.toString() : ""} 
                           onChange={(e) => setDatosForm({ ...datosForm, nombre_equipo: e.target.value })} 
                           style={{ 
                             backgroundColor: editandoCampos ? '#1e293b' : '#0f172a', 
@@ -592,9 +604,13 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                           }}
                         >
                           <option value="" disabled>Selecciona equipo</option>
-                          <option value="AGENTE LIBRE">Agente Libre</option>
+                          {/* Aseguramos que este value sea string */}
+                          <option value="AGENTE LIBRE">AGENTE LIBRE</option>
                           {equipos.map(e => (
-                            <option key={e.id} value={e.id}>{e.nombre_equipo.toUpperCase()}</option>
+                            // Convertimos el ID a string aquí también
+                            <option key={e.id} value={e.id.toString()}>
+                              {e.nombre_equipo.toUpperCase()}
+                            </option>
                           ))}
                         </select>
                       </div>
