@@ -545,24 +545,60 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                   <input type="text" disabled={!editandoCampos} value={datosForm.nombre} onChange={(e) => setDatosForm({ ...datosForm, nombre: e.target.value })} style={{ backgroundColor: editandoCampos ? '#1e293b' : '#0f172a', border: '1px solid #30363d', borderRadius: '8px', padding: '10px', color: editandoCampos ? 'white' : '#64748b', fontWeight: '700', outline: 'none' }} />
                 </div>
 
-                {/* Identidad Deportiva */}
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: '1' }}>
-                    <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Jersey</label>
-                    <input type="text" disabled={!editandoCampos} value={datosForm.numero_jersey} onChange={(e) => setDatosForm({ ...datosForm, numero_jersey: e.target.value })} style={{ backgroundColor: editandoCampos ? '#1e293b' : '#0f172a', border: '1px solid #30363d', borderRadius: '8px', padding: '10px', color: editandoCampos ? 'white' : '#64748b', fontWeight: '700', outline: 'none', textAlign: 'center' }} />
-                  </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: '2' }}>
-                    <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Escuadra Actual</label>
-                    <select disabled={!editandoCampos} value={datosForm.nombre_equipo} onChange={(e) => setDatosForm({ ...datosForm, nombre_equipo: e.target.value })} style={{ backgroundColor: editandoCampos ? '#1e293b' : '#0f172a', border: '1px solid #30363d', borderRadius: '8px', padding: '10px', color: editandoCampos ? 'white' : '#64748b', fontWeight: '700', outline: 'none', cursor: editandoCampos ? 'pointer' : 'default' }}>
-                      <option value="" disabled>Selecciona equipo</option>
-                      <option value="AGENTE LIBRE">Agente Libre</option>
-                      {equipos.map(e => (
-                        <option key={e.id} value={e.id}>{e.nombre_equipo.toUpperCase()}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                {/* Identidad Deportiva - CORREGIDO */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '10px', width: '100%' }}>
+                      
+                      {/* Columna Jersey */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Jersey</label>
+                        <input 
+                          type="text" 
+                          disabled={!editandoCampos} 
+                          value={datosForm.numero_jersey} 
+                          onChange={(e) => setDatosForm({ ...datosForm, numero_jersey: e.target.value })} 
+                          style={{ 
+                            backgroundColor: editandoCampos ? '#1e293b' : '#0f172a', 
+                            border: '1px solid #30363d', 
+                            borderRadius: '8px', 
+                            padding: '10px', 
+                            color: editandoCampos ? 'white' : '#64748b', 
+                            fontWeight: '700', 
+                            outline: 'none', 
+                            textAlign: 'center',
+                            width: '100%',
+                            boxSizing: 'border-box'
+                          }} 
+                        />
+                      </div>
+                      
+                      {/* Columna Escuadra */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', minWidth: '0' }}>
+                        <label style={{ fontSize: '9px', fontWeight: '800', textTransform: 'uppercase', color: '#9ca3af' }}>Escuadra Actual</label>
+                        <select 
+                          disabled={!editandoCampos} 
+                          value={datosForm.nombre_equipo} 
+                          onChange={(e) => setDatosForm({ ...datosForm, nombre_equipo: e.target.value })} 
+                          style={{ 
+                            backgroundColor: editandoCampos ? '#1e293b' : '#0f172a', 
+                            border: '1px solid #30363d', 
+                            borderRadius: '8px', 
+                            padding: '10px', 
+                            color: editandoCampos ? 'white' : '#64748b', 
+                            fontWeight: '700', 
+                            outline: 'none', 
+                            cursor: editandoCampos ? 'pointer' : 'default', 
+                            width: '100%',
+                            boxSizing: 'border-box'
+                          }}
+                        >
+                          <option value="" disabled>Selecciona equipo</option>
+                          <option value="AGENTE LIBRE">Agente Libre</option>
+                          {equipos.map(e => (
+                            <option key={e.id} value={e.id}>{e.nombre_equipo.toUpperCase()}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
 
                 {/* Teléfono */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
