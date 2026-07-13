@@ -4,21 +4,34 @@ body {
 }
 
 @media print {
+  @page {
+    size: auto;   /* auto es el tamaño predeterminado */
+    margin: 0mm;  /* Elimina los márgenes del papel */
+  }
+
   body * {
-    visibility: hidden; /* Oculta todo lo demás */
+    visibility: hidden;
   }
   
   #tarjeta-completa-jugador, #tarjeta-completa-jugador * {
-    visibility: visible; /* Muestra solo la tarjeta */
+    visibility: visible;
   }
   
-  #tarjeta-completa-jugador {
+#tarjeta-completa-jugador {
     position: absolute;
     left: 0;
     top: 0;
-    width: 100%;
-    /* Fuerza al navegador a imprimir los colores de fondo */
+    width: 100vw;      /* Fuerza el ancho */
+    height: 100vh;     /* Fuerza el alto */
+    border-radius: 0;  /* Elimina esquinas */
+    box-shadow: none;  /* Sin sombra */
+    margin: 0 !important;
+    padding: 20px !important; 
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
+  }
+  /* Oculta el botón */
+  #boton-descarga-oculto {
+    display: none !important;
   }
 }
