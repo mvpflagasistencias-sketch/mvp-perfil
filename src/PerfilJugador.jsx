@@ -372,65 +372,72 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
 
           {/* QR Area Responsivo */}
-            <div style={{ 
-              backgroundColor: '#0f172a', 
-              padding: '24px', // Más espacio alrededor
-              borderRadius: '20px', 
-              border: '1px solid #30363d', 
-              width: '100%', 
-              boxSizing: 'border-box',
-              marginTop: '20px'
-            }}>
-              <p style={{ fontSize: '10px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 16px' }}>ID Único de Acceso</p>
-              
-              {perfil ? (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <div style={{ 
-                    backgroundColor: 'white', 
-                    padding: '12px', // Ajuste para que el QR crezca
-                    borderRadius: '16px', 
-                    display: 'inline-block' 
-                  }}>
-                    <QRCodeSVG 
-                      value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
-                      size={220} // Aumentamos el tamaño de 120 a 220
-                      level={"H"} 
-                      includeMargin={true}
-                      imageSettings={{
-                        src: logoMvp,
-                        height: 60, // Logo más grande también
-                        width: 60,
-                        align: 'center',
-                        excavate: true,
-                      }}
-                    />
-                  </div>
-                  
-                  {/* Botón */}
-                  <button 
-                    id="boton-descarga-oculto"
-                    onClick={() => window.print()}
-                    style={{
-                      marginTop: '24px',
-                      width: '100%',
-                      backgroundColor: '#22c55e',
-                      color: 'white',
-                      border: 'none',
-                      padding: '14px',
-                      borderRadius: '12px',
-                      fontWeight: '900',
-                      textTransform: 'uppercase',
-                      fontSize: '12px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ⬇ Descargar Tarjeta (PDF)
-                  </button>
-                </div>
-              ) : (
-                <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
-              )}
-            </div>
+<div style={{ 
+  backgroundColor: '#0f172a', 
+  padding: '24px', 
+  borderRadius: '20px', 
+  border: '1px solid #30363d', 
+  width: '100%', 
+  boxSizing: 'border-box',
+  marginTop: '20px'
+}}>
+  <p style={{ fontSize: '10px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 16px' }}>ID Único de Acceso</p>
+  
+  {perfil ? (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ backgroundColor: 'white', padding: '12px', borderRadius: '16px', display: 'inline-block' }}>
+        <QRCodeSVG 
+          value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
+          size={220} 
+          level={"H"} 
+          includeMargin={true}
+          imageSettings={{
+            src: logoMvp,
+            height: 60,
+            width: 60,
+            align: 'center',
+            excavate: true,
+          }}
+        />
+      </div>
+
+      {/* NUEVA LEYENDA */}
+      <p style={{ 
+        marginTop: '16px', 
+        marginBottom: '4px', 
+        fontSize: '9px', 
+        color: '#94a3b8', 
+        textAlign: 'center',
+        lineHeight: '1.4',
+        padding: '0 10px'
+      }}>
+        PUEDE TOMAR UNA CAPTURA DE PANTALLA O
+      </p>
+
+      {/* Botón */}
+      <button 
+        id="boton-descarga-oculto"
+        onClick={() => window.print()}
+        style={{
+          width: '100%',
+          backgroundColor: '#22c55e',
+          color: 'white',
+          border: 'none',
+          padding: '14px',
+          borderRadius: '12px',
+          fontWeight: '900',
+          textTransform: 'uppercase',
+          fontSize: '12px',
+          cursor: 'pointer'
+        }}
+      >
+        ⬇ Descargar Tarjeta (PDF)
+      </button>
+    </div>
+  ) : (
+    <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
+  )}
+</div>
 
 
 
