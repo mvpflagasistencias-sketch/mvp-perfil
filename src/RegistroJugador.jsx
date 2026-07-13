@@ -186,23 +186,26 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 </select>
               </div>
 
-              <div>
-                <label style={styles.label}>Equipo</label>
-                <input 
-                  list="equipos-list"
-                  type="text" 
-                  style={styles.input}
-                  placeholder="ESCRIBE O SELECCIONA TU EQUIPO"
-                  value={formData.equipo}
-                  onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})} 
-                  required 
-                />
-                <datalist id="equipos-list">
-                  {equipos.map(eq => (
-                    <option key={eq.id} value={eq.nombre_equipo.toUpperCase()} />
-                  ))}
-                </datalist>
-              </div>
+             <div>
+              <label style={styles.label}>Equipo</label>
+              <input 
+                list="equipos-list"
+                type="text" 
+                style={styles.input}
+                placeholder="ESCRIBE O SELECCIONA TU EQUIPO"
+                value={formData.equipo}
+                onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})} 
+                required
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+              />
+              <datalist id="equipos-list">
+                {equipos.map(eq => (
+                  <option key={eq.id} value={eq.nombre_equipo.toUpperCase()} />
+                ))}
+              </datalist>
+            </div>
 
               <div>
                 <label style={styles.label}>Teléfono de Contacto</label>
