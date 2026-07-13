@@ -242,7 +242,15 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       </div>
     );
   }
-
+<style>
+{`
+  @media print {
+    body * { visibility: hidden; }
+    #tarjeta-completa-jugador, #tarjeta-completa-jugador * { visibility: visible; }
+    #tarjeta-completa-jugador { position: absolute; left: 0; top: 0; width: 100%; }
+  }
+`}
+</style>
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -375,27 +383,45 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         {/* QR Area Responsivo */}
         <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', boxSizing: 'border-box' }}>
-          <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
-          {perfil ? (
-            <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
-              <QRCodeSVG 
-                value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
-                size={120} 
-                level={"H"} 
-                includeMargin={true}
-                imageSettings={{
-                  src: logoMvp,
-                  height: 35,
-                  width: 35,
-                  align: 'center',
-                  excavate: true,
-                }}
-              />
-            </div>
-          ) : (
-            <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
-          )}
-        </div>
+  <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
+  {perfil ? (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+      <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
+        <QRCodeSVG 
+          value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
+          size={120} 
+          level={"H"} 
+          includeMargin={true}
+          imageSettings={{
+            src: logoMvp,
+            height: 35,
+            width: 35,
+            align: 'center',
+            excavate: true,
+          }}
+        />
+      </div>
+      <button 
+        onClick={() => window.print()}
+        style={{
+          backgroundColor: '#22c55e',
+          color: 'white',
+          border: 'none',
+          padding: '8px 16px',
+          borderRadius: '8px',
+          fontSize: '10px',
+          fontWeight: '900',
+          textTransform: 'uppercase',
+          cursor: 'pointer'
+        }}
+      >
+        ⬇ Descargar Tarjeta (PDF)
+      </button>
+    </div>
+  ) : (
+    <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
+  )}
+</div>
       </div>
 
       {/* 🎴 SIDESHEET / PANEL LATERAL DESPLEGABLE */}
