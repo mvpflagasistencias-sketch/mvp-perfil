@@ -5,6 +5,7 @@ import AvatarEditor from './AvatarEditor';
 import logoMvp from './assets/logo-mvp.png'; 
 import html2canvas from 'html2canvas';
 
+
 const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
