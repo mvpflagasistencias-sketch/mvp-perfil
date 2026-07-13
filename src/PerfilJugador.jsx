@@ -3,8 +3,6 @@ import { QRCodeSVG } from 'qrcode.react';
 import api from './api'; 
 import AvatarEditor from './AvatarEditor'; 
 import logoMvp from './assets/logo-mvp.png'; 
-import html2canvas from 'html2canvas';
-
 
 const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [perfil, setPerfil] = useState(null);
@@ -14,27 +12,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   // 🍔 ESTADOS PARA EL MENÚ HAMBURGUESA DESPLEGABLE
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [tabActiva, setTabActiva] = useState('promos');
-
-
-  const descargarQR = async () => {
-  const element = document.getElementById('qr-to-download');
-    if (!element) return;
-
-    try {
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#ffffff',
-        scale: 3,
-        logging: false
-      });
-
-      const link = document.createElement('a');
-      link.download = `QR_MVP_${perfil.nombre.replace(/\s+/g, '_')}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    } catch (err) {
-      console.error("Error al generar imagen:", err);
-    }
-  };
 
   // 📝 ESTADO EXTENDIDO: Ahora incluye Nombre, Equipo, Teléfono, Jersey y Password
   const [modalPerfilAbierto, setModalPerfilAbierto] = useState(false);
@@ -397,46 +374,28 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         </div>
 
         {/* QR Area Responsivo */}
-          <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', boxSizing: 'border-box' }}>
-            <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
-            {perfil ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
-                <div id="qr-to-download" style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
-                  <QRCodeSVG 
-                    value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
-                    size={120} 
-                    level={"H"} 
-                    includeMargin={true}
-                    imageSettings={{
-                      src: logoMvp,
-                      height: 35,
-                      width: 35,
-                      align: 'center',
-                      excavate: true,
-                    }}
-                  />
-                </div>
-                <button 
-                  onClick={descargarQR}
-                  style={{
-                    backgroundColor: '#22c55e',
-                    color: 'white',
-                    border: 'none',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    fontSize: '10px',
-                    fontWeight: '900',
-                    textTransform: 'uppercase',
-                    cursor: 'pointer'
-                  }}
-                >
-                  ⬇ Descargar QR
-                </button>
-              </div>
-            ) : (
-              <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
-            )}
-          </div>
+        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', boxSizing: 'border-box' }}>
+          <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
+          {perfil ? (
+            <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
+              <QRCodeSVG 
+                value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
+                size={120} 
+                level={"H"} 
+                includeMargin={true}
+                imageSettings={{
+                  src: logoMvp,
+                  height: 35,
+                  width: 35,
+                  align: 'center',
+                  excavate: true,
+                }}
+              />
+            </div>
+          ) : (
+            <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
+          )}
+        </div>
       </div>
 
       {/* 🎴 SIDESHEET / PANEL LATERAL DESPLEGABLE */}
