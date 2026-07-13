@@ -16,22 +16,25 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [tabActiva, setTabActiva] = useState('promos');
 
 
-  const descargarCaptura = async () => {
-  const tarjeta = document.getElementById('tarjeta-completa-jugador');
-  
-  // Opciones para que capture exactamente lo que hay en pantalla
-  const canvas = await html2canvas(tarjeta, {
-    backgroundColor: '#1e293b', // Mismo color de fondo de tu tarjeta
-    scale: 2,                   // Calidad HD
-    useCORS: true,              // Necesario si usas fotos de URLs externas
-    logging: false
-  });
+  const descargarQR = async () => {
+  const element = document.getElementById('qr-to-download');
+    if (!element) return;
 
-  const link = document.createElement('a');
-  link.download = `Tarjeta_MVP_${perfil.nombre}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-};
+    try {
+      const canvas = await html2canvas(element, {
+        backgroundColor: '#ffffff',
+        scale: 3,
+        logging: false
+      });
+
+      const link = document.createElement('a');
+      link.download = `QR_MVP_${perfil.nombre.replace(/\s+/g, '_')}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error("Error al generar imagen:", err);
+    }
+  };
 
   // 📝 ESTADO EXTENDIDO: Ahora incluye Nombre, Equipo, Teléfono, Jersey y Password
   const [modalPerfilAbierto, setModalPerfilAbierto] = useState(false);
