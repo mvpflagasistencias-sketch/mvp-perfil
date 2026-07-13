@@ -2,3 +2,23 @@ body {
   background-color: #0d1117 !important;
   color: white !important;
 }
+
+@media print {
+  body * {
+    visibility: hidden; /* Oculta todo lo demás */
+  }
+  
+  #tarjeta-completa-jugador, #tarjeta-completa-jugador * {
+    visibility: visible; /* Muestra solo la tarjeta */
+  }
+  
+  #tarjeta-completa-jugador {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    /* Fuerza al navegador a imprimir los colores de fondo */
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
