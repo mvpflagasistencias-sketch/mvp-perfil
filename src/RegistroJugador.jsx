@@ -188,19 +188,20 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
 
               <div>
                 <label style={styles.label}>Equipo</label>
-                <select 
+                <input 
+                  list="equipos-list"
+                  type="text" 
                   style={styles.input}
-                  onChange={e => setFormData({...formData, equipo: e.target.value})} 
-                  required 
+                  placeholder="ESCRIBE O SELECCIONA TU EQUIPO"
                   value={formData.equipo}
-                >
-                  <option value="" style={{backgroundColor: '#0f172a'}}>-- Elige un equipo --</option>
+                  onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})} 
+                  required 
+                />
+                <datalist id="equipos-list">
                   {equipos.map(eq => (
-                    <option key={eq.id} value={eq.id} style={{backgroundColor: '#0f172a'}}>
-                      {eq.nombre_equipo}
-                    </option>
+                    <option key={eq.id} value={eq.nombre_equipo.toUpperCase()} />
                   ))}
-                </select>
+                </datalist>
               </div>
 
               <div>
