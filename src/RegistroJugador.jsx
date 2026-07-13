@@ -189,10 +189,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
              <div>
               <label style={styles.label}>Equipo</label>
               <input 
-                list="equipos-list"
                 type="text" 
                 style={styles.input}
-                placeholder="ESCRIBE O SELECCIONA TU EQUIPO"
+                placeholder="ESCRIBE TU EQUIPO"
                 value={formData.equipo}
                 onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})} 
                 required
@@ -200,11 +199,10 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 autoCorrect="off"
                 spellCheck="false"
               />
-              <datalist id="equipos-list">
-                {equipos.map(eq => (
-                  <option key={eq.id} value={eq.nombre_equipo.toUpperCase()} />
-                ))}
-              </datalist>
+              {/* Eliminamos el datalist para que el teclado deje de intentar autocompletar */}
+              <p style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
+                Si tu equipo ya existe, escríbelo tal cual aparece.
+              </p>
             </div>
 
               <div>
