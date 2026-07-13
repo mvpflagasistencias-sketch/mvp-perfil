@@ -96,7 +96,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
           <div style={{...styles.header, display: 'flex', justifyContent: 'space-between'}}>
             <div style={{ textAlign: 'left' }}>
               <h2 style={styles.title}>Registro de Atleta</h2>
-              <p style={styles.subtitle}>RF-01: Gestión de Perfiles</p>
+              <p style={styles.subtitle}></p>
             </div>
           </div>
 
