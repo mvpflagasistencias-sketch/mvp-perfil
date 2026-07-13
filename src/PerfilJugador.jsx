@@ -51,36 +51,46 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   });
 
 
- const descargarQR = async () => {
-  const element = document.getElementById('qr-to-download');
-  if (!element) return;
+      const descargarQR = async () => {
+        const element = document.getElementById('qr-to-download');
+        if (!element) return;
 
-  // Forzamos un estilo temporal para que la captura no corte las esquinas
-  element.style.borderRadius = "0px"; 
+        try {
+          // 1. Capturamos el QR (sin el logo interno, para evitar problemas de renderizado)
+          const canvas = await html2canvas(element, {
+            backgroundColor: '#ffffff',
+            scale: 3,
+            logging: false
+          });
 
-  try {
-    const canvas = await html2canvas(element, {
-      backgroundColor: '#ffffff', // Fondo blanco sólido para que resalte
-      scale: 3,                   // Mayor escala para alta resolución
-      logging: false,
-      useCORS: true,
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight,
-      x: 0,
-      y: 0
-    });
+          // 2. Cargamos el logo manualmente para dibujarlo sobre el canvas
+          const ctx = canvas.getContext('2d');
+          const imgLogo = new Image();
+          imgLogo.src = logoMvp; // Tu import del logo
 
-    const data = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = data;
-    link.download = `QR_MVP_${perfil.nombre.replace(/\s+/g, '_')}.png`;
-    link.click();
-  } catch (err) {
-    console.error("Error al generar imagen:", err);
-  } finally {
-    element.style.borderRadius = "16px"; // Regresamos el estilo original
-  }
-};
+          imgLogo.onload = () => {
+            // Calculamos el centro
+            const size = canvas.width;
+            const logoSize = size * 0.25; // 25% del tamaño del QR
+            const center = (size - logoSize) / 2;
+
+            // Dibujamos un fondo blanco pequeño detrás del logo para que se vea limpio
+            ctx.fillStyle = "white";
+            ctx.fillRect(center - 2, center - 2, logoSize + 4, logoSize + 4);
+
+            // Dibujamos el logo encima
+            ctx.drawImage(imgLogo, center, center, logoSize, logoSize);
+
+            // 3. Descargamos
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = `QR_MVP_${perfil.nombre.replace(/\s+/g, '_')}.png`;
+            link.click();
+          };
+        } catch (err) {
+          console.error("Error al generar imagen:", err);
+        }
+      };
 
 
 
@@ -433,13 +443,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           size={200}              // Tamaño base más grande
           level={"H"} 
           includeMargin={true}
-          imageSettings={{
-            src: logoMvp,
-            height: 60,
-            width: 60,
-            align: 'center',
-            excavate: true,
-          }}
+          
         />
       </div>
 
@@ -464,6 +468,8 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
   )}
 </div>
+
+
       </div>
 
       {/* 🎴 SIDESHEET / PANEL LATERAL DESPLEGABLE */}
