@@ -194,14 +194,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
   <select 
     style={styles.input}
     onChange={(e) => {
-      // Si eligen "OTRO", dejamos el campo vacío para que escriban
-      if (e.target.value === "OTRO_EQUIPO") {
-        setFormData({...formData, equipo: ''});
-      } else {
-        setFormData({...formData, equipo: e.target.value});
-      }
+      setFormData({...formData, equipo: e.target.value});
     }} 
-    value={formData.equipo === 'OTRO_EQUIPO' || !equipos.find(e => e.nombre_equipo === formData.equipo) ? (formData.equipo === '' ? '' : "OTRO_EQUIPO") : formData.equipo}
+    value={formData.equipo}
     required
   >
     <option value="" style={{backgroundColor: '#0f172a'}}>-- Elige un equipo --</option>
@@ -213,18 +208,19 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     <option value="OTRO_EQUIPO" style={{backgroundColor: '#0f172a', fontWeight: 'bold'}}>+ OTRO (Escribir manualmente)</option>
   </select>
 
-  {/* Si eligen OTRO, aparece el campo de texto para escribir */}
-  {(formData.equipo === '' || !equipos.find(e => e.nombre_equipo === formData.equipo)) && (
+  {/* ESTA ES LA CONDICIÓN: Solo se muestra si el valor es 'OTRO_EQUIPO' */}
+  {formData.equipo === 'OTRO_EQUIPO' && (
     <input 
       type="text" 
       style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
       placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
-      value={formData.equipo}
+      // Al escribir aquí, sobrescribimos el valor de 'OTRO_EQUIPO' con el nombre real
       onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})}
       autoComplete="off"
       autoCorrect="off"
       spellCheck="false"
       required
+      autoFocus
     />
   )}
 </div>
