@@ -191,50 +191,42 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
 
                <div>
   <label style={styles.label}>Equipo</label>
-  <div style={{ position: 'relative' }}>
+  <select 
+    style={styles.input}
+    onChange={(e) => {
+      // Si eligen "OTRO", dejamos el campo vacío para que escriban
+      if (e.target.value === "OTRO_EQUIPO") {
+        setFormData({...formData, equipo: ''});
+      } else {
+        setFormData({...formData, equipo: e.target.value});
+      }
+    }} 
+    value={formData.equipo === 'OTRO_EQUIPO' || !equipos.find(e => e.nombre_equipo === formData.equipo) ? (formData.equipo === '' ? '' : "OTRO_EQUIPO") : formData.equipo}
+    required
+  >
+    <option value="" style={{backgroundColor: '#0f172a'}}>-- Elige un equipo --</option>
+    {equipos.map(eq => (
+      <option key={eq.id} value={eq.nombre_equipo.toUpperCase()} style={{backgroundColor: '#0f172a'}}>
+        {eq.nombre_equipo.toUpperCase()}
+      </option>
+    ))}
+    <option value="OTRO_EQUIPO" style={{backgroundColor: '#0f172a', fontWeight: 'bold'}}>+ OTRO (Escribir manualmente)</option>
+  </select>
+
+  {/* Si eligen OTRO, aparece el campo de texto para escribir */}
+  {(formData.equipo === '' || !equipos.find(e => e.nombre_equipo === formData.equipo)) && (
     <input 
       type="text" 
-      style={styles.input}
-      placeholder="ESCRIBE O SELECCIONA TU EQUIPO"
+      style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
+      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
       value={formData.equipo}
       onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})}
-      required
       autoComplete="off"
       autoCorrect="off"
       spellCheck="false"
+      required
     />
-    
-    {/* Lista desplegable tipo "SELECT" estilizada */}
-    <div style={{ 
-      marginTop: '4px', 
-      maxHeight: '150px', 
-      overflowY: 'auto', 
-      backgroundColor: '#0f172a', 
-      border: '1px solid #334155', 
-      borderRadius: '1rem',
-      position: 'absolute',
-      width: '100%',
-      zIndex: 10
-    }}>
-      {equipos
-        .filter(eq => eq.nombre_equipo.toUpperCase().includes(formData.equipo))
-        .map(eq => (
-          <div 
-            key={eq.id} 
-            onClick={() => setFormData({...formData, equipo: eq.nombre_equipo.toUpperCase()})}
-            style={{ 
-              padding: '12px', 
-              color: 'white', 
-              borderBottom: '1px solid #1e293b', 
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
-          >
-            {eq.nombre_equipo.toUpperCase()}
-          </div>
-      ))}
-    </div>
-  </div>
+  )}
 </div>
 
 
