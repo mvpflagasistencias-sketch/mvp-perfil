@@ -408,13 +408,19 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   
   {perfil ? (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
-      {/* Contenedor con ID para la captura */}
-      <div id="qr-to-download" style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
+      
+      {/* AUMENTAMOS EL PADDING Y FORZAMOS UN FONDO SÓLIDO */}
+      <div id="qr-to-download" style={{ 
+        backgroundColor: 'white', 
+        padding: '24px',  // <--- Aumentamos el margen blanco
+        borderRadius: '16px', 
+        display: 'inline-block' 
+      }}>
         <QRCodeSVG 
           value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
           size={120} 
           level={"H"} 
-          includeMargin={true}
+          includeMargin={true} // Esto ya pone margen, pero el padding extra del div ayuda
           imageSettings={{
             src: logoMvp,
             height: 35,
@@ -425,7 +431,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         />
       </div>
 
-      {/* Botón de descarga */}
       <button 
         onClick={descargarQR}
         style={{
@@ -447,8 +452,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
   )}
 </div>
-
-
       </div>
 
       {/* 🎴 SIDESHEET / PANEL LATERAL DESPLEGABLE */}
