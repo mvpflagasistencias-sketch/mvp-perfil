@@ -186,48 +186,62 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 </select>
               </div>
 
-             <div>
-                <label style={styles.label}>Equipo</label>
-                <input 
-                  type="text" 
-                  style={styles.input}
-                  placeholder="ESCRIBE TU EQUIPO"
-                  value={formData.equipo}
-                  onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})} 
-                  required
-                  autoComplete="off"
-                  autoCorrect="off"
-                  spellCheck="false"
-                />
-                
-                {/* LISTA DE REFERENCIA VISUAL */}
-                <div style={{ marginTop: '10px' }}>
-                  <p style={{ fontSize: '9px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '6px' }}>
-                    Equipos existentes (click para copiar):
-                  </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {equipos.slice(0, 8).map(eq => (
-                      <button
-                        key={eq.id}
-                        type="button"
-                        onClick={() => setFormData({...formData, equipo: eq.nombre_equipo.toUpperCase()})}
-                        style={{
-                          fontSize: '9px',
-                          color: '#60a5fa',
-                          backgroundColor: '#0f172a',
-                          border: '1px solid #334155',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {eq.nombre_equipo.toUpperCase()}
-                      </button>
-                    ))}
-                    {equipos.length > 8 && <span style={{ fontSize: '9px', color: '#475569' }}>...</span>}
-                  </div>
+            
+
+
+            // 1. Añadimos un estado para filtrar la lista
+                const [filtro, setFiltro] = useState('');
+
+                // ... dentro de tu renderizado, en la sección del equipo:
+
+                <div>
+                  <label style={styles.label}>Equipo</label>
+                  <input 
+                    type="text" 
+                    style={styles.input}
+                    placeholder="ESCRIBE O SELECCIONA TU EQUIPO"
+                    value={formData.equipo}
+                    onChange={e => {
+                        const val = e.target.value.toUpperCase();
+                        setFormData({...formData, equipo: val});
+                        setFiltro(val); // Esto actualiza el filtro en tiempo real
+                    }} 
+                    required
+                    autoComplete="off"
+                    autoCorrect="off"
+                    spellCheck="false"
+                  />
+                  
+                  {/* LISTA FILTRADA DINÁMICAMENTE */}
+                  {formData.equipo && (
+                    <div style={{ marginTop: '10px' }}>
+                      <p style={{ fontSize: '9px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '6px' }}>
+                        Resultados:
+                      </p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '100px', overflowY: 'auto' }}>
+                        {equipos
+                          .filter(eq => eq.nombre_equipo.toUpperCase().includes(filtro))
+                          .map(eq => (
+                            <button
+                              key={eq.id}
+                              type="button"
+                              onClick={() => {
+                                setFormData({...formData, equipo: eq.nombre_equipo.toUpperCase()});
+                                setFiltro(''); // Limpiamos el filtro al seleccionar
+                              }}
+                              style={{ fontSize: '9px', color: '#60a5fa', backgroundColor: '#0f172a', border: '1px solid #334155', padding: '4px 8px', borderRadius: '6px', cursor: 'pointer' }}
+                            >
+                              {eq.nombre_equipo.toUpperCase()}
+                            </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+
+
+
+
               <div>
                 <label style={styles.label}>Teléfono de Contacto</label>
                 <input 
