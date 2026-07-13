@@ -307,17 +307,30 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         
 
-        {/* Avatar con visibilidad garantizada */}
-        <div style={{ margin: '0 auto 20px auto', display: 'flex', justifyContent: 'center' }}>
-          <AvatarEditor 
-            key={`editor-atleta-${perfil.id}`}
-            jugadorId={perfil.id} 
-            configInicial={perfil.avatar_config} 
-            onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
-          />
-        </div>
+          {/* CONTENEDOR DE IDENTIDAD VISUAL */}
+          <div style={{ margin: '0 auto 20px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+            
+            {/* 1. Foto Real (si existe) */}
+            {fotoBase64 ? (
+              <img 
+                src={fotoBase64} 
+                alt="Perfil Real" 
+                style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #60a5fa' }} 
+              />
+            ) : (
+              <div style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#0f172a', border: '1px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                📷
+              </div>
+            )}
 
-
+            {/* 2. Avatar Editor (el personaje) */}
+            <AvatarEditor 
+              key={`editor-atleta-${perfil.id}`}
+              jugadorId={perfil.id} 
+              configInicial={perfil.avatar_config} 
+              onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
+            />
+          </div>
 
         {/* Info Jugador */}
         <div style={{ marginBottom: '12px', width: '100%' }}>
