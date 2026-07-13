@@ -4,6 +4,10 @@ import api from './api';
 import AvatarEditor from './AvatarEditor'; 
 import logoMvp from './assets/logo-mvp.png'; 
 
+import html2canvas from 'html2canvas'; // Agrega este import arriba
+
+
+
 const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [perfil, setPerfil] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,6 +49,28 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     ],
     promociones: [] // Inicializado vacío para recibir la información real de la BD
   });
+
+
+  const descargarQR = async () => {
+  const element = document.getElementById('qr-to-download');
+  if (!element) return;
+
+  try {
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#0f172a', // Color de fondo del contenedor del QR
+      scale: 2 // Mejora la calidad de la imagen resultante
+    });
+    const data = canvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = data;
+    link.download = `QR_MVP_${perfil.nombre.replace(/\s+/g, '_')}.png`;
+    link.click();
+  } catch (err) {
+    console.error("Error al generar imagen del QR:", err);
+  }
+};
+
+
 
   useEffect(() => {
     const fetchPerfilYEquipos = async () => {
@@ -373,29 +399,56 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           </div>
         </div>
 
-        {/* QR Area Responsivo */}
-        <div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', boxSizing: 'border-box' }}>
-          <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
-          {perfil ? (
-            <div style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
-              <QRCodeSVG 
-                value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
-                size={120} 
-                level={"H"} 
-                includeMargin={true}
-                imageSettings={{
-                  src: logoMvp,
-                  height: 35,
-                  width: 35,
-                  align: 'center',
-                  excavate: true,
-                }}
-              />
-            </div>
-          ) : (
-            <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
-          )}
-        </div>
+
+
+
+{/* QR Area Responsivo */}
+<div style={{ backgroundColor: '#0f172a', padding: '16px', borderRadius: '16px', border: '1px solid #30363d', width: '100%', boxSizing: 'border-box' }}>
+  <p style={{ fontSize: '9px', color: '#64748b', fontWeight: '900', textTransform: 'uppercase', margin: '0 0 12px' }}>ID Único de Acceso</p>
+  
+  {perfil ? (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+      {/* Contenedor con ID para la captura */}
+      <div id="qr-to-download" style={{ backgroundColor: 'white', padding: '16px', borderRadius: '16px', display: 'inline-block' }}>
+        <QRCodeSVG 
+          value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
+          size={120} 
+          level={"H"} 
+          includeMargin={true}
+          imageSettings={{
+            src: logoMvp,
+            height: 35,
+            width: 35,
+            align: 'center',
+            excavate: true,
+          }}
+        />
+      </div>
+
+      {/* Botón de descarga */}
+      <button 
+        onClick={descargarQR}
+        style={{
+          backgroundColor: '#22c55e',
+          color: 'white',
+          border: 'none',
+          padding: '8px 16px',
+          borderRadius: '8px',
+          fontSize: '10px',
+          fontWeight: '900',
+          textTransform: 'uppercase',
+          cursor: 'pointer'
+        }}
+      >
+        ⬇ Descargar QR
+      </button>
+    </div>
+  ) : (
+    <div style={{ color: '#475569', fontSize: '11px', fontFamily: 'monospace' }}>TOKEN PENDIENTE</div>
+  )}
+</div>
+
+
       </div>
 
       {/* 🎴 SIDESHEET / PANEL LATERAL DESPLEGABLE */}
