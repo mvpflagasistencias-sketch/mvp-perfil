@@ -189,11 +189,6 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
             
 
 
-            // 1. Añadimos un estado para filtrar la lista
-                const [filtro, setFiltro] = useState('');
-
-                // ... dentro de tu renderizado, en la sección del equipo:
-
                 <div>
                   <label style={styles.label}>Equipo</label>
                   <input 
