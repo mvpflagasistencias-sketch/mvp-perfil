@@ -307,24 +307,23 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         
 
-         {/* CONTENEDOR DE IDENTIDAD VISUAL - CORRECCIÓN DE ALTURA */}
-          <div style={{ 
-            margin: '0 auto 20px auto', 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            gap: '15px', 
-            width: '100%' 
-          }}>
-            
-            {/* 1. Contenedor del Avatar con altura fija */}
+         {/* CONTENEDOR DE IDENTIDAD VISUAL - RESPONSIVO */}
             <div style={{ 
-              height: '100px', // Altura fija para que no se corte
+              margin: '0 auto 24px auto', 
               display: 'flex', 
+              flexDirection: 'column', 
               alignItems: 'center', 
-              justifyContent: 'center' 
+              gap: '16px',
+              width: '100%' 
             }}>
-              <div style={{ transform: 'scale(0.6)', transformOrigin: 'center' }}>
+              
+              {/* 1. Avatar (Tamaño controlado para no romper en escritorio) */}
+              <div style={{ 
+                width: '100%', 
+                maxWidth: '120px', // El avatar nunca será gigante, máximo 120px
+                display: 'flex', 
+                justifyContent: 'center' 
+              }}>
                 <AvatarEditor 
                   key={`editor-atleta-${perfil.id}`}
                   jugadorId={perfil.id} 
@@ -332,31 +331,30 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                   onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
                 />
               </div>
+
+              {/* 2. Foto Real (Tamaño fijo pero elegante) */}
+              <div style={{ 
+                width: '120px', 
+                height: '120px', 
+                borderRadius: '50%', 
+                overflow: 'hidden',
+                border: '3px solid #60a5fa',
+                backgroundColor: '#0f172a'
+              }}>
+                {fotoBase64 ? (
+                  <img 
+                    src={fotoBase64} 
+                    alt="Perfil Real" 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                  />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
+                    📷
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* 2. Foto Real */}
-            <div style={{ 
-              width: '120px', 
-              height: '120px', 
-              borderRadius: '50%', 
-              overflow: 'hidden',
-              border: '3px solid #60a5fa',
-              backgroundColor: '#0f172a',
-              flexShrink: 0 // Evita que se deforme
-            }}>
-              {fotoBase64 ? (
-                <img 
-                  src={fotoBase64} 
-                  alt="Perfil Real" 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                />
-              ) : (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-                  📷
-                </div>
-              )}
-            </div>
-          </div>
 
 
 
