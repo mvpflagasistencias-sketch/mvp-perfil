@@ -421,7 +421,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           cursor: 'pointer'
         }}
       >
-        Puede tomar una captura de pantalla o Descargar Tarjeta (PDF)
+         Descargar Tarjeta (PDF)
       </button>
     </div>
   ) : (

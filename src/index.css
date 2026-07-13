@@ -5,8 +5,8 @@ body {
 
 @media print {
   @page {
-    size: auto;   /* auto es el tamaño predeterminado */
-    margin: 0mm;  /* Elimina los márgenes del papel */
+    size: auto;
+    margin: 0;
   }
 
   body * {
@@ -17,20 +17,32 @@ body {
     visibility: visible;
   }
   
-#tarjeta-completa-jugador {
+  #tarjeta-completa-jugador {
     position: absolute;
     left: 0;
     top: 0;
-    width: 100vw;      /* Fuerza el ancho */
-    height: 100vh;     /* Fuerza el alto */
-    border-radius: 0;  /* Elimina esquinas */
-    box-shadow: none;  /* Sin sombra */
+    /* Forzamos el ancho y alto al 100% de la hoja */
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
     margin: 0 !important;
-    padding: 20px !important; 
+    padding: 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    
+    /* Colores */
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  /* Oculta el botón */
+
+  /* Aseguramos que el contenido interno también se expanda */
+  #tarjeta-completa-jugador > div {
+    width: 100% !important;
+  }
+
   #boton-descarga-oculto {
     display: none !important;
   }
