@@ -307,40 +307,42 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         
 
-         {/* CONTENEDOR DE IDENTIDAD VISUAL - ELASTICIDAD MÁXIMA */}
+         {/* CONTENEDOR DE IDENTIDAD VISUAL - CORRECCIÓN DE ALTURA */}
           <div style={{ 
             margin: '0 auto 20px auto', 
             display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'center', 
-            gap: '10px',
+            gap: '15px', 
             width: '100%' 
           }}>
             
-            {/* 1. Avatar - Tamaño relativo */}
+            {/* 1. Contenedor del Avatar con altura fija */}
             <div style={{ 
-              width: 'clamp(80px, 25vw, 120px)', // En móvil será 80px, en web crecerá hasta 120px
-              height: 'clamp(80px, 25vw, 120px)',
+              height: '100px', // Altura fija para que no se corte
               display: 'flex', 
-              justifyContent: 'center',
-              overflow: 'hidden'
+              alignItems: 'center', 
+              justifyContent: 'center' 
             }}>
-              <AvatarEditor 
-                key={`editor-atleta-${perfil.id}`}
-                jugadorId={perfil.id} 
-                configInicial={perfil.avatar_config} 
-                onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
-              />
+              <div style={{ transform: 'scale(0.6)', transformOrigin: 'center' }}>
+                <AvatarEditor 
+                  key={`editor-atleta-${perfil.id}`}
+                  jugadorId={perfil.id} 
+                  configInicial={perfil.avatar_config} 
+                  onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
+                />
+              </div>
             </div>
 
-            {/* 2. Foto Real - Tamaño relativo */}
+            {/* 2. Foto Real */}
             <div style={{ 
-              width: 'clamp(100px, 35vw, 150px)', // En móvil 100px, en web 150px
-              height: 'clamp(100px, 35vw, 150px)',
+              width: '120px', 
+              height: '120px', 
               borderRadius: '50%', 
               overflow: 'hidden',
               border: '3px solid #60a5fa',
-              backgroundColor: '#0f172a'
+              backgroundColor: '#0f172a',
+              flexShrink: 0 // Evita que se deforme
             }}>
               {fotoBase64 ? (
                 <img 
