@@ -307,33 +307,43 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         
 
-          {/* CONTENEDOR DE IDENTIDAD VISUAL - ORDEN INVERTIDO */}
+          {/* CONTENEDOR DE IDENTIDAD VISUAL */}
             <div style={{ margin: '0 auto 20px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
               
-              {/* 1. Avatar Editor arriba */}
-              <AvatarEditor 
-                key={`editor-atleta-${perfil.id}`}
-                jugadorId={perfil.id} 
-                configInicial={perfil.avatar_config} 
-                onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
-              />
+              {/* 1. Avatar Editor (Aquí aplicamos el tamaño pequeño) */}
+              <div style={{ 
+                  width: '80px',    // <--- AJUSTA ESTE VALOR PARA HACERLO MÁS PEQUEÑO O GRANDE
+                  height: '80px', 
+                  overflow: 'hidden', 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center' 
+              }}>
+                <div style={{ transform: 'scale(0.5)', transformOrigin: 'center' }}>
+                  <AvatarEditor 
+                    key={`editor-atleta-${perfil.id}`}
+                    jugadorId={perfil.id} 
+                    configInicial={perfil.avatar_config} 
+                    onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
+                  />
+                </div>
+              </div>
 
-              {/* 2. Foto Real abajo y más grande */}
+              {/* 2. Foto Real (Esta se mantiene intacta en tamaño) */}
               {fotoBase64 ? (
                 <img 
                   src={fotoBase64} 
                   alt="Perfil Real" 
                   style={{ 
-                    width: '150px',   // Más grande
-                    height: '150px',  // Más grande
+                    width: '150px',   // Esta sigue siendo grande
+                    height: '150px', 
                     borderRadius: '50%', 
                     objectFit: 'cover', 
-                    border: '4px solid #60a5fa',
-                    marginTop: '10px'
+                    border: '4px solid #60a5fa'
                   }} 
                 />
               ) : (
-                <div style={{ width: '150px', height: '150px', borderRadius: '50%', backgroundColor: '#0f172a', border: '1px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', marginTop: '10px' }}>
+                <div style={{ width: '150px', height: '150px', borderRadius: '50%', backgroundColor: '#0f172a', border: '1px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
                   📷
                 </div>
               )}
