@@ -51,34 +51,22 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   });
 
 
- const descargarQR = async () => {
+  const descargarQR = async () => {
   const element = document.getElementById('qr-to-download');
   if (!element) return;
 
-  // Forzamos un estilo temporal para que la captura no corte las esquinas
-  element.style.borderRadius = "0px"; 
-
   try {
     const canvas = await html2canvas(element, {
-      backgroundColor: '#ffffff', // Fondo blanco sólido para que resalte
-      scale: 3,                   // Mayor escala para alta resolución
-      logging: false,
-      useCORS: true,
-      windowWidth: element.scrollWidth,
-      windowHeight: element.scrollHeight,
-      x: 0,
-      y: 0
+      backgroundColor: '#0f172a', // Color de fondo del contenedor del QR
+      scale: 2 // Mejora la calidad de la imagen resultante
     });
-
     const data = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = data;
     link.download = `QR_MVP_${perfil.nombre.replace(/\s+/g, '_')}.png`;
     link.click();
   } catch (err) {
-    console.error("Error al generar imagen:", err);
-  } finally {
-    element.style.borderRadius = "16px"; // Regresamos el estilo original
+    console.error("Error al generar imagen del QR:", err);
   }
 };
 
@@ -421,19 +409,25 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   {perfil ? (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
       
-    <div id="qr-to-download" style={{ 
+      {/* AUMENTAMOS EL PADDING Y FORZAMOS UN FONDO SÓLIDO */}
+      <div id="qr-to-download" style={{ 
         backgroundColor: 'white', 
-        padding: '40px',          // Aumentamos el padding para dar aire al QR
+        padding: '24px',  // <--- Aumentamos el margen blanco
         borderRadius: '16px', 
-        display: 'inline-block',
-        border: 'none'            // Aseguramos que no haya bordes extraños
+        display: 'inline-block' 
       }}>
         <QRCodeSVG 
           value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
-          size={200}              // Tamaño base más grande
+          size={120} 
           level={"H"} 
-          includeMargin={true}
-          
+          includeMargin={true} // Esto ya pone margen, pero el padding extra del div ayuda
+          imageSettings={{
+            src: logoMvp,
+            height: 35,
+            width: 35,
+            align: 'center',
+            excavate: true,
+          }}
         />
       </div>
 
