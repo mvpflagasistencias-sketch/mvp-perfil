@@ -187,24 +187,47 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
               </div>
 
              <div>
-              <label style={styles.label}>Equipo</label>
-              <input 
-                type="text" 
-                style={styles.input}
-                placeholder="ESCRIBE TU EQUIPO"
-                value={formData.equipo}
-                onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})} 
-                required
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck="false"
-              />
-              {/* Eliminamos el datalist para que el teclado deje de intentar autocompletar */}
-              <p style={{ fontSize: '10px', color: '#64748b', marginTop: '4px' }}>
-                Si tu equipo ya existe, escríbelo tal cual aparece.
-              </p>
-            </div>
-
+                <label style={styles.label}>Equipo</label>
+                <input 
+                  type="text" 
+                  style={styles.input}
+                  placeholder="ESCRIBE TU EQUIPO"
+                  value={formData.equipo}
+                  onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})} 
+                  required
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                />
+                
+                {/* LISTA DE REFERENCIA VISUAL */}
+                <div style={{ marginTop: '10px' }}>
+                  <p style={{ fontSize: '9px', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '6px' }}>
+                    Equipos existentes (click para copiar):
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {equipos.slice(0, 8).map(eq => (
+                      <button
+                        key={eq.id}
+                        type="button"
+                        onClick={() => setFormData({...formData, equipo: eq.nombre_equipo.toUpperCase()})}
+                        style={{
+                          fontSize: '9px',
+                          color: '#60a5fa',
+                          backgroundColor: '#0f172a',
+                          border: '1px solid #334155',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {eq.nombre_equipo.toUpperCase()}
+                      </button>
+                    ))}
+                    {equipos.length > 8 && <span style={{ fontSize: '9px', color: '#475569' }}>...</span>}
+                  </div>
+                </div>
+              </div>
               <div>
                 <label style={styles.label}>Teléfono de Contacto</label>
                 <input 
