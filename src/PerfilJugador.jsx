@@ -307,30 +307,37 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         
 
-          {/* CONTENEDOR DE IDENTIDAD VISUAL */}
-          <div style={{ margin: '0 auto 20px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
-            
-            {/* 1. Foto Real (si existe) */}
-            {fotoBase64 ? (
-              <img 
-                src={fotoBase64} 
-                alt="Perfil Real" 
-                style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', border: '3px solid #60a5fa' }} 
+          {/* CONTENEDOR DE IDENTIDAD VISUAL - ORDEN INVERTIDO */}
+            <div style={{ margin: '0 auto 20px auto', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
+              
+              {/* 1. Avatar Editor arriba */}
+              <AvatarEditor 
+                key={`editor-atleta-${perfil.id}`}
+                jugadorId={perfil.id} 
+                configInicial={perfil.avatar_config} 
+                onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
               />
-            ) : (
-              <div style={{ width: '100px', height: '100px', borderRadius: '50%', backgroundColor: '#0f172a', border: '1px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-                📷
-              </div>
-            )}
 
-            {/* 2. Avatar Editor (el personaje) */}
-            <AvatarEditor 
-              key={`editor-atleta-${perfil.id}`}
-              jugadorId={perfil.id} 
-              configInicial={perfil.avatar_config} 
-              onGuardarExito={(nuevaConfig) => setPerfil({ ...perfil, avatar_config: nuevaConfig })} 
-            />
-          </div>
+              {/* 2. Foto Real abajo y más grande */}
+              {fotoBase64 ? (
+                <img 
+                  src={fotoBase64} 
+                  alt="Perfil Real" 
+                  style={{ 
+                    width: '150px',   // Más grande
+                    height: '150px',  // Más grande
+                    borderRadius: '50%', 
+                    objectFit: 'cover', 
+                    border: '4px solid #60a5fa',
+                    marginTop: '10px'
+                  }} 
+                />
+              ) : (
+                <div style={{ width: '150px', height: '150px', borderRadius: '50%', backgroundColor: '#0f172a', border: '1px solid #30363d', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', marginTop: '10px' }}>
+                  📷
+                </div>
+              )}
+            </div>
 
         {/* Info Jugador */}
         <div style={{ marginBottom: '12px', width: '100%' }}>
