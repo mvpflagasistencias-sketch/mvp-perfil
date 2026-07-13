@@ -422,26 +422,26 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '15px' }}>
       
     <div id="qr-to-download" style={{ 
-  backgroundColor: 'white', 
-  padding: '40px',          // Aumentamos el padding para dar aire al QR
-  borderRadius: '16px', 
-  display: 'inline-block',
-  border: 'none'            // Aseguramos que no haya bordes extraños
-}}>
-  <QRCodeSVG 
-    value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
-    size={200}              // Tamaño base más grande
-    level={"H"} 
-    includeMargin={true}
-    imageSettings={{
-      src: logoMvp,
-      height: 60,
-      width: 60,
-      align: 'center',
-      excavate: true,
-    }}
-  />
-</div>
+        backgroundColor: 'white', 
+        padding: '40px',          // Aumentamos el padding para dar aire al QR
+        borderRadius: '16px', 
+        display: 'inline-block',
+        border: 'none'            // Aseguramos que no haya bordes extraños
+      }}>
+        <QRCodeSVG 
+          value={JSON.stringify({id: perfil.id, nombre: perfil.nombre})} 
+          size={200}              // Tamaño base más grande
+          level={"H"} 
+          includeMargin={true}
+          imageSettings={{
+            src: logoMvp,
+            height: 60,
+            width: 60,
+            align: 'center',
+            excavate: true,
+          }}
+        />
+      </div>
 
       <button 
         onClick={descargarQR}
