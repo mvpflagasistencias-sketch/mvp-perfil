@@ -278,7 +278,7 @@ const [esOtro, setEsOtro] = useState(false);
                   type="text" 
                   placeholder="En caso de ser menor de edad"
                   style={styles.input}
-                  onChange={e => setFormData({...formData, nombre_tutor: e.target.value})} 
+                  onChange={e => setFormData({...formData, tutor: e.target.value})} 
                 />
               </div>
 
