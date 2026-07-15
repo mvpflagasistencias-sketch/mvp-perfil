@@ -7,7 +7,8 @@ import api from './api';
 
 const RegistroJugador = ({ onRegistroExitoso }) => {
 
-  const [nombreEquipoManual, setNombreEquipoManual] = useState('');
+// 1. En tus estados:
+const [esOtro, setEsOtro] = useState(false);
   const [equipos, setEquipos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -198,42 +199,39 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                <div>
                   <label style={styles.label}>Equipo</label>
                   <select 
-                    style={styles.input}
-                    onChange={(e) => {
-                      setFormData({...formData, equipo: e.target.value});
-                      // Si cambia el select a otra cosa, limpiamos el nombre manual
-                      if (e.target.value !== 'OTRO_EQUIPO') setNombreEquipoManual('');
-                    }} 
-                    value={formData.equipo}
-                    required
-                  >
-                    <option value="" style={{backgroundColor: '#0f172a'}}>-- Elige un equipo --</option>
-                    {equipos.map(eq => (
-                      <option key={eq.id} value={eq.nombre_equipo.toUpperCase()} style={{backgroundColor: '#0f172a'}}>
-                        {eq.nombre_equipo.toUpperCase()}
-                      </option>
-                    ))}
-                    <option value="OTRO_EQUIPO" style={{backgroundColor: '#0f172a', fontWeight: 'bold'}}>+ OTRO (Escribir manualmente)</option>
-                  </select>
-
-                  {/* Input independiente */}
-                  {formData.equipo === 'OTRO_EQUIPO' && (
-                    <input 
-                      type="text" 
-                      style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
-                      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
-                      value={nombreEquipoManual}
+                      style={styles.input}
                       onChange={(e) => {
-                        const val = e.target.value.toUpperCase();
-                        setNombreEquipoManual(val);
-                        // Actualizamos el formData global con el nombre real
-                        setFormData({...formData, equipo: val});
-                      }}
-                      autoComplete="off"
-                      spellCheck="false"
+                        const val = e.target.value;
+                        if (val === 'OTRO_EQUIPO') {
+                          setEsOtro(true);
+                          setFormData({...formData, equipo: ''}); // Limpiamos para que escriban el nuevo
+                        } else {
+                          setEsOtro(false);
+                          setFormData({...formData, equipo: val});
+                        }
+                      }} 
+                      value={esOtro ? 'OTRO_EQUIPO' : formData.equipo}
                       required
-                    />
-                  )}
+                    >
+                      <option value="">-- Elige un equipo --</option>
+                      {equipos.map(eq => (
+                        <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>{eq.nombre_equipo.toUpperCase()}</option>
+                      ))}
+                      <option value="OTRO_EQUIPO">+ OTRO (Escribir manualmente)</option>
+                    </select>
+
+                    {/* 3. El input ahora depende de esOtro, no de formData.equipo */}
+                    {esOtro && (
+                      <input 
+                        type="text" 
+                        style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
+                        placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
+                        value={formData.equipo} // Aquí reflejamos el valor real
+                        onChange={(e) => setFormData({...formData, equipo: e.target.value.toUpperCase()})}
+                        autoComplete="off"
+                        required
+                      />
+                    )}
                 </div>
 
 
