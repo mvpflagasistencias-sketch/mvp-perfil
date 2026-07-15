@@ -193,58 +193,52 @@ const [esOtro, setEsOtro] = useState(false);
                 </select>
               </div>
 
-            
+              <div>
+                <label style={styles.label}>Equipo</label>
+                <select 
+                  style={styles.input}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === 'OTRO_EQUIPO') {
+                      setEsOtro(true);
+                      setFormData({...formData, equipo: ''}); 
+                    } else {
+                      setEsOtro(false);
+                      setFormData({...formData, equipo: val});
+                    }
+                  }} 
+                  value={esOtro ? 'OTRO_EQUIPO' : formData.equipo}
+                  required
+                >
+                  <option value="">-- Elige un equipo --</option>
+                  {equipos.map(eq => (
+                    <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>{eq.nombre_equipo.toUpperCase()}</option>
+                  ))}
+                  <option value="OTRO_EQUIPO">+ OTRO (Escribir manualmente)</option>
+                </select>
 
-
-               <div>
-                  <label style={styles.label}>Equipo</label>
-                  <select 
-                    style={styles.input}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === 'OTRO_EQUIPO') {
-                        setEsOtro(true);
-                        setFormData({...formData, equipo: ''}); 
-                      } else {
-                        setEsOtro(false);
+                {esOtro && (
+                  <>
+                    {equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo) && (
+                      <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '5px' }}>
+                        ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista superior para ahorrar tiempo.
+                      </p>
+                    )}
+                    <input 
+                      type="text" 
+                      style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
+                      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
+                      value={formData.equipo}
+                      onChange={(e) => {
+                        const val = e.target.value.toUpperCase();
                         setFormData({...formData, equipo: val});
-                      }
-                    }} 
-                    value={esOtro ? 'OTRO_EQUIPO' : formData.equipo}
-                    required
-                  >
-                    <option value="">-- Elige un equipo --</option>
-                    {equipos.map(eq => (
-                      <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>{eq.nombre_equipo.toUpperCase()}</option>
-                    ))}
-                    <option value="OTRO_EQUIPO">+ OTRO (Escribir manualmente)</option>
-                  </select>
-
-                  {/* El input solo se muestra si esOtro es true */}
-                  {esOtro && (
-                    <>
-                      {equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo) && (
-                        <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '5px' }}>
-                          ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista superior para ahorrar tiempo.
-                        </p>
-                      )}
-                      <input 
-                        type="text" 
-                        style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
-                        placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
-                        value={formData.equipo}
-                        onChange={(e) => {
-                          const val = e.target.value.toUpperCase();
-                          setFormData({...formData, equipo: val});
-                        }}
-                        autoComplete="off"
-                        required
-                      />
-                    </>
-                  )}
-                </div>
-
-
+                      }}
+                      autoComplete="off"
+                      required
+                    />
+                  </>
+                )}
+              </div>
 
               <div>
                 <label style={styles.label}>Teléfono de Contacto</label>
@@ -290,11 +284,9 @@ const [esOtro, setEsOtro] = useState(false);
 
               <button 
                 type="submit" 
-                // Aquí está el secreto: bloquea si está cargando O si el equipo ya existe
                 disabled={loading || equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo)} 
                 style={{
                   ...styles.button,
-                  // Cambia el color si está bloqueado para que el usuario sepa que no puede avanzar
                   backgroundColor: (loading || equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo)) 
                     ? '#4b5563' 
                     : '#2563eb',
