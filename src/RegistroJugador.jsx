@@ -282,16 +282,20 @@ const [esOtro, setEsOtro] = useState(false);
                 />
               </div>
 
-              <button 
+             <button 
                 type="submit" 
-                disabled={loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo))}
+                // LA LÓGICA MÁS SEGURA:
+                // 1. Si está cargando, bloquea.
+                // 2. Si NO es 'otro' (es un equipo de la lista), NO bloquees.
+                // 3. Si ES 'otro', bloquea SOLO SI el nombre ya existe.
+                disabled={loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))} 
                 style={{
                   ...styles.button,
-                  backgroundColor: (loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo))) 
+                  backgroundColor: (loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))) 
                     ? '#4b5563' 
                     : '#2563eb',
                   color: '#ffffff',
-                  cursor: (loading || equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo)) 
+                  cursor: (loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))) 
                     ? 'not-allowed' 
                     : 'pointer'
                 }}
