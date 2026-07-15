@@ -3,9 +3,11 @@ import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import api from './api';
 
-const [nombreEquipoManual, setNombreEquipoManual] = useState('');
+
 
 const RegistroJugador = ({ onRegistroExitoso }) => {
+
+  const [nombreEquipoManual, setNombreEquipoManual] = useState('');
   const [equipos, setEquipos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
