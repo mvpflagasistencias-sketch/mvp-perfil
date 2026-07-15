@@ -190,40 +190,41 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
 
 
                <div>
-  <label style={styles.label}>Equipo</label>
-  <select 
-    style={styles.input}
-    onChange={(e) => {
-      setFormData({...formData, equipo: e.target.value});
-    }} 
-    value={formData.equipo}
-    required
-  >
-    <option value="" style={{backgroundColor: '#0f172a'}}>-- Elige un equipo --</option>
-    {equipos.map(eq => (
-      <option key={eq.id} value={eq.nombre_equipo.toUpperCase()} style={{backgroundColor: '#0f172a'}}>
-        {eq.nombre_equipo.toUpperCase()}
-      </option>
-    ))}
-    <option value="OTRO_EQUIPO" style={{backgroundColor: '#0f172a', fontWeight: 'bold'}}>+ OTRO (Escribir manualmente)</option>
-  </select>
+                  <label style={styles.label}>Equipo</label>
+                  <select 
+                    style={styles.input}
+                    onChange={(e) => {
+                      setFormData({...formData, equipo: e.target.value});
+                    }} 
+                    value={formData.equipo}
+                    required
+                  >
+                    <option value="" style={{backgroundColor: '#0f172a'}}>-- Elige un equipo --</option>
+                    {equipos.map(eq => (
+                      <option key={eq.id} value={eq.nombre_equipo.toUpperCase()} style={{backgroundColor: '#0f172a'}}>
+                        {eq.nombre_equipo.toUpperCase()}
+                      </option>
+                    ))}
+                    <option value="OTRO_EQUIPO" style={{backgroundColor: '#0f172a', fontWeight: 'bold'}}>+ OTRO (Escribir manualmente)</option>
+                  </select>
 
-  {/* ESTA ES LA CONDICIÓN: Solo se muestra si el valor es 'OTRO_EQUIPO' */}
-  {formData.equipo === 'OTRO_EQUIPO' && (
-    <input 
-      type="text" 
-      style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
-      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
-      // Al escribir aquí, sobrescribimos el valor de 'OTRO_EQUIPO' con el nombre real
-      onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})}
-      autoComplete="off"
-      autoCorrect="off"
-      spellCheck="false"
-      required
-      autoFocus
-    />
-  )}
-</div>
+                  {/* ESTA ES LA CONDICIÓN: Solo se muestra si el valor es 'OTRO_EQUIPO' */}
+                    {formData.equipo === 'OTRO_EQUIPO' && (
+                      <input 
+                        type="text" 
+                        style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
+                        placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
+                        // Usamos el valor actual de formData.equipo
+                        value={formData.equipo === 'OTRO_EQUIPO' ? '' : formData.equipo}
+                        onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})}
+                        autoComplete="off"
+                        autoCorrect="off"
+                        spellCheck="false"
+                        required
+                        // ELIMINAMOS autoFocus AQUÍ
+                      />
+                    )}
+                </div>
 
 
 
