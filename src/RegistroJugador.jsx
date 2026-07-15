@@ -3,6 +3,8 @@ import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import api from './api';
 
+const [nombreEquipoManual, setNombreEquipoManual] = useState('');
+
 const RegistroJugador = ({ onRegistroExitoso }) => {
   const [equipos, setEquipos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -18,6 +20,8 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     nombre_tutor: '', 
     foto_perfil: null
   });
+
+  
 
   useEffect(() => {
     const fetchEquipos = async () => {
@@ -195,6 +199,8 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                     style={styles.input}
                     onChange={(e) => {
                       setFormData({...formData, equipo: e.target.value});
+                      // Si cambia el select a otra cosa, limpiamos el nombre manual
+                      if (e.target.value !== 'OTRO_EQUIPO') setNombreEquipoManual('');
                     }} 
                     value={formData.equipo}
                     required
@@ -208,22 +214,24 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                     <option value="OTRO_EQUIPO" style={{backgroundColor: '#0f172a', fontWeight: 'bold'}}>+ OTRO (Escribir manualmente)</option>
                   </select>
 
-                  {/* ESTA ES LA CONDICIÓN: Solo se muestra si el valor es 'OTRO_EQUIPO' */}
-                    {formData.equipo === 'OTRO_EQUIPO' && (
-                      <input 
-                        type="text" 
-                        style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
-                        placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
-                        // Usamos el valor actual de formData.equipo
-                        value={formData.equipo === 'OTRO_EQUIPO' ? '' : formData.equipo}
-                        onChange={e => setFormData({...formData, equipo: e.target.value.toUpperCase()})}
-                        autoComplete="off"
-                        autoCorrect="off"
-                        spellCheck="false"
-                        required
-                        // ELIMINAMOS autoFocus AQUÍ
-                      />
-                    )}
+                  {/* Input independiente */}
+                  {formData.equipo === 'OTRO_EQUIPO' && (
+                    <input 
+                      type="text" 
+                      style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
+                      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
+                      value={nombreEquipoManual}
+                      onChange={(e) => {
+                        const val = e.target.value.toUpperCase();
+                        setNombreEquipoManual(val);
+                        // Actualizamos el formData global con el nombre real
+                        setFormData({...formData, equipo: val});
+                      }}
+                      autoComplete="off"
+                      spellCheck="false"
+                      required
+                    />
+                  )}
                 </div>
 
 
