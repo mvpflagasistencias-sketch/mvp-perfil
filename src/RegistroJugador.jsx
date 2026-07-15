@@ -281,28 +281,29 @@ const [esOtro, setEsOtro] = useState(false);
                   onChange={e => setFormData({...formData, tutor: e.target.value})} 
                 />
               </div>
+              
               <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '1rem' }}> 
                 <button 
-                    type="submit" 
-                    
-                    disabled={loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))} 
+                  type="submit" 
+                  disabled={loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))} 
                   style={{
-                      ...styles.button,
-                      // Si quieres que el botón no ocupe todo el ancho, agrega esto:
-                      width: 'auto',
-                      padding: '12px 24px', 
-                      
-                      backgroundColor: (loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))) 
-                        ? '#4b5563' 
-                        : '#2563eb',
-                      color: '#ffffff',
-                      cursor: (loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))) 
-                        ? 'not-allowed' 
-                        : 'pointer'
-                    }}
-                  >
-                    {loading ? 'REGISTRANDO...' : 'CONFIRMAR REGISTRO DE JUGADOR'}
-                  </button>
+                    ...styles.button,
+                    // Forzamos el centrado anulando lo que venga en styles.button
+                    width: 'auto',        // Cambiamos de auto a una medida explícita si es necesario
+                    display: 'inline-block', 
+                    padding: '12px 24px', 
+                    
+                    backgroundColor: (loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))) 
+                      ? '#4b5563' 
+                      : '#2563eb',
+                    color: '#ffffff',
+                    cursor: (loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))) 
+                      ? 'not-allowed' 
+                      : 'pointer'
+                  }}
+                >
+                  {loading ? 'REGISTRANDO...' : 'CONFIRMAR REGISTRO DE JUGADOR'}
+                </button>
               </div>
 
             </div>
