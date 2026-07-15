@@ -199,49 +199,49 @@ const [esOtro, setEsOtro] = useState(false);
                <div>
                   <label style={styles.label}>Equipo</label>
                   <select 
-                      style={styles.input}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === 'OTRO_EQUIPO') {
-                          setEsOtro(true);
-                          setFormData({...formData, equipo: ''}); // Limpiamos para que escriban el nuevo
-                        } else {
-                          setEsOtro(false);
-                          setFormData({...formData, equipo: val});
-                        }
-                      }} 
-                      value={esOtro ? 'OTRO_EQUIPO' : formData.equipo}
-                      required
-                    >
-                      <option value="">-- Elige un equipo --</option>
-                      {equipos.map(eq => (
-                        <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>{eq.nombre_equipo.toUpperCase()}</option>
-                      ))}
-                      <option value="OTRO_EQUIPO">+ OTRO (Escribir manualmente)</option>
-                    </select>
-
-                    {/* 3. El input ahora depende de esOtro, no de formData.equipo */}
-                    <input 
-                      type="text" 
-                      style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
-                      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
-                      value={formData.equipo}
-                      onChange={(e) => {
-                        const val = e.target.value.toUpperCase();
-                        
-                        // Verificamos si el nombre ya existe en la lista que descargaste
-                        const equipoExistente = equipos.find(eq => eq.nombre_equipo.toUpperCase() === val);
-                        
-                        if (equipoExistente) {
-                          // Opcional: Podrías mostrar un mensaje visual en el UI
-                          console.warn("Este equipo ya está registrado, elígelo de la lista.");
-                        }
-                        
+                    style={styles.input}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === 'OTRO_EQUIPO') {
+                        setEsOtro(true);
+                        setFormData({...formData, equipo: ''}); 
+                      } else {
+                        setEsOtro(false);
                         setFormData({...formData, equipo: val});
-                      }}
-                      autoComplete="off"
-                      required
-                    />
+                      }
+                    }} 
+                    value={esOtro ? 'OTRO_EQUIPO' : formData.equipo}
+                    required
+                  >
+                    <option value="">-- Elige un equipo --</option>
+                    {equipos.map(eq => (
+                      <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>{eq.nombre_equipo.toUpperCase()}</option>
+                    ))}
+                    <option value="OTRO_EQUIPO">+ OTRO (Escribir manualmente)</option>
+                  </select>
+
+                  {/* El input solo se muestra si esOtro es true */}
+                  {esOtro && (
+                    <>
+                      {equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo) && (
+                        <p style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '5px' }}>
+                          ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista superior para ahorrar tiempo.
+                        </p>
+                      )}
+                      <input 
+                        type="text" 
+                        style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
+                        placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
+                        value={formData.equipo}
+                        onChange={(e) => {
+                          const val = e.target.value.toUpperCase();
+                          setFormData({...formData, equipo: val});
+                        }}
+                        autoComplete="off"
+                        required
+                      />
+                    </>
+                  )}
                 </div>
 
 
