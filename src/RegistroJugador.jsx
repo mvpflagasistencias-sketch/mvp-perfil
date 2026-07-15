@@ -288,21 +288,24 @@ const [esOtro, setEsOtro] = useState(false);
                 />
               </div>
 
-              {/* BOTÓN ENVIAR */}
-              <div style={{...styles.fullWidth, marginTop: '1rem'}}>
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  style={{
-                    ...styles.button,
-                    backgroundColor: loading ? '#4b5563' : '#2563eb',
-                    color: '#ffffff',
-                    cursor: loading ? 'wait' : 'pointer'
-                  }}
-                >
-                  {loading ? 'REGISTRANDO...' : 'CONFIRMAR REGISTRO DE JUGADOR'}
-                </button>
-              </div>
+              <button 
+                type="submit" 
+                // Aquí está el secreto: bloquea si está cargando O si el equipo ya existe
+                disabled={loading || equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo)} 
+                style={{
+                  ...styles.button,
+                  // Cambia el color si está bloqueado para que el usuario sepa que no puede avanzar
+                  backgroundColor: (loading || equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo)) 
+                    ? '#4b5563' 
+                    : '#2563eb',
+                  color: '#ffffff',
+                  cursor: (loading || equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo)) 
+                    ? 'not-allowed' 
+                    : 'pointer'
+                }}
+              >
+                {loading ? 'REGISTRANDO...' : 'CONFIRMAR REGISTRO DE JUGADOR'}
+              </button>
 
             </div>
           </form>
