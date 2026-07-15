@@ -284,13 +284,14 @@ const [esOtro, setEsOtro] = useState(false);
 
              <button 
                 type="submit" 
-                // LA LÓGICA MÁS SEGURA:
-                // 1. Si está cargando, bloquea.
-                // 2. Si NO es 'otro' (es un equipo de la lista), NO bloquees.
-                // 3. Si ES 'otro', bloquea SOLO SI el nombre ya existe.
+                
                 disabled={loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))} 
-                style={{
+               style={{
                   ...styles.button,
+                  // Si quieres que el botón no ocupe todo el ancho, agrega esto:
+                  width: 'auto',
+                  padding: '12px 24px', 
+                  
                   backgroundColor: (loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()))) 
                     ? '#4b5563' 
                     : '#2563eb',
