@@ -221,17 +221,27 @@ const [esOtro, setEsOtro] = useState(false);
                     </select>
 
                     {/* 3. El input ahora depende de esOtro, no de formData.equipo */}
-                    {esOtro && (
-                      <input 
-                        type="text" 
-                        style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
-                        placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
-                        value={formData.equipo} // Aquí reflejamos el valor real
-                        onChange={(e) => setFormData({...formData, equipo: e.target.value.toUpperCase()})}
-                        autoComplete="off"
-                        required
-                      />
-                    )}
+                    <input 
+                      type="text" 
+                      style={{...styles.input, marginTop: '8px', border: '2px solid #2563eb'}}
+                      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
+                      value={formData.equipo}
+                      onChange={(e) => {
+                        const val = e.target.value.toUpperCase();
+                        
+                        // Verificamos si el nombre ya existe en la lista que descargaste
+                        const equipoExistente = equipos.find(eq => eq.nombre_equipo.toUpperCase() === val);
+                        
+                        if (equipoExistente) {
+                          // Opcional: Podrías mostrar un mensaje visual en el UI
+                          console.warn("Este equipo ya está registrado, elígelo de la lista.");
+                        }
+                        
+                        setFormData({...formData, equipo: val});
+                      }}
+                      autoComplete="off"
+                      required
+                    />
                 </div>
 
 
