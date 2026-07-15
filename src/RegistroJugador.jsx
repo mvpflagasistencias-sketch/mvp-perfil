@@ -284,10 +284,10 @@ const [esOtro, setEsOtro] = useState(false);
 
               <button 
                 type="submit" 
-                disabled={loading || equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo)} 
+                disabled={loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo))}
                 style={{
                   ...styles.button,
-                  backgroundColor: (loading || equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo)) 
+                  backgroundColor: (loading || (esOtro && equipos.some(eq => eq.nombre_equipo.toUpperCase() === formData.equipo))) 
                     ? '#4b5563' 
                     : '#2563eb',
                   color: '#ffffff',
