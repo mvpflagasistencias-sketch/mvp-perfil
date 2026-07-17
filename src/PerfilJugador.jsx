@@ -567,20 +567,32 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
             </div>
           )}
 
-          {tabActiva === 'fotos' && (
-            <div>
-              <p style={{ margin: '0 0 12px 0', fontSize: '10px', fontWeight: '900', color: '#9ca3af', textTransform: 'uppercase' }}>
-                📸 Capturas de Árbitros ({obtenerNombreEquipo()})
-              </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
-                {datosEquipo.fotos.map((url, index) => (
-                  <div key={index} style={{ width: '100%', aspectRatio: '1', backgroundColor: '#0f172a', borderRadius: '10px', overflow: 'hidden', border: '1px solid #30363d' }}>
-                    <img src={url} alt={`Partido ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+        {tabActiva === 'fotos' && (
+  <div>
+    <p style={{ margin: '0 0 12px 0', fontSize: '10px', fontWeight: '900', color: '#9ca3af', textTransform: 'uppercase' }}>
+      📸 Capturas de Árbitros ({obtenerNombreEquipo()})
+    </p>
+    
+    {datosEquipo.fotos && datosEquipo.fotos.length > 0 ? (
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
+        {datosEquipo.fotos.map((foto, index) => (
+          <div key={index} style={{ width: '100%', aspectRatio: '1', backgroundColor: '#0f172a', borderRadius: '10px', overflow: 'hidden', border: '1px solid #30363d' }}>
+            <img 
+              src={foto} 
+              alt={`Foto asistencia ${index}`} 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              onError={(e) => { e.target.src = 'ruta/a/imagen-placeholder.jpg'; }} // Opcional: muestra algo si la imagen falla
+            />
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div style={{ padding: '20px', textAlign: 'center', color: '#475569', fontSize: '12px' }}>
+        No hay fotos registradas para este equipo.
+      </div>
+    )}
+  </div>
+)}
         </div>
 
         {/* 🛑 OPCIONES EXCLUSIVAS (Bottom del menú con línea divisoria roja) */}
