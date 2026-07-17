@@ -553,13 +553,17 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
             </div>
           )}
 
-          {tabActiva === 'asistencias' && (
+         {tabActiva === 'asistencias' && (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '20px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '95px', height: '95px', borderRadius: '50%', border: '6px solid #0f172a', borderTopColor: '#22c55e', marginBottom: '16px' }}>
                 <span style={{ fontSize: '24px', fontWeight: '900' }}>{datosEquipo.asistencias}</span>
               </div>
               <p style={{ margin: '0 0 6px', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa' }}>Récord de Asistencia</p>
-              <span style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'center', lineHeight: '1.4' }}>Tu escuadra registra asistencia en {datosEquipo.asistencias} de {datosEquipo.totalesPartidos} partidos oficiales.</span>
+              
+              {/* TEXTO MODIFICADO */}
+              <span style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'center', lineHeight: '1.4' }}>
+                Tu escuadra registra {datosEquipo.asistencias} asistencias en partidos oficiales.
+              </span>
             </div>
           )}
 
