@@ -86,14 +86,19 @@ const obtenerDatosJugador = async () => {
         setPerfil(data);
         setEquipos(resEquipos.data);
 
-        // Mantenemos intactas tus galerías e inyectamos las asistencias reales de la base de datos
-        if (resAsistencias.data) {
-          setDatosEquipo(prev => ({
-            ...prev,
-            asistencias: resAsistencias.data.asistencias,
-            totalesPartidos: resAsistencias.data.totalesPartidos
-          }));
-        }
+       // CÓDIGO CORREGIDO:
+if (resAsistencias.data) {
+  setDatosEquipo(prev => ({
+    ...prev,
+    asistencias: resAsistencias.data.asistencias,
+    totalesPartidos: resAsistencias.data.totalesPartidos,
+    historial: resAsistencias.data.historial || [] // 👈 ¡Faltaba guardar esto!
+  }));
+
+  // También se lo inyectamos al perfil por si tu vista lo lee de ahí
+  data.historial = resAsistencias.data.historial || [];
+  data.asistencias = resAsistencias.data.asistencias || 0;
+}
 
         // Mapeo masivo para formatear y acumular todas las promociones que devuelva la tabla intermedia
         if (resPromociones.data && resPromociones.data.length > 0) {
