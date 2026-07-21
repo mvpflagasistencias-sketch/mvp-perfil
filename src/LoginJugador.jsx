@@ -86,7 +86,7 @@ const LoginJugador = ({ onLoginSuccess, onSwitchToRegister }) => {
             MVP
           </div>
           <h2 style={{ fontSize: '20px', fontWeight: '900', textTransform: 'uppercase', color: '#ffffff', margin: '12px 0 8px 0' }}>
-  Recuperar <span style={{ color: '#60a5fa' }}>Acceso</span>
+   <span style={{ color: '#60a5fa' }}>Acceso</span>
 </h2>
         </div>
 
