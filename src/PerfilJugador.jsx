@@ -34,18 +34,20 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   // 📢 NUEVO ESTADO: Guarda la promoción seleccionada para el modal de detalle
   const [promoSeleccionada, setPromoSeleccionada] = useState(null);
 
-  // Información del equipo (para jalar de tu API en Railway)
+ 
+
+  // Información del equipo y asistencias
   const [datosEquipo, setDatosEquipo] = useState({
-    asistencias: 0, // Inicia en 0 en lugar de hardcodeado
-    totalesPartidos: 16, // Base por defecto, se actualizará dinámicamente
+    asistencias: 0,
+    totalesPartidos: 16,
+    historial: [], // 👈 Añadido para asegurar la estructura limpia
     fotos: [
       'https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?q=80&w=400&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1544698310-74ea9d1c8258?q=80&w=400&auto=format&fit=crop',
       'https://images.unsplash.com/photo-1517649763962-0c623066013b?q=80&w=400&auto=format&fit=crop'
     ],
-    promociones: [] // Inicializado vacío para recibir la información real de la BD
+    promociones: []
   });
-
 
   // Ejemplo de cómo deberías estar recibiendo los datos en tu componente
 const obtenerDatosJugador = async () => {
