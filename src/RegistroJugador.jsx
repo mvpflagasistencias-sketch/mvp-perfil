@@ -50,13 +50,15 @@ const [esOtro, setEsOtro] = useState(false);
     setFormData(prev => ({ ...prev, nombre: decoded.name.toUpperCase(), correo: decoded.email }));
   };
 
-  
-  const handleSubmit = async (e) => {
+
+const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // VALIDACIÓN DEL ARROBA Y FORMATO BÁSICO
-  if (!formData.correo || !formData.correo.includes('@') || !formData.correo.includes('.')) {
-    alert("⚠️ Por favor, introduce un correo electrónico válido que incluya '@'");
+  // VALIDACIÓN ESTRICTA DE CORREO (Regex profesional)
+  const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  
+  if (!regexCorreo.test(formData.correo)) {
+    alert("⚠️ Por favor, introduce un correo electrónico real y válido (ejemplo: usuario@gmail.com)");
     return;
   }
 
