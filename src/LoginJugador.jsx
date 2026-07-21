@@ -85,9 +85,9 @@ const LoginJugador = ({ onLoginSuccess, onSwitchToRegister }) => {
           }}>
             MVP
           </div>
-          <h2 style={{ color: 'white', fontSize: 'clamp(20px, 6vw, 24px)', fontWeight: '900', textTransform: 'uppercase', margin: 0 }}>
-            {isRecuperando ? 'Recuperar <span style="color: #60a5fa">Acceso</span>' : <>Portal del <span style={{ color: '#60a5fa' }}>Jugador</span></>}
-          </h2>
+          <h2 style={{ fontSize: '20px', fontWeight: '900', textTransform: 'uppercase', color: '#ffffff', margin: '12px 0 8px 0' }}>
+  Recuperar <span style={{ color: '#60a5fa' }}>Acceso</span>
+</h2>
         </div>
 
         {!isRecuperando ? (
