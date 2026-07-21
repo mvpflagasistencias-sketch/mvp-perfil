@@ -281,6 +281,22 @@ const handleSubmit = async (e) => {
                   onChange={e => setFormData({...formData, tutor: e.target.value})} 
                 />
               </div>
+
+              {/* --- AVISO DE PRIVACIDAD --- */}
+<div style={{ ...styles.fullWidth, backgroundColor: '#141b2e', padding: '12px', borderRadius: '12px', border: '1px solid #1f2937', marginBottom: '1rem', textAlign: 'left' }}>
+  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+    <input 
+      type="checkbox" 
+      id="privacidad"
+      required
+      style={{ marginTop: '3px', cursor: 'pointer', width: '18px', height: '18px' }}
+      onChange={(e) => setFormData({...formData, acepta_privacidad: e.target.checked})}
+    />
+    <label htmlFor="privacidad" style={{ color: '#9ca3af', fontSize: '11px', lineHeight: '1.4', cursor: 'pointer' }}>
+      Acepto que mis datos personales y fotografía sean recolectados y utilizados exclusivamente para fines internos, control de asistencia y validación de identidad dentro de <strong style={{ color: '#ffffff' }}>MVP FLAG LEAGUE</strong>.
+    </label>
+  </div>
+</div>
               
 <div style={{ display: 'flex', justifyContent: 'center', width: '100%', marginTop: '1rem' }}> 
   <button 
