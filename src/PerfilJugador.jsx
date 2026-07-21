@@ -554,18 +554,40 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           )}
 
          {tabActiva === 'asistencias' && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '95px', height: '95px', borderRadius: '50%', border: '6px solid #0f172a', borderTopColor: '#22c55e', marginBottom: '16px' }}>
-                <span style={{ fontSize: '24px', fontWeight: '900' }}>{datosEquipo.asistencias}</span>
-              </div>
-              <p style={{ margin: '0 0 6px', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa' }}>Récord de Asistencia</p>
-              
-              {/* TEXTO MODIFICADO */}
-              <span style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'center', lineHeight: '1.4' }}>
-                Tu escuadra registra {datosEquipo.asistencias} asistencias en partidos oficiales.
-              </span>
+  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', paddingTop: '20px', width: '100%', boxSizing: 'border-box' }}>
+    
+    {/* Círculo con el total */}
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '95px', height: '95px', borderRadius: '50%', border: '6px solid #0f172a', borderTopColor: '#22c55e', marginBottom: '16px' }}>
+      <span style={{ fontSize: '24px', fontWeight: '900', color: '#ffffff' }}>{datosEquipo.asistencias}</span>
+    </div>
+    
+    <p style={{ margin: '0 0 6px', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa' }}>Récord de Asistencia</p>
+    
+    <span style={{ fontSize: '11px', color: '#9ca3af', textAlign: 'center', lineHeight: '1.4', marginBottom: '20px' }}>
+      Asistencias registradas en partidos oficiales.
+    </span>
+
+    {/* --- LISTA DETALLADA DE ASISTENCIAS (UNA POR UNA) --- */}
+    <div style={{ width: '100%', maxWidth: '340px', backgroundColor: '#1e293b', borderRadius: '16px', border: '1px solid #334155', padding: '12px', boxSizing: 'border-box', maxHeight: '220px', overflowY: 'auto', textAlign: 'left' }}>
+      {datosEquipo.historial && datosEquipo.historial.length > 0 ? (
+        datosEquipo.historial.map((asistencia, index) => (
+          <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: index < datosEquipo.historial.length - 1 ? '1px solid #334155' : 'none' }}>
+            <div>
+              <p style={{ color: 'white', fontSize: '12px', fontWeight: 'bold', margin: 0 }}>{asistencia.tipo_evento || 'Partido Oficial'}</p>
+              <p style={{ color: '#94a3b8', fontSize: '10px', margin: '2px 0 0 0' }}>{asistencia.fecha} - {asistencia.hora}</p>
             </div>
-          )}
+            <span style={{ backgroundColor: '#16a34a', color: 'white', fontSize: '9px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '6px' }}>
+              ASISTIÓ
+            </span>
+          </div>
+        ))
+      ) : (
+        <p style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', margin: '10px 0' }}>No hay registros de asistencia todavía.</p>
+      )}
+    </div>
+
+  </div>
+)}
 
   
         </div>
