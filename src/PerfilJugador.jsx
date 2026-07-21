@@ -558,7 +558,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     
     {/* Círculo con el total */}
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '95px', height: '95px', borderRadius: '50%', border: '6px solid #0f172a', borderTopColor: '#22c55e', marginBottom: '16px' }}>
-      <span style={{ fontSize: '24px', fontWeight: '900', color: '#ffffff' }}>{datosEquipo.asistencias || 0}</span>
+      <span style={{ fontSize: '24px', fontWeight: '900', color: '#ffffff' }}>{perfil?.asistencias || 0}</span>
     </div>
     
     <p style={{ margin: '0 0 6px', fontSize: '13px', fontWeight: '900', textTransform: 'uppercase', color: '#60a5fa' }}>Récord de Asistencia</p>
@@ -567,11 +567,11 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       Asistencias registradas en partidos oficiales.
     </span>
 
-    {/* --- LISTA DETALLADA --- */}
+    {/* --- LISTA DETALLADA USANDO 'perfil' --- */}
     <div style={{ width: '100%', maxWidth: '340px', backgroundColor: '#1e293b', borderRadius: '16px', border: '1px solid #334155', padding: '12px', boxSizing: 'border-box', maxHeight: '220px', overflowY: 'auto', textAlign: 'left' }}>
-      {datosEquipo.historial && datosEquipo.historial.length > 0 ? (
-        datosEquipo.historial.map((asistencia, index) => (
-          <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: index < datosEquipo.historial.length - 1 ? '1px solid #334155' : 'none' }}>
+      {perfil?.historial && perfil.historial.length > 0 ? (
+        perfil.historial.map((asistencia, index) => (
+          <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: index < perfil.historial.length - 1 ? '1px solid #334155' : 'none' }}>
             <div>
               <p style={{ color: 'white', fontSize: '12px', fontWeight: 'bold', margin: 0 }}>
                 {asistencia.equipo_local && asistencia.equipo_visitante 
