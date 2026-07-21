@@ -570,20 +570,26 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     {/* --- LISTA DETALLADA DE ASISTENCIAS (UNA POR UNA) --- */}
     <div style={{ width: '100%', maxWidth: '340px', backgroundColor: '#1e293b', borderRadius: '16px', border: '1px solid #334155', padding: '12px', boxSizing: 'border-box', maxHeight: '220px', overflowY: 'auto', textAlign: 'left' }}>
       {datosEquipo.historial && datosEquipo.historial.length > 0 ? (
-        datosEquipo.historial.map((asistencia, index) => (
-          <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: index < datosEquipo.historial.length - 1 ? '1px solid #334155' : 'none' }}>
-            <div>
-              <p style={{ color: 'white', fontSize: '12px', fontWeight: 'bold', margin: 0 }}>{asistencia.tipo_evento || 'Partido Oficial'}</p>
-              <p style={{ color: '#94a3b8', fontSize: '10px', margin: '2px 0 0 0' }}>{asistencia.fecha} - {asistencia.hora}</p>
-            </div>
-            <span style={{ backgroundColor: '#16a34a', color: 'white', fontSize: '9px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '6px' }}>
-              ASISTIÓ
-            </span>
-          </div>
-        ))
-      ) : (
-        <p style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', margin: '10px 0' }}>No hay registros de asistencia todavía.</p>
-      )}
+  datosEquipo.historial.map((asistencia, index) => (
+    <div key={index} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 0', borderBottom: index < datosEquipo.historial.length - 1 ? '1px solid #334155' : 'none' }}>
+      <div>
+        <p style={{ color: 'white', fontSize: '12px', fontWeight: 'bold', margin: 0 }}>
+          {asistencia.equipo_local && asistencia.equipo_visitante 
+            ? `${asistencia.equipo_local} vs ${asistencia.equipo_visitante}` 
+            : `Jornada ${asistencia.jornada || 'Oficial'}`}
+        </p>
+        <p style={{ color: '#94a3b8', fontSize: '10px', margin: '2px 0 0 0' }}>
+          {asistencia.fecha} - {asistencia.hora} {asistencia.categoria ? `(${asistencia.categoria})` : ''}
+        </p>
+      </div>
+      <span style={{ backgroundColor: '#16a34a', color: 'white', fontSize: '9px', fontWeight: 'bold', padding: '4px 8px', borderRadius: '6px' }}>
+        ASISTIÓ
+      </span>
+    </div>
+  ))
+) : (
+  <p style={{ color: '#64748b', fontSize: '12px', textAlign: 'center', margin: '10px 0' }}>No hay registros de asistencia todavía.</p>
+)}
     </div>
 
   </div>
