@@ -1,6 +1,4 @@
 import { useState, useEffect } from 'react';
-import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
 import api from './api';
 
 
@@ -52,19 +50,27 @@ const [esOtro, setEsOtro] = useState(false);
     setFormData(prev => ({ ...prev, nombre: decoded.name.toUpperCase(), correo: decoded.email }));
   };
 
+  
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      await api.post('/api/jugadores/registro', formData);
-      alert("✅ ¡Registro exitoso!");
-      if (onRegistroExitoso) onRegistroExitoso();
-    } catch (err) {
-      alert("❌ Error al registrar, intenta de nuevo.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  e.preventDefault();
+
+  // VALIDACIÓN DEL ARROBA Y FORMATO BÁSICO
+  if (!formData.correo || !formData.correo.includes('@') || !formData.correo.includes('.')) {
+    alert("⚠️ Por favor, introduce un correo electrónico válido que incluya '@'");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    await api.post('/api/jugadores/registro', formData);
+    alert("✅ ¡Registro exitoso!");
+    if (onRegistroExitoso) onRegistroExitoso();
+  } catch (err) {
+    alert("❌ Error al registrar, intenta de nuevo.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const styles = {
     wrapper: {
@@ -107,15 +113,6 @@ const [esOtro, setEsOtro] = useState(false);
             </div>
           </div>
 
-          {/* GOOGLE AUTH INLINE BUTTON */}
-          {!formData.correo && (
-            <div style={{...styles.sectionBlock, flexDirection: 'column', gap: '0.5rem', justifyContent: 'center'}}>
-              <p style={{ color: '#9ca3af', fontSize: '0.75rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 0.5rem 0' }}>Sincronizar Datos Oficiales</p>
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
-                <GoogleLogin onSuccess={handleSuccess} onError={() => alert('Error')} />
-              </div>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit}>
             
@@ -159,10 +156,11 @@ const [esOtro, setEsOtro] = useState(false);
                 <label style={styles.label}>Correo Electrónico</label>
                 <input 
                   type="email"
-                  style={{...styles.input, opacity: 0.6, cursor: 'not-allowed'}}
-                  placeholder="Sincroniza con Google primero"
+                  style={styles.input}
+                  placeholder="ejemplo@correo.com"
                   value={formData.correo} 
-                  readOnly 
+                  onChange={e => setFormData({...formData, correo: e.target.value})} 
+                  required 
                 />
               </div>
 
