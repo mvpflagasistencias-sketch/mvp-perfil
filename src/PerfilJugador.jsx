@@ -46,6 +46,22 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     promociones: [] // Inicializado vacío para recibir la información real de la BD
   });
 
+
+  // Ejemplo de cómo deberías estar recibiendo los datos en tu componente
+const obtenerDatosJugador = async () => {
+  try {
+    const jugadorId = localStorage.getItem('atleta_id');
+    const res = await api.get(`/api/jugadores/${jugadorId}/contador-asistencias`);
+    
+    // 👈 ESTO ES LO QUE LLENA EL ESTADO
+    setPerfil(res.data); 
+  } catch (err) {
+    console.error("Error al obtener perfil", err);
+  } finally {
+    setLoading(false);
+  }
+};
+
   useEffect(() => {
     const fetchPerfilYEquipos = async () => {
       const idActual = jugadorId || localStorage.getItem('atleta_id');
