@@ -52,27 +52,27 @@ const [esOtro, setEsOtro] = useState(false);
 
 
 const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // VALIDACIÓN ESTRICTA DE CORREO (Regex profesional)
-  const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  
-  if (!regexCorreo.test(formData.correo)) {
-    alert("⚠️ Por favor, introduce un correo electrónico real y válido (ejemplo: usuario@gmail.com)");
-    return;
-  }
+    // 🛑 VALIDACIÓN ESTRICTA DE CORREO
+    const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    
+    if (!regexCorreo.test(formData.correo)) {
+      alert("⚠️ Por favor, introduce un correo electrónico válido (ej. usuario@gmail.com). No se permiten formatos incompletos.");
+      return; // Detiene el registro aquí mismo
+    }
 
-  setLoading(true);
-  try {
-    await api.post('/api/jugadores/registro', formData);
-    alert("✅ ¡Registro exitoso!");
-    if (onRegistroExitoso) onRegistroExitoso();
-  } catch (err) {
-    alert("❌ Error al registrar, intenta de nuevo.");
-  } finally {
-    setLoading(false);
-  }
-};
+    setLoading(true);
+    try {
+      await api.post('/api/jugadores/registro', formData);
+      alert("✅ ¡Registro exitoso!");
+      if (onRegistroExitoso) onRegistroExitoso();
+    } catch (err) {
+      alert("❌ Error al registrar, intenta de nuevo.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const styles = {
     wrapper: {
