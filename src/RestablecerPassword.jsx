@@ -1,11 +1,10 @@
 import { useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "./api";
 
 const RestablecerPassword = () => {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token"); // Captura el token de la URL
-  const navigate = useNavigate();
+  // Capturamos el token directamente de la URL de forma nativa
+  const queryParams = new URLSearchParams(window.location.search);
+  const token = queryParams.get("token");
 
   const [nuevaPassword, setNuevaPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -24,7 +23,7 @@ const RestablecerPassword = () => {
         nuevaPassword,
       });
       alert("✅ " + res.data.message);
-      navigate("/"); // Te redirige al login una vez actualizada
+      window.location.href = "/"; // Redirige al login limpiando la URL
     } catch (err) {
       alert(
         "❌ Error: " +
