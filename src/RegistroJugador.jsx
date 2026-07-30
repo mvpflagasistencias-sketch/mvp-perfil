@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import api from "./api";
 
 const RegistroJugador = ({ onRegistroExitoso }) => {
-  // 1. En tus estados:
   const [esOtro, setEsOtro] = useState(false);
   const [equipos, setEquipos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -10,8 +9,8 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     nombre: "",
     correo: "",
     telefono: "",
-    equipos_ids: [], // 🟢 Modificado: Ahora soporta un array de IDs de equipos (máximo 4)
-    genero: "Masculino", // 🟢 Nuevo: Género por defecto
+    equipo: "", // 👈 Volvemos al campo de equipo individual para el select clásico
+    genero: "Masculino",
     categoria: "",
     numero_jersey: "",
     password: "",
@@ -42,37 +41,34 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     }
   };
 
-  const handleSuccess = (credentialResponse) => {
-    const decoded = jwtDecode(credentialResponse.credential);
-    setFormData((prev) => ({
-      ...prev,
-      nombre: decoded.name.toUpperCase(),
-      correo: decoded.email,
-    }));
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🛑 VALIDACIÓN ESTRICTA DE CORREO
     const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
     if (!regexCorreo.test(formData.correo)) {
       alert(
         "⚠️ Por favor, introduce un correo electrónico válido (ej. usuario@gmail.com). No se permiten formatos incompletos.",
       );
-      return; // Detiene el registro aquí mismo
-    }
-
-    // 🛑 VALIDACIÓN DE MÁXIMO 4 EQUIPOS
-    if (formData.equipos_ids.length > 4) {
-      alert("⚠️ Un jugador solo puede estar inscrito en un máximo de 4 equipos.");
       return;
     }
 
     setLoading(true);
     try {
-      await api.post("/api/jugadores/registro", formData);
+      // Convertimos el equipo escrito o seleccionado en un array 'equipos_ids' o enviamos el texto según lo maneje tu backend
+      // Si el backend espera un array, buscamos el ID del equipo o lo mandamos procesado
+      let equipoEncontrado = equipos.find(
+        (eq) => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()
+      );
+
+      // Preparamos los datos con la estructura que espera el servidor
+      const payload = {
+        ...formData,
+        equipos_ids: equipoEncontrado ? [equipoEncontrado.id] : [],
+        nombre_equipo_manual: !equipoEncontrado ? formData.equipo : null
+      };
+
+      await api.post("/api/jugadores/registro", payload);
       alert("✅ ¡Registro exitoso!");
       if (onRegistroExitoso) onRegistroExitoso();
     } catch (err) {
@@ -90,7 +86,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       justifyContent: "center",
       backgroundColor: "#0f172a",
       margin: 0,
-      padding: "12px", // 👈 Optimizado para pantallas móviles
+      padding: "12px",
       boxSizing: "border-box",
       width: "100%",
     },
@@ -124,14 +120,13 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       color: "#ffffff",
       margin: 0,
       letterSpacing: "-0.025em",
-    }, // 👈 Ajustado tamaño móvil
+    },
     subtitle: {
       fontSize: "0.875rem",
       color: "#60a5fa",
       fontWeight: "500",
       margin: "0.25rem 0 0 0",
     },
-    // 👈 flexWrap: 'wrap' para que en teléfonos la info de la foto baje limpiamente
     sectionBlock: {
       backgroundColor: "#141b2e",
       padding: "1.25rem",
@@ -158,7 +153,6 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       flexShrink: 0,
       margin: "0 auto",
     },
-    // 👈 Cuadrícula adaptativa usando auto-rows/auto-fit plano
     grid: {
       display: "grid",
       gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
@@ -187,23 +181,12 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       boxSizing: "border-box",
       fontWeight: "600",
     },
-    button: {
-      width: "100%",
-      padding: "1rem",
-      borderRadius: "1rem",
-      fontWeight: "900",
-      fontSize: "1.125rem",
-      border: "none",
-      cursor: "pointer",
-      textTransform: "uppercase",
-    },
   };
 
   return (
     <div style={styles.wrapper}>
       <div style={styles.container}>
         <div style={styles.card}>
-          {/* ENCABEZADO */}
           <div
             style={{
               ...styles.header,
@@ -218,7 +201,6 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
           </div>
 
           <form onSubmit={handleSubmit}>
-            {/* FOTO COMPONENTE VERIFICADOR */}
             <div style={styles.sectionBlock}>
               <div style={styles.avatarContainer}>
                 {formData.foto_perfil ? (
@@ -290,7 +272,6 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
               </div>
             </div>
 
-            {/* INPUTS EN RESPONSIVE GRID */}
             <div style={styles.grid}>
               <div style={styles.fullWidth}>
                 <label style={styles.label}>Nombre del Jugador</label>
@@ -336,7 +317,6 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 />
               </div>
 
-              {/* 🟢 Selector de Género */}
               <div>
                 <label style={styles.label}>Género</label>
                 <select
@@ -369,80 +349,85 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   <option value="" style={{ backgroundColor: "#0f172a" }}>
                     -- Elige rama --
                   </option>
-                  <option
-                    value="VARONIL"
-                    style={{ backgroundColor: "#0f172a" }}
-                  >
+                  <option value="VARONIL" style={{ backgroundColor: "#0f172a" }}>
                     VARONIL
                   </option>
-                  <option
-                    value="FEMENIL"
-                    style={{ backgroundColor: "#0f172a" }}
-                  >
+                  <option value="FEMENIL" style={{ backgroundColor: "#0f172a" }}>
                     FEMENIL
                   </option>
                   <option value="MIXTO" style={{ backgroundColor: "#0f172a" }}>
                     MIXTO
                   </option>
-                  <option
-                    value="JUVENIL"
-                    style={{ backgroundColor: "#0f172a" }}
-                  >
+                  <option value="JUVENIL" style={{ backgroundColor: "#0f172a" }}>
                     JUVENIL
                   </option>
                 </select>
               </div>
 
-              {/* 🟢 Selección Múltiple de Equipos (Hasta 4) */}
-              <div style={styles.fullWidth}>
-                <label style={styles.label}>Equipos (Selecciona hasta 4)</label>
-                <div
-                  style={{
-                    ...styles.input,
-                    maxHeight: "150px",
-                    overflowY: "auto",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "8px",
+              {/* 🟢 Selector Clásico de Equipo restaurado */}
+              <div>
+                <label style={styles.label}>Equipo</label>
+                <select
+                  style={styles.input}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "OTRO_EQUIPO") {
+                      setEsOtro(true);
+                      setFormData({ ...formData, equipo: "" });
+                    } else {
+                      setEsOtro(false);
+                      setFormData({ ...formData, equipo: val });
+                    }
                   }}
+                  value={esOtro ? "OTRO_EQUIPO" : formData.equipo}
+                  required
                 >
-                  {equipos.map((eq) => {
-                    const isChecked = formData.equipos_ids.includes(eq.id);
-                    return (
-                      <label
-                        key={eq.id}
+                  <option value="">-- Elige un equipo --</option>
+                  {equipos.map((eq) => (
+                    <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>
+                      {eq.nombre_equipo.toUpperCase()}
+                    </option>
+                  ))}
+                  <option value="OTRO_EQUIPO">
+                    + OTRO (Escribir manualmente)
+                  </option>
+                </select>
+
+                {esOtro && (
+                  <>
+                    {equipos.some(
+                      (eq) =>
+                        eq.nombre_equipo.toUpperCase() === formData.equipo,
+                    ) && (
+                      <p
                         style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                          cursor: "pointer",
-                          fontSize: "0.85rem",
-                          color: "#ffffff",
+                          color: "#ef4444",
+                          fontSize: "0.75rem",
+                          marginTop: "5px",
                         }}
                       >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={(e) => {
-                            let updatedEquipos = [...formData.equipos_ids];
-                            if (e.target.checked) {
-                              if (updatedEquipos.length >= 4) {
-                                alert("⚠️ Solo puedes seleccionar un máximo de 4 equipos.");
-                                return;
-                              }
-                              updatedEquipos.push(eq.id);
-                            } else {
-                              updatedEquipos = updatedEquipos.filter((id) => id !== eq.id);
-                            }
-                            setFormData({ ...formData, equipos_ids: updatedEquipos });
-                          }}
-                          style={{ width: "16px", height: "16px", accentColor: "#2563eb", cursor: "pointer" }}
-                        />
-                        <span style={{ textTransform: "uppercase" }}>{eq.nombre_equipo}</span>
-                      </label>
-                    );
-                  })}
-                </div>
+                        ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista
+                        superior para ahorrar tiempo.
+                      </p>
+                    )}
+                    <input
+                      type="text"
+                      style={{
+                        ...styles.input,
+                        marginTop: "8px",
+                        border: "2px solid #2563eb",
+                      }}
+                      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
+                      value={formData.equipo}
+                      onChange={(e) => {
+                        const val = e.target.value.toUpperCase();
+                        setFormData({ ...formData, equipo: val });
+                      }}
+                      autoComplete="off"
+                      required
+                    />
+                  </>
+                )}
               </div>
 
               <div>
@@ -495,7 +480,6 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 />
               </div>
 
-              {/* --- AVISO DE PRIVACIDAD --- */}
               <div
                 style={{
                   ...styles.fullWidth,
@@ -562,17 +546,42 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
               >
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={
+                    loading ||
+                    (esOtro &&
+                      equipos.some(
+                        (eq) =>
+                          eq.nombre_equipo.toUpperCase() ===
+                          formData.equipo.toUpperCase(),
+                      ))
+                  }
                   style={{
-                    // --- RESET TOTAL: NO usamos ...styles.button ---
-                    backgroundColor: loading ? "#4b5563" : "#2563eb",
+                    backgroundColor:
+                      loading ||
+                      (esOtro &&
+                        equipos.some(
+                          (eq) =>
+                            eq.nombre_equipo.toUpperCase() ===
+                            formData.equipo.toUpperCase(),
+                        ))
+                        ? "#4b5563"
+                        : "#2563eb",
                     color: "#ffffff",
                     padding: "12px 24px",
                     border: "none",
                     borderRadius: "8px",
                     fontWeight: "bold",
-                    cursor: loading ? "not-allowed" : "pointer",
-                    width: "fit-content", // Ahora sí debería respetarlo
+                    cursor:
+                      loading ||
+                      (esOtro &&
+                        equipos.some(
+                          (eq) =>
+                            eq.nombre_equipo.toUpperCase() ===
+                            formData.equipo.toUpperCase(),
+                        ))
+                        ? "not-allowed"
+                        : "pointer",
+                    width: "fit-content",
                   }}
                 >
                   {loading ? "REGISTRANDO..." : "CONFIRMAR REGISTRO DE JUGADOR"}
