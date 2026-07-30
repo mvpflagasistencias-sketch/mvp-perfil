@@ -387,10 +387,10 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 </select>
               </div>
 
-              {/* 🟢 SECCIÓN DE EQUIPOS DINÁMICOS Y MANUALES MÚLTIPLES */}
+              {/* 🟢 SECCIÓN DE EQUIPOS DINÁMICOS Y MANUALES MÚLTIPLES (MÁXIMO 2) */}
               <div style={styles.fullWidth}>
                 <label style={styles.label}>
-                  Equipos (Puedes agregar varios)
+                  Equipos (Máximo 2 permitidos)
                 </label>
                 {formData.equiposSeleccionados.map((equipoActual, index) => (
                   <div key={index} style={{ marginBottom: "12px" }}>
@@ -416,7 +416,8 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                         required
                       >
                         <option value="">-- Elige un equipo --</option>
-                        {equipos.map((eq) => {
+                        {Array.isArray(equipos) && equipos.map((eq) => {
+                          if (!eq || !eq.nombre_equipo) return null;
                           const nombreConCategoria = eq.categoria
                             ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase()
                             : eq.nombre_equipo.toUpperCase();
@@ -471,13 +472,13 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                     {equipoActual === "OTRO_EQUIPO" && (
                       <div style={{ marginTop: "8px" }}>
                         {Array.isArray(equipos) &&
+                          formData.equiposManuales?.[index]?.nombre &&
                           equipos.some(
                             (eq) =>
                               eq &&
                               typeof eq.nombre_equipo === "string" &&
-                              formData.equiposManuales?.[index]?.nombre &&
                               eq.nombre_equipo.trim().toUpperCase() ===
-                                formData.equiposManuales[index].nombre
+                                (formData.equiposManuales[index]?.nombre || "")
                                   .trim()
                                   .toUpperCase(),
                           ) && (
@@ -593,30 +594,37 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   </div>
                 ))}
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setFormData({
-                      ...formData,
-                      equiposSeleccionados: [
-                        ...formData.equiposSeleccionados,
-                        "",
-                      ],
-                    });
-                  }}
-                  style={{
-                    background: "transparent",
-                    color: "#60a5fa",
-                    border: "none",
-                    cursor: "pointer",
-                    fontWeight: "bold",
-                    marginTop: "4px",
-                    padding: 0,
-                    fontSize: "0.85rem",
-                  }}
-                >
-                  + Agregar otro equipo
-                </button>
+                {/* Candado del CEO: Solo permite agregar más equipos si hay menos de 2 */}
+                {formData.equiposSeleccionados.length < 2 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData({
+                        ...formData,
+                        equiposSeleccionados: [
+                          ...formData.equiposSeleccionados,
+                          "",
+                        ],
+                        equiposManuales: [
+                          ...(formData.equiposManuales || []),
+                          {},
+                        ],
+                      });
+                    }}
+                    style={{
+                      background: "transparent",
+                      color: "#60a5fa",
+                      border: "none",
+                      cursor: "pointer",
+                      fontWeight: "bold",
+                      marginTop: "4px",
+                      padding: 0,
+                      fontSize: "0.85rem",
+                    }}
+                  >
+                    + Agregar otro equipo (Máximo 2)
+                  </button>
+                )}
               </div>
 
               <div>
