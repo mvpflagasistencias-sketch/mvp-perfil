@@ -59,14 +59,15 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       // Convertimos el equipo escrito o seleccionado en un array 'equipos_ids' o enviamos el texto según lo maneje tu backend
       // Si el backend espera un array, buscamos el ID del equipo o lo mandamos procesado
       let equipoEncontrado = equipos.find(
-        (eq) => eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase()
+        (eq) =>
+          eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase(),
       );
 
       // Preparamos los datos con la estructura que espera el servidor
       const payload = {
         ...formData,
         equipos_ids: equipoEncontrado ? [equipoEncontrado.id] : [],
-        nombre_equipo_manual: !equipoEncontrado ? formData.equipo : null
+        nombre_equipo_manual: !equipoEncontrado ? formData.equipo : null,
       };
 
       await api.post("/api/jugadores/registro", payload);
@@ -74,7 +75,8 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       if (onRegistroExitoso) onRegistroExitoso();
     } catch (err) {
       // 🟢 AQUÍ ESTÁ LA MAGIA: Capturamos el mensaje exacto que envía el backend
-      const mensajeError = err.response?.data?.error || "Error al registrar, intenta de nuevo.";
+      const mensajeError =
+        err.response?.data?.error || "Error al registrar, intenta de nuevo.";
       alert(`❌ ${mensajeError}`);
     } finally {
       setLoading(false);
@@ -330,10 +332,16 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   }
                   required
                 >
-                  <option value="Masculino" style={{ backgroundColor: "#0f172a" }}>
+                  <option
+                    value="Masculino"
+                    style={{ backgroundColor: "#0f172a" }}
+                  >
                     Masculino
                   </option>
-                  <option value="Femenil" style={{ backgroundColor: "#0f172a" }}>
+                  <option
+                    value="Femenil"
+                    style={{ backgroundColor: "#0f172a" }}
+                  >
                     Femenil
                   </option>
                 </select>
@@ -352,16 +360,25 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   <option value="" style={{ backgroundColor: "#0f172a" }}>
                     -- Elige rama --
                   </option>
-                  <option value="VARONIL" style={{ backgroundColor: "#0f172a" }}>
+                  <option
+                    value="VARONIL"
+                    style={{ backgroundColor: "#0f172a" }}
+                  >
                     VARONIL
                   </option>
-                  <option value="FEMENIL" style={{ backgroundColor: "#0f172a" }}>
+                  <option
+                    value="FEMENIL"
+                    style={{ backgroundColor: "#0f172a" }}
+                  >
                     FEMENIL
                   </option>
                   <option value="MIXTO" style={{ backgroundColor: "#0f172a" }}>
                     MIXTO
                   </option>
-                  <option value="JUVENIL" style={{ backgroundColor: "#0f172a" }}>
+                  <option
+                    value="JUVENIL"
+                    style={{ backgroundColor: "#0f172a" }}
+                  >
                     JUVENIL
                   </option>
                 </select>
@@ -387,16 +404,15 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 >
                   <option value="">-- Elige un equipo --</option>
                   {equipos.map((eq) => {
-                    <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>
-      {eq.nombre_equipo.toUpperCase()} ({eq.categoria ? eq.categoria : "Sin categoría"})
-    </option>
-                    // 🟢 Unificamos el nombre y le agregamos la categoría entre paréntesis
-                    const nombreConCategoria = eq.categoria 
-                      ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase() 
+                    const nombreConCategoria = eq.categoria
+                      ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase()
                       : eq.nombre_equipo.toUpperCase();
 
                     return (
-                      <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>
+                      <option
+                        key={eq.id}
+                        value={eq.nombre_equipo.toUpperCase()}
+                      >
                         {nombreConCategoria}
                       </option>
                     );
