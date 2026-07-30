@@ -51,6 +51,15 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       return;
     }
 
+    // 🟢 Evitamos que envíe si escribió manualmente un equipo que ya existe en la base de datos
+    const equipoYaExiste = formData.equiposSeleccionados.includes("OTRO_EQUIPO") && 
+      equipos.some((eq) => eq.nombre_equipo.toUpperCase() === formData.equipoManual.toUpperCase());
+
+    if (equipoYaExiste) {
+      alert("⚠️ El equipo escrito manualmente ya existe en el sistema. Por favor, selecciónalo de la lista desplegable.");
+      return;
+    }
+
     setLoading(true);
     try {
       let equiposIdsFinales = [];
@@ -382,7 +391,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 </select>
               </div>
 
-              {/* 🟢 SECCIÓN DE EQUIPOS DINÁMICOS */}
+              {/* 🟢 SECCIÓN DE EQUIPOS DINÁMICOS CON ADVERTENCIA MANUAL */}
               <div style={styles.fullWidth}>
                 <label style={styles.label}>Equipos (Puedes agregar varios)</label>
                 {formData.equiposSeleccionados.map((equipoActual, index) => (
@@ -441,14 +450,30 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 </button>
 
                 {formData.equiposSeleccionados.includes("OTRO_EQUIPO") && (
-                  <input
-                    type="text"
-                    style={{ ...styles.input, marginTop: "10px", border: "2px solid #2563eb" }}
-                    placeholder="ESCRIBE EL NOMBRE DEL EQUIPO MANUAL"
-                    value={formData.equipoManual}
-                    onChange={(e) => setFormData({ ...formData, equipoManual: e.target.value.toUpperCase() })}
-                    required
-                  />
+                  <>
+                    {equipos.some(
+                      (eq) => eq.nombre_equipo.toUpperCase() === formData.equipoManual.toUpperCase()
+                    ) && (
+                      <p
+                        style={{
+                          color: "#ef4444",
+                          fontSize: "0.75rem",
+                          marginTop: "5px",
+                        }}
+                      >
+                        ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista superior para ahorrar tiempo.
+                      </p>
+                    )}
+                    <input
+                      type="text"
+                      style={{ ...styles.input, marginTop: "8px", border: "2px solid #2563eb" }}
+                      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO MANUAL"
+                      value={formData.equipoManual}
+                      onChange={(e) => setFormData({ ...formData, equipoManual: e.target.value.toUpperCase() })}
+                      autoComplete="off"
+                      required
+                    />
+                  </>
                 )}
               </div>
 
@@ -568,15 +593,35 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
               >
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={
+                    loading ||
+                    (formData.equiposSeleccionados.includes("OTRO_EQUIPO") &&
+                      equipos.some(
+                        (eq) => eq.nombre_equipo.toUpperCase() === formData.equipoManual.toUpperCase()
+                      ))
+                  }
                   style={{
-                    backgroundColor: loading ? "#4b5563" : "#2563eb",
+                    backgroundColor:
+                      loading ||
+                      (formData.equiposSeleccionados.includes("OTRO_EQUIPO") &&
+                        equipos.some(
+                          (eq) => eq.nombre_equipo.toUpperCase() === formData.equipoManual.toUpperCase()
+                        ))
+                        ? "#4b5563"
+                        : "#2563eb",
                     color: "#ffffff",
                     padding: "12px 24px",
                     border: "none",
                     borderRadius: "8px",
                     fontWeight: "bold",
-                    cursor: loading ? "not-allowed" : "pointer",
+                    cursor:
+                      loading ||
+                      (formData.equiposSeleccionados.includes("OTRO_EQUIPO") &&
+                        equipos.some(
+                          (eq) => eq.nombre_equipo.toUpperCase() === formData.equipoManual.toUpperCase()
+                        ))
+                        ? "not-allowed"
+                        : "pointer",
                     width: "fit-content",
                   }}
                 >
