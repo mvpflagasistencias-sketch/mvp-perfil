@@ -422,12 +422,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   <option value="MIXTO" style={{ backgroundColor: "#0f172a" }}>
                     MIXTO
                   </option>
-                  <option
-                    value="JUVENIL"
-                    style={{ backgroundColor: "#0f172a" }}
-                  >
-                    JUVENIL
-                  </option>
+                  
                 </select>
               </div>
 
@@ -624,12 +619,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                             >
                               MIXTO
                             </option>
-                            <option
-                              value="JUVENIL"
-                              style={{ backgroundColor: "#0f172a" }}
-                            >
-                              JUVENIL
-                            </option>
+                            
                           </select>
                         </div>
                       </div>
