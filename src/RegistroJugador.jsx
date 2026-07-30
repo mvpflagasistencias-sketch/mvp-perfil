@@ -366,7 +366,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 </select>
               </div>
 
-              {/* 🟢 Selector Clásico de Equipo restaurado */}
+              {/* 🟢 Selector Clásico de Equipo actualizado con la categoría */}
               <div>
                 <label style={styles.label}>Equipo</label>
                 <select
@@ -385,11 +385,18 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   required
                 >
                   <option value="">-- Elige un equipo --</option>
-                  {equipos.map((eq) => (
-                    <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>
-                      {eq.nombre_equipo.toUpperCase()}
-                    </option>
-                  ))}
+                  {equipos.map((eq) => {
+                    // 🟢 Unificamos el nombre y le agregamos la categoría entre paréntesis
+                    const nombreConCategoria = eq.categoria 
+                      ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase() 
+                      : eq.nombre_equipo.toUpperCase();
+
+                    return (
+                      <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>
+                        {nombreConCategoria}
+                      </option>
+                    );
+                  })}
                   <option value="OTRO_EQUIPO">
                     + OTRO (Escribir manualmente)
                   </option>
