@@ -66,7 +66,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
           }
         } else if (val) {
           const encontrado = equipos.find(
-            (eq) => eq?.nombre_equipo && eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
+            (eq) =>
+              eq?.nombre_equipo &&
+              eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
           );
           if (encontrado) {
             equiposIdsFinales.push(encontrado.id);
@@ -387,10 +389,10 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 </select>
               </div>
 
-              {/* 🟢 SECCIÓN DE EQUIPOS DINÁMICOS Y MANUALES MÚLTIPLES (MÁXIMO 2) */}
+              {/* 🟢 SECCIÓN DE EQUIPOS DINÁMICOS (MÁXIMO 4: 2 DE SU RAMA + 2 MIXTOS) */}
               <div style={styles.fullWidth}>
                 <label style={styles.label}>
-                  Equipos (Máximo 2 permitidos)
+                  Equipos (Máximo 4: Dos de tu rama y dos mixtos)
                 </label>
                 {formData.equiposSeleccionados.map((equipoActual, index) => (
                   <div key={index} style={{ marginBottom: "12px" }}>
@@ -416,20 +418,21 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                         required
                       >
                         <option value="">-- Elige un equipo --</option>
-                        {Array.isArray(equipos) && equipos.map((eq) => {
-                          if (!eq || !eq.nombre_equipo) return null;
-                          const nombreConCategoria = eq.categoria
-                            ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase()
-                            : eq.nombre_equipo.toUpperCase();
-                          return (
-                            <option
-                              key={eq.id}
-                              value={eq.nombre_equipo.toUpperCase()}
-                            >
-                              {nombreConCategoria}
-                            </option>
-                          );
-                        })}
+                        {Array.isArray(equipos) &&
+                          equipos.map((eq) => {
+                            if (!eq || !eq.nombre_equipo) return null;
+                            const nombreConCategoria = eq.categoria
+                              ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase()
+                              : eq.nombre_equipo.toUpperCase();
+                            return (
+                              <option
+                                key={eq.id}
+                                value={eq.nombre_equipo.toUpperCase()}
+                              >
+                                {nombreConCategoria}
+                              </option>
+                            );
+                          })}
                         <option value="OTRO_EQUIPO">
                           + OTRO (Escribir manualmente)
                         </option>
@@ -439,10 +442,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                         <button
                           type="button"
                           onClick={() => {
-                            const nuevos =
-                              formData.equiposSeleccionados.filter(
-                                (_, i) => i !== index,
-                              );
+                            const nuevos = formData.equiposSeleccionados.filter(
+                              (_, i) => i !== index,
+                            );
                             const manualesCopy = [
                               ...(formData.equiposManuales || []),
                             ];
@@ -489,8 +491,8 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                                 marginBottom: "5px",
                               }}
                             >
-                              ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista
-                              superior para ahorrar tiempo.
+                              ⚠️ ¡Este equipo ya existe! Selecciónalo en la
+                              lista superior para ahorrar tiempo.
                             </p>
                           )}
 
@@ -540,8 +542,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                               margin: 0,
                             }}
                             value={
-                              formData.equiposManuales?.[index]?.categoria ||
-                              ""
+                              formData.equiposManuales?.[index]?.categoria || ""
                             }
                             onChange={(e) => {
                               const manualesCopy = [
@@ -594,8 +595,8 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   </div>
                 ))}
 
-                {/* Candado del CEO: Solo permite agregar más equipos si hay menos de 2 */}
-                {formData.equiposSeleccionados.length < 2 && (
+                {/* Candado actualizado: Permite agregar equipos hasta llegar al límite de 4 */}
+                {formData.equiposSeleccionados.length < 4 && (
                   <button
                     type="button"
                     onClick={() => {
@@ -622,7 +623,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                       fontSize: "0.85rem",
                     }}
                   >
-                    + Agregar otro equipo (Máximo 2)
+                    + Agregar otro equipo (Máximo 4)
                   </button>
                 )}
               </div>
