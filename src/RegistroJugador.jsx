@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import api from "./api";
 
 const RegistroJugador = ({ onRegistroExitoso }) => {
-  const [esOtro, setEsOtro] = useState(false);
   const [equipos, setEquipos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
     correo: "",
     telefono: "",
-    equipo: "", // 👈 Volvemos al campo de equipo individual para el select clásico
+    equiposSeleccionados: [""], 
+    equipoManual: "",          
     genero: "Masculino",
     categoria: "",
     numero_jersey: "",
@@ -23,7 +23,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     const fetchEquipos = async () => {
       try {
         const res = await api.get("/api/equipos");
-        console.log("📦 Equipos recibidos de la API:", res.data); // 👈 Añade esto
+        console.log("📦 Equipos recibidos de la API:", res.data);
         setEquipos(res.data);
       } catch (err) {
         console.error("Error cargando equipos", err);
@@ -46,35 +46,39 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     e.preventDefault();
 
     const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-
     if (!regexCorreo.test(formData.correo)) {
-      alert(
-        "⚠️ Por favor, introduce un correo electrónico válido (ej. usuario@gmail.com). No se permiten formatos incompletos.",
-      );
+      alert("⚠️ Por favor, introduce un correo electrónico válido (ej. usuario@gmail.com).");
       return;
     }
 
     setLoading(true);
     try {
-      // Convertimos el equipo escrito o seleccionado en un array 'equipos_ids' o enviamos el texto según lo maneje tu backend
-      // Si el backend espera un array, buscamos el ID del equipo o lo mandamos procesado
-      let equipoEncontrado = equipos.find(
-        (eq) =>
-          eq.nombre_equipo.toUpperCase() === formData.equipo.toUpperCase(),
-      );
+      let equiposIdsFinales = [];
+      let equipoTextoFinal = null;
 
-      // Preparamos los datos con la estructura que espera el servidor
+      formData.equiposSeleccionados.forEach((val) => {
+        if (val === "OTRO_EQUIPO") {
+          equipoTextoFinal = formData.equipoManual;
+        } else if (val) {
+          const encontrado = equipos.find(
+            (eq) => eq.nombre_equipo.toUpperCase() === val.toUpperCase()
+          );
+          if (encontrado) {
+            equiposIdsFinales.push(encontrado.id);
+          }
+        }
+      });
+
       const payload = {
         ...formData,
-        equipos_ids: equipoEncontrado ? [equipoEncontrado.id] : [],
-        nombre_equipo_manual: !equipoEncontrado ? formData.equipo : null,
+        equipo: equipoTextoFinal,
+        equipos_ids: equiposIdsFinales,
       };
 
       await api.post("/api/jugadores/registro", payload);
       alert("✅ ¡Registro exitoso!");
       if (onRegistroExitoso) onRegistroExitoso();
     } catch (err) {
-      // 🟢 AQUÍ ESTÁ LA MAGIA: Capturamos el mensaje exacto que envía el backend
       const mensajeError =
         err.response?.data?.error || "Error al registrar, intenta de nuevo.";
       alert(`❌ ${mensajeError}`);
@@ -113,7 +117,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     },
     header: {
       display: "flex",
-      justifyContent: "between",
+      justifyContent: "space-between",
       alignItems: "center",
       marginBottom: "2rem",
       borderBottom: "1px solid #374151",
@@ -192,13 +196,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     <div style={styles.wrapper}>
       <div style={styles.container}>
         <div style={styles.card}>
-          <div
-            style={{
-              ...styles.header,
-              display: "flex",
-              justifyContent: "space-between",
-            }}
-          >
+          <div style={styles.header}>
             <div style={{ textAlign: "left" }}>
               <h2 style={styles.title}>Registro de Atleta</h2>
               <p style={styles.subtitle}></p>
@@ -384,78 +382,73 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 </select>
               </div>
 
-              {/* 🟢 Selector Clásico de Equipo actualizado con la categoría */}
-              <div>
-                <label style={styles.label}>Equipo</label>
-                <select
-                  style={styles.input}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "OTRO_EQUIPO") {
-                      setEsOtro(true);
-                      setFormData({ ...formData, equipo: "" });
-                    } else {
-                      setEsOtro(false);
-                      setFormData({ ...formData, equipo: val });
-                    }
-                  }}
-                  value={esOtro ? "OTRO_EQUIPO" : formData.equipo}
-                  required
-                >
-                  <option value="">-- Elige un equipo --</option>
-                  {equipos.map((eq) => {
-                    const nombreConCategoria = eq.categoria
-                      ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase()
-                      : eq.nombre_equipo.toUpperCase();
-
-                    return (
-                      <option
-                        key={eq.id}
-                        value={eq.nombre_equipo.toUpperCase()}
-                      >
-                        {nombreConCategoria}
-                      </option>
-                    );
-                  })}
-                  <option value="OTRO_EQUIPO">
-                    + OTRO (Escribir manualmente)
-                  </option>
-                </select>
-
-                {esOtro && (
-                  <>
-                    {equipos.some(
-                      (eq) =>
-                        eq.nombre_equipo.toUpperCase() === formData.equipo,
-                    ) && (
-                      <p
-                        style={{
-                          color: "#ef4444",
-                          fontSize: "0.75rem",
-                          marginTop: "5px",
-                        }}
-                      >
-                        ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista
-                        superior para ahorrar tiempo.
-                      </p>
-                    )}
-                    <input
-                      type="text"
-                      style={{
-                        ...styles.input,
-                        marginTop: "8px",
-                        border: "2px solid #2563eb",
-                      }}
-                      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
-                      value={formData.equipo}
+              {/* 🟢 SECCIÓN DE EQUIPOS DINÁMICOS */}
+              <div style={styles.fullWidth}>
+                <label style={styles.label}>Equipos (Puedes agregar varios)</label>
+                {formData.equiposSeleccionados.map((equipoActual, index) => (
+                  <div key={index} style={{ display: "flex", gap: "10px", marginBottom: "10px", alignItems: "center" }}>
+                    <select
+                      style={{ ...styles.input, flex: 1 }}
+                      value={equipoActual}
                       onChange={(e) => {
-                        const val = e.target.value.toUpperCase();
-                        setFormData({ ...formData, equipo: val });
+                        const val = e.target.value;
+                        const nuevos = [...formData.equiposSeleccionados];
+                        nuevos[index] = val;
+                        setFormData({ ...formData, equiposSeleccionados: nuevos });
                       }}
-                      autoComplete="off"
                       required
-                    />
-                  </>
+                    >
+                      <option value="">-- Elige un equipo --</option>
+                      {equipos.map((eq) => {
+                        const nombreConCategoria = eq.categoria
+                          ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase()
+                          : eq.nombre_equipo.toUpperCase();
+                        return (
+                          <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>
+                            {nombreConCategoria}
+                          </option>
+                        );
+                      })}
+                      <option value="OTRO_EQUIPO">+ OTRO (Escribir manualmente)</option>
+                    </select>
+
+                    {index > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const nuevos = formData.equiposSeleccionados.filter((_, i) => i !== index);
+                          setFormData({ ...formData, equiposSeleccionados: nuevos });
+                        }}
+                        style={{ background: "#ef4444", color: "#fff", border: "none", padding: "10px 14px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold" }}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setFormData({
+                      ...formData,
+                      equiposSeleccionados: [...formData.equiposSeleccionados, ""],
+                    });
+                  }}
+                  style={{ background: "transparent", color: "#60a5fa", border: "none", cursor: "pointer", fontWeight: "bold", marginTop: "4px", padding: 0, fontSize: "0.85rem" }}
+                >
+                  + Agregar otro equipo
+                </button>
+
+                {formData.equiposSeleccionados.includes("OTRO_EQUIPO") && (
+                  <input
+                    type="text"
+                    style={{ ...styles.input, marginTop: "10px", border: "2px solid #2563eb" }}
+                    placeholder="ESCRIBE EL NOMBRE DEL EQUIPO MANUAL"
+                    value={formData.equipoManual}
+                    onChange={(e) => setFormData({ ...formData, equipoManual: e.target.value.toUpperCase() })}
+                    required
+                  />
                 )}
               </div>
 
@@ -575,41 +568,15 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
               >
                 <button
                   type="submit"
-                  disabled={
-                    loading ||
-                    (esOtro &&
-                      equipos.some(
-                        (eq) =>
-                          eq.nombre_equipo.toUpperCase() ===
-                          formData.equipo.toUpperCase(),
-                      ))
-                  }
+                  disabled={loading}
                   style={{
-                    backgroundColor:
-                      loading ||
-                      (esOtro &&
-                        equipos.some(
-                          (eq) =>
-                            eq.nombre_equipo.toUpperCase() ===
-                            formData.equipo.toUpperCase(),
-                        ))
-                        ? "#4b5563"
-                        : "#2563eb",
+                    backgroundColor: loading ? "#4b5563" : "#2563eb",
                     color: "#ffffff",
                     padding: "12px 24px",
                     border: "none",
                     borderRadius: "8px",
                     fontWeight: "bold",
-                    cursor:
-                      loading ||
-                      (esOtro &&
-                        equipos.some(
-                          (eq) =>
-                            eq.nombre_equipo.toUpperCase() ===
-                            formData.equipo.toUpperCase(),
-                        ))
-                        ? "not-allowed"
-                        : "pointer",
+                    cursor: loading ? "not-allowed" : "pointer",
                     width: "fit-content",
                   }}
                 >
