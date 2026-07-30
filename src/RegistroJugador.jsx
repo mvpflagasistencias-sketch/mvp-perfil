@@ -53,6 +53,50 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       return;
     }
 
+    // 🟢 VALIDACIÓN ESTRICTA DEL CEO: Máximo 2 de su rama principal y 2 mixtos
+    let contadorRamaPrincipal = 0;
+    let contadorMixtos = 0;
+
+    for (let i = 0; i < formData.equiposSeleccionados.length; i++) {
+      const val = formData.equiposSeleccionados[i];
+      let categoriaEquipo = "";
+
+      if (val === "OTRO_EQUIPO") {
+        categoriaEquipo = formData.equiposManuales?.[i]?.categoria || "";
+      } else if (val) {
+        const encontrado = equipos.find(
+          (eq) => eq?.nombre_equipo && eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
+        );
+        if (encontrado) {
+          categoriaEquipo = encontrado.categoria || "";
+        }
+      }
+
+      const catUpper = categoriaEquipo.toUpperCase();
+      const generoJugador = (formData.genero || "").toUpperCase();
+      
+      // Determinamos si es de su rama (si es varonil y el jugador es masculino/varonil, o femenil)
+      const esRamaPrincipal = 
+        (generoJugador.includes("MASC") && catUpper.includes("VARONIL")) ||
+        (generoJugador.includes("FEM") && catUpper.includes("FEMENIL"));
+
+      if (esRamaPrincipal) {
+        contadorRamaPrincipal++;
+      } else if (catUpper.includes("MIXTO")) {
+        contadorMixtos++;
+      }
+    }
+
+    if (contadorRamaPrincipal > 2) {
+      alert(`⚠️ Solo puedes pertenecer a un máximo de 2 equipos de tu misma rama (${formData.genero.toUpperCase()}). Tienes ${contadorRamaPrincipal}.`);
+      return;
+    }
+
+    if (contadorMixtos > 2) {
+      alert(`⚠️ Solo puedes pertenecer a un máximo de 2 equipos MIXTOS. Tienes ${contadorMixtos}.`);
+      return;
+    }
+
     setLoading(true);
     try {
       let equiposIdsFinales = [];
@@ -66,9 +110,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
           }
         } else if (val) {
           const encontrado = equipos.find(
-            (eq) =>
-              eq?.nombre_equipo &&
-              eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
+            (eq) => eq?.nombre_equipo && eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
           );
           if (encontrado) {
             equiposIdsFinales.push(encontrado.id);
