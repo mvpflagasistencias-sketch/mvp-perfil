@@ -8,8 +8,8 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     nombre: "",
     correo: "",
     telefono: "",
-    equiposSeleccionados: [""], 
-    equipoManual: "",          
+    equiposSeleccionados: [""],
+    equipoManual: "",
     genero: "Masculino",
     categoria: "",
     numero_jersey: "",
@@ -47,16 +47,25 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
 
     const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!regexCorreo.test(formData.correo)) {
-      alert("⚠️ Por favor, introduce un correo electrónico válido (ej. usuario@gmail.com).");
+      alert(
+        "⚠️ Por favor, introduce un correo electrónico válido (ej. usuario@gmail.com).",
+      );
       return;
     }
 
     // 🟢 Evitamos que envíe si escribió manualmente un equipo que ya existe en la base de datos
-    const equipoYaExiste = formData.equiposSeleccionados.includes("OTRO_EQUIPO") && 
-      equipos.some((eq) => eq.nombre_equipo.toUpperCase() === formData.equipoManual.toUpperCase());
+    const equipoYaExiste =
+      formData.equiposSeleccionados.includes("OTRO_EQUIPO") &&
+      equipos.some(
+        (eq) =>
+          eq.nombre_equipo.toUpperCase() ===
+          formData.equipoManual.toUpperCase(),
+      );
 
     if (equipoYaExiste) {
-      alert("⚠️ El equipo escrito manualmente ya existe en el sistema. Por favor, selecciónalo de la lista desplegable.");
+      alert(
+        "⚠️ El equipo escrito manualmente ya existe en el sistema. Por favor, selecciónalo de la lista desplegable.",
+      );
       return;
     }
 
@@ -70,7 +79,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
           equipoTextoFinal = formData.equipoManual;
         } else if (val) {
           const encontrado = equipos.find(
-            (eq) => eq.nombre_equipo.toUpperCase() === val.toUpperCase()
+            (eq) => eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
           );
           if (encontrado) {
             equiposIdsFinales.push(encontrado.id);
@@ -393,9 +402,19 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
 
               {/* 🟢 SECCIÓN DE EQUIPOS DINÁMICOS CON ADVERTENCIA MANUAL */}
               <div style={styles.fullWidth}>
-                <label style={styles.label}>Equipos (Puedes agregar varios)</label>
+                <label style={styles.label}>
+                  Equipos (Puedes agregar varios)
+                </label>
                 {formData.equiposSeleccionados.map((equipoActual, index) => (
-                  <div key={index} style={{ display: "flex", gap: "10px", marginBottom: "10px", alignItems: "center" }}>
+                  <div
+                    key={index}
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      marginBottom: "10px",
+                      alignItems: "center",
+                    }}
+                  >
                     <select
                       style={{ ...styles.input, flex: 1 }}
                       value={equipoActual}
@@ -403,7 +422,10 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                         const val = e.target.value;
                         const nuevos = [...formData.equiposSeleccionados];
                         nuevos[index] = val;
-                        setFormData({ ...formData, equiposSeleccionados: nuevos });
+                        setFormData({
+                          ...formData,
+                          equiposSeleccionados: nuevos,
+                        });
                       }}
                       required
                     >
@@ -413,22 +435,40 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                           ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase()
                           : eq.nombre_equipo.toUpperCase();
                         return (
-                          <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>
+                          <option
+                            key={eq.id}
+                            value={eq.nombre_equipo.toUpperCase()}
+                          >
                             {nombreConCategoria}
                           </option>
                         );
                       })}
-                      <option value="OTRO_EQUIPO">+ OTRO (Escribir manualmente)</option>
+                      <option value="OTRO_EQUIPO">
+                        + OTRO (Escribir manualmente)
+                      </option>
                     </select>
 
                     {index > 0 && (
                       <button
                         type="button"
                         onClick={() => {
-                          const nuevos = formData.equiposSeleccionados.filter((_, i) => i !== index);
-                          setFormData({ ...formData, equiposSeleccionados: nuevos });
+                          const nuevos = formData.equiposSeleccionados.filter(
+                            (_, i) => i !== index,
+                          );
+                          setFormData({
+                            ...formData,
+                            equiposSeleccionados: nuevos,
+                          });
                         }}
-                        style={{ background: "#ef4444", color: "#fff", border: "none", padding: "10px 14px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold" }}
+                        style={{
+                          background: "#ef4444",
+                          color: "#fff",
+                          border: "none",
+                          padding: "10px 14px",
+                          borderRadius: "8px",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                        }}
                       >
                         ✕
                       </button>
@@ -441,18 +481,33 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   onClick={() => {
                     setFormData({
                       ...formData,
-                      equiposSeleccionados: [...formData.equiposSeleccionados, ""],
+                      equiposSeleccionados: [
+                        ...formData.equiposSeleccionados,
+                        "",
+                      ],
                     });
                   }}
-                  style={{ background: "transparent", color: "#60a5fa", border: "none", cursor: "pointer", fontWeight: "bold", marginTop: "4px", padding: 0, fontSize: "0.85rem" }}
+                  style={{
+                    background: "transparent",
+                    color: "#60a5fa",
+                    border: "none",
+                    cursor: "pointer",
+                    fontWeight: "bold",
+                    marginTop: "4px",
+                    padding: 0,
+                    fontSize: "0.85rem",
+                  }}
                 >
                   + Agregar otro equipo
                 </button>
 
+                {/* 🟢 SECCIÓN DE EQUIPOS MANUALES CON SELECTOR DE CATEGORÍA AUTOMÁTICO */}
                 {formData.equiposSeleccionados.includes("OTRO_EQUIPO") && (
                   <>
                     {equipos.some(
-                      (eq) => eq.nombre_equipo.toUpperCase() === formData.equipoManual.toUpperCase()
+                      (eq) =>
+                        eq.nombre_equipo.trim().toUpperCase() ===
+                        formData.equipoManual.trim().toUpperCase(),
                     ) && (
                       <p
                         style={{
@@ -461,18 +516,83 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                           marginTop: "5px",
                         }}
                       >
-                        ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista superior para ahorrar tiempo.
+                        ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista
+                        superior para ahorrar tiempo.
                       </p>
                     )}
-                    <input
-                      type="text"
-                      style={{ ...styles.input, marginTop: "8px", border: "2px solid #2563eb" }}
-                      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO MANUAL"
-                      value={formData.equipoManual}
-                      onChange={(e) => setFormData({ ...formData, equipoManual: e.target.value.toUpperCase() })}
-                      autoComplete="off"
-                      required
-                    />
+
+                    <div
+                      style={{
+                        marginTop: "8px",
+                        display: "flex",
+                        gap: "10px",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <input
+                        type="text"
+                        style={{
+                          ...styles.input,
+                          flex: 2,
+                          border: "2px solid #2563eb",
+                          marginTop: 0,
+                        }}
+                        placeholder="ESCRIBE EL NOMBRE DEL NUEVO EQUIPO"
+                        value={formData.equipoManual}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            equipoManual: e.target.value.toUpperCase(),
+                          })
+                        }
+                        autoComplete="off"
+                        required
+                      />
+
+                      <select
+                        style={{
+                          ...styles.input,
+                          flex: 1,
+                          border: "2px solid #2563eb",
+                          marginTop: 0,
+                        }}
+                        value={formData.categoriaManualEquipo || ""}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            categoriaManualEquipo: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="" style={{ backgroundColor: "#0f172a" }}>
+                          -- Categoría (Opcional) --
+                        </option>
+                        <option
+                          value="VARONIL"
+                          style={{ backgroundColor: "#0f172a" }}
+                        >
+                          VARONIL
+                        </option>
+                        <option
+                          value="FEMENIL"
+                          style={{ backgroundColor: "#0f172a" }}
+                        >
+                          FEMENIL
+                        </option>
+                        <option
+                          value="MIXTO"
+                          style={{ backgroundColor: "#0f172a" }}
+                        >
+                          MIXTO
+                        </option>
+                        <option
+                          value="JUVENIL"
+                          style={{ backgroundColor: "#0f172a" }}
+                        >
+                          JUVENIL
+                        </option>
+                      </select>
+                    </div>
                   </>
                 )}
               </div>
@@ -597,7 +717,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                     loading ||
                     (formData.equiposSeleccionados.includes("OTRO_EQUIPO") &&
                       equipos.some(
-                        (eq) => eq.nombre_equipo.toUpperCase() === formData.equipoManual.toUpperCase()
+                        (eq) =>
+                          eq.nombre_equipo.toUpperCase() ===
+                          formData.equipoManual.toUpperCase(),
                       ))
                   }
                   style={{
@@ -605,7 +727,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                       loading ||
                       (formData.equiposSeleccionados.includes("OTRO_EQUIPO") &&
                         equipos.some(
-                          (eq) => eq.nombre_equipo.toUpperCase() === formData.equipoManual.toUpperCase()
+                          (eq) =>
+                            eq.nombre_equipo.toUpperCase() ===
+                            formData.equipoManual.toUpperCase(),
                         ))
                         ? "#4b5563"
                         : "#2563eb",
@@ -618,7 +742,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                       loading ||
                       (formData.equiposSeleccionados.includes("OTRO_EQUIPO") &&
                         equipos.some(
-                          (eq) => eq.nombre_equipo.toUpperCase() === formData.equipoManual.toUpperCase()
+                          (eq) =>
+                            eq.nombre_equipo.toUpperCase() ===
+                            formData.equipoManual.toUpperCase(),
                         ))
                         ? "not-allowed"
                         : "pointer",
