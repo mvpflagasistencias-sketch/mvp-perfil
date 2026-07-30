@@ -72,7 +72,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       alert("✅ ¡Registro exitoso!");
       if (onRegistroExitoso) onRegistroExitoso();
     } catch (err) {
-      alert("❌ Error al registrar, intenta de nuevo.");
+      // 🟢 AQUÍ ESTÁ LA MAGIA: Capturamos el mensaje exacto que envía el backend
+      const mensajeError = err.response?.data?.error || "Error al registrar, intenta de nuevo.";
+      alert(`❌ ${mensajeError}`);
     } finally {
       setLoading(false);
     }
