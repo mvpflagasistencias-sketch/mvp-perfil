@@ -486,20 +486,22 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
 {equipoActual === "OTRO_EQUIPO" && (
   <div style={{ marginTop: "8px" }}>
     {equipos.some(
-      (eq) =>
-        eq?.nombre_equipo?.trim().toUpperCase() ===
-        (formData.equiposManuales?.[index]?.nombre || "").trim().toUpperCase()
-    ) && (
-      <p
-        style={{
-          color: "#ef4444",
-          fontSize: "0.75rem",
-          marginBottom: "5px",
-        }}
-      >
-        ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista superior para ahorrar tiempo.
-      </p>
-    )}
+  (eq) =>
+    eq?.nombre_equipo &&
+    formData.equiposManuales?.[index]?.nombre &&
+    eq.nombre_equipo.trim().toUpperCase() ===
+      formData.equiposManuales[index].nombre.trim().toUpperCase()
+) && (
+  <p
+    style={{
+      color: "#ef4444",
+      fontSize: "0.75rem",
+      marginBottom: "5px",
+    }}
+  >
+    ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista superior para ahorrar tiempo.
+  </p>
+)}
 
     <div
       style={{
