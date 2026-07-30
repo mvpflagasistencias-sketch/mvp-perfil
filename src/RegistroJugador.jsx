@@ -23,6 +23,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     const fetchEquipos = async () => {
       try {
         const res = await api.get("/api/equipos");
+        console.log("📦 Equipos recibidos de la API:", res.data); // 👈 Añade esto
         setEquipos(res.data);
       } catch (err) {
         console.error("Error cargando equipos", err);
@@ -386,6 +387,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 >
                   <option value="">-- Elige un equipo --</option>
                   {equipos.map((eq) => {
+                    <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>
+      {eq.nombre_equipo.toUpperCase()} ({eq.categoria ? eq.categoria : "Sin categoría"})
+    </option>
                     // 🟢 Unificamos el nombre y le agregamos la categoría entre paréntesis
                     const nombreConCategoria = eq.categoria 
                       ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase() 
