@@ -10,7 +10,8 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     nombre: "",
     correo: "",
     telefono: "",
-    equipo: "",
+    equipos_ids: [], // 🟢 Modificado: Ahora soporta un array de IDs de equipos (máximo 4)
+    genero: "Masculino", // 🟢 Nuevo: Género por defecto
     categoria: "",
     numero_jersey: "",
     password: "",
@@ -61,6 +62,12 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
         "⚠️ Por favor, introduce un correo electrónico válido (ej. usuario@gmail.com). No se permiten formatos incompletos.",
       );
       return; // Detiene el registro aquí mismo
+    }
+
+    // 🛑 VALIDACIÓN DE MÁXIMO 4 EQUIPOS
+    if (formData.equipos_ids.length > 4) {
+      alert("⚠️ Un jugador solo puede estar inscrito en un máximo de 4 equipos.");
+      return;
     }
 
     setLoading(true);
@@ -329,6 +336,26 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 />
               </div>
 
+              {/* 🟢 Selector de Género */}
+              <div>
+                <label style={styles.label}>Género</label>
+                <select
+                  style={styles.input}
+                  value={formData.genero}
+                  onChange={(e) =>
+                    setFormData({ ...formData, genero: e.target.value })
+                  }
+                  required
+                >
+                  <option value="Masculino" style={{ backgroundColor: "#0f172a" }}>
+                    Masculino
+                  </option>
+                  <option value="Femenil" style={{ backgroundColor: "#0f172a" }}>
+                    Femenil
+                  </option>
+                </select>
+              </div>
+
               <div>
                 <label style={styles.label}>Categoría</label>
                 <select
@@ -366,69 +393,56 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                 </select>
               </div>
 
-              <div>
-                <label style={styles.label}>Equipo</label>
-                <select
-                  style={styles.input}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "OTRO_EQUIPO") {
-                      setEsOtro(true);
-                      setFormData({ ...formData, equipo: "" });
-                    } else {
-                      setEsOtro(false);
-                      setFormData({ ...formData, equipo: val });
-                    }
+              {/* 🟢 Selección Múltiple de Equipos (Hasta 4) */}
+              <div style={styles.fullWidth}>
+                <label style={styles.label}>Equipos (Selecciona hasta 4)</label>
+                <div
+                  style={{
+                    ...styles.input,
+                    maxHeight: "150px",
+                    overflowY: "auto",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
                   }}
-                  value={esOtro ? "OTRO_EQUIPO" : formData.equipo}
-                  required
                 >
-                  <option value="">-- Elige un equipo --</option>
-                  {equipos.map((eq) => (
-                    <option key={eq.id} value={eq.nombre_equipo.toUpperCase()}>
-                      {eq.nombre_equipo.toUpperCase()}
-                    </option>
-                  ))}
-                  <option value="OTRO_EQUIPO">
-                    + OTRO (Escribir manualmente)
-                  </option>
-                </select>
-
-                {esOtro && (
-                  <>
-                    {equipos.some(
-                      (eq) =>
-                        eq.nombre_equipo.toUpperCase() === formData.equipo,
-                    ) && (
-                      <p
+                  {equipos.map((eq) => {
+                    const isChecked = formData.equipos_ids.includes(eq.id);
+                    return (
+                      <label
+                        key={eq.id}
                         style={{
-                          color: "#ef4444",
-                          fontSize: "0.75rem",
-                          marginTop: "5px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                          cursor: "pointer",
+                          fontSize: "0.85rem",
+                          color: "#ffffff",
                         }}
                       >
-                        ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista
-                        superior para ahorrar tiempo.
-                      </p>
-                    )}
-                    <input
-                      type="text"
-                      style={{
-                        ...styles.input,
-                        marginTop: "8px",
-                        border: "2px solid #2563eb",
-                      }}
-                      placeholder="ESCRIBE EL NOMBRE DEL EQUIPO"
-                      value={formData.equipo}
-                      onChange={(e) => {
-                        const val = e.target.value.toUpperCase();
-                        setFormData({ ...formData, equipo: val });
-                      }}
-                      autoComplete="off"
-                      required
-                    />
-                  </>
-                )}
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            let updatedEquipos = [...formData.equipos_ids];
+                            if (e.target.checked) {
+                              if (updatedEquipos.length >= 4) {
+                                alert("⚠️ Solo puedes seleccionar un máximo de 4 equipos.");
+                                return;
+                              }
+                              updatedEquipos.push(eq.id);
+                            } else {
+                              updatedEquipos = updatedEquipos.filter((id) => id !== eq.id);
+                            }
+                            setFormData({ ...formData, equipos_ids: updatedEquipos });
+                          }}
+                          style={{ width: "16px", height: "16px", accentColor: "#2563eb", cursor: "pointer" }}
+                        />
+                        <span style={{ textTransform: "uppercase" }}>{eq.nombre_equipo}</span>
+                      </label>
+                    );
+                  })}
+                </div>
               </div>
 
               <div>
@@ -548,42 +562,16 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
               >
                 <button
                   type="submit"
-                  disabled={
-                    loading ||
-                    (esOtro &&
-                      equipos.some(
-                        (eq) =>
-                          eq.nombre_equipo.toUpperCase() ===
-                          formData.equipo.toUpperCase(),
-                      ))
-                  }
+                  disabled={loading}
                   style={{
                     // --- RESET TOTAL: NO usamos ...styles.button ---
-                    backgroundColor:
-                      loading ||
-                      (esOtro &&
-                        equipos.some(
-                          (eq) =>
-                            eq.nombre_equipo.toUpperCase() ===
-                            formData.equipo.toUpperCase(),
-                        ))
-                        ? "#4b5563"
-                        : "#2563eb",
+                    backgroundColor: loading ? "#4b5563" : "#2563eb",
                     color: "#ffffff",
                     padding: "12px 24px",
                     border: "none",
                     borderRadius: "8px",
                     fontWeight: "bold",
-                    cursor:
-                      loading ||
-                      (esOtro &&
-                        equipos.some(
-                          (eq) =>
-                            eq.nombre_equipo.toUpperCase() ===
-                            formData.equipo.toUpperCase(),
-                        ))
-                        ? "not-allowed"
-                        : "pointer",
+                    cursor: loading ? "not-allowed" : "pointer",
                     width: "fit-content", // Ahora sí debería respetarlo
                   }}
                 >
