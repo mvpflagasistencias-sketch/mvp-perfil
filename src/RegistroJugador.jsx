@@ -482,122 +482,96 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                     </div>
 
                     {/* Si este selector específico es OTRO_EQUIPO, mostramos su input y categoría independiente */}
-                    {equipoActual === "OTRO_EQUIPO" && (
-                      <div style={{ marginTop: "8px" }}>
-                        {equipos.some(
-                          (eq) =>
-                            eq.nombre_equipo.trim().toUpperCase() ===
-                            (formData.equiposManuales?.[index]?.nombre || "")
-                              .trim()
-                              .toUpperCase(),
-                        ) && (
-                          <p
-                            style={{
-                              color: "#ef4444",
-                              fontSize: "0.75rem",
-                              marginBottom: "5px",
-                            }}
-                          >
-                            ⚠️ ¡Este equipo ya existe! Selecciónalo en la
-                            lista superior para ahorrar tiempo.
-                          </p>
-                        )}
+                    {/* Si este selector específico es OTRO_EQUIPO, mostramos su input y categoría independiente */}
+{equipoActual === "OTRO_EQUIPO" && (
+  <div style={{ marginTop: "8px" }}>
+    {equipos.some(
+      (eq) =>
+        eq?.nombre_equipo?.trim().toUpperCase() ===
+        (formData.equiposManuales?.[index]?.nombre || "").trim().toUpperCase()
+    ) && (
+      <p
+        style={{
+          color: "#ef4444",
+          fontSize: "0.75rem",
+          marginBottom: "5px",
+        }}
+      >
+        ⚠️ ¡Este equipo ya existe! Selecciónalo en la lista superior para ahorrar tiempo.
+      </p>
+    )}
 
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          <input
-                            type="text"
-                            style={{
-                              ...styles.input,
-                              flex: 2,
-                              border: "2px solid #2563eb",
-                              margin: 0,
-                            }}
-                            placeholder={`ESCRIBE EL NOMBRE DEL EQUIPO MANUAL #${index + 1}`}
-                            value={
-                              formData.equiposManuales?.[index]?.nombre || ""
-                            }
-                            onChange={(e) => {
-                              const manualesCopy = [
-                                ...(formData.equiposManuales || []),
-                              ];
-                              manualesCopy[index] = {
-                                ...manualesCopy[index],
-                                nombre: e.target.value.toUpperCase(),
-                              };
-                              setFormData({
-                                ...formData,
-                                equiposManuales: manualesCopy,
-                              });
-                            }}
-                            autoComplete="off"
-                            required
-                          />
+    <div
+      style={{
+        display: "flex",
+        gap: "10px",
+        flexWrap: "wrap",
+      }}
+    >
+      <input
+        type="text"
+        style={{
+          ...styles.input,
+          flex: 2,
+          border: "2px solid #2563eb",
+          margin: 0,
+        }}
+        placeholder={`ESCRIBE EL NOMBRE DEL EQUIPO MANUAL #${index + 1}`}
+        value={formData.equiposManuales?.[index]?.nombre || ""}
+        onChange={(e) => {
+          const manualesCopy = [...(formData.equiposManuales || [])];
+          manualesCopy[index] = {
+            ...(manualesCopy[index] || {}),
+            nombre: e.target.value.toUpperCase(),
+          };
+          setFormData({
+            ...formData,
+            equiposManuales: manualesCopy,
+          });
+        }}
+        autoComplete="off"
+        required
+      />
 
-                          <select
-                            style={{
-                              ...styles.input,
-                              flex: 1,
-                              border: "2px solid #2563eb",
-                              margin: 0,
-                            }}
-                            value={
-                              formData.equiposManuales?.[index]?.categoria ||
-                              ""
-                            }
-                            onChange={(e) => {
-                              const manualesCopy = [
-                                ...(formData.equiposManuales || []),
-                              ];
-                              manualesCopy[index] = {
-                                ...manualesCopy[index],
-                                categoria: e.target.value,
-                              };
-                              setFormData({
-                                ...formData,
-                                equiposManuales: manualesCopy,
-                              });
-                            }}
-                          >
-                            <option
-                              value=""
-                              style={{ backgroundColor: "#0f172a" }}
-                            >
-                              -- Categoría (Opcional) --
-                            </option>
-                            <option
-                              value="VARONIL"
-                              style={{ backgroundColor: "#0f172a" }}
-                            >
-                              VARONIL
-                            </option>
-                            <option
-                              value="FEMENIL"
-                              style={{ backgroundColor: "#0f172a" }}
-                            >
-                              FEMENIL
-                            </option>
-                            <option
-                              value="MIXTO"
-                              style={{ backgroundColor: "#0f172a" }}
-                            >
-                              MIXTO
-                            </option>
-                            <option
-                              value="JUVENIL"
-                              style={{ backgroundColor: "#0f172a" }}
-                            >
-                              JUVENIL
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    )}
+      <select
+        style={{
+          ...styles.input,
+          flex: 1,
+          border: "2px solid #2563eb",
+          margin: 0,
+        }}
+        value={formData.equiposManuales?.[index]?.categoria || ""}
+        onChange={(e) => {
+          const manualesCopy = [...(formData.equiposManuales || [])];
+          manualesCopy[index] = {
+            ...(manualesCopy[index] || {}),
+            categoria: e.target.value,
+          };
+          setFormData({
+            ...formData,
+            equiposManuales: manualesCopy,
+          });
+        }}
+      >
+        <option value="" style={{ backgroundColor: "#0f172a" }}>
+          -- Categoría (Opcional) --
+        </option>
+        <option value="VARONIL" style={{ backgroundColor: "#0f172a" }}>
+          VARONIL
+        </option>
+        <option value="FEMENIL" style={{ backgroundColor: "#0f172a" }}>
+          FEMENIL
+        </option>
+        <option value="MIXTO" style={{ backgroundColor: "#0f172a" }}>
+          MIXTO
+        </option>
+        <option value="JUVENIL" style={{ backgroundColor: "#0f172a" }}>
+          JUVENIL
+        </option>
+      </select>
+    </div>
+  </div>
+)}
                   </div>
                 ))}
 
