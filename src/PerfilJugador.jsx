@@ -1549,7 +1549,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                   </div>
                 </div>
 
-                {/* 🚀 ESCUADRAS ACTIVAS (Selector limpio para existentes, input solo para nuevos agregados) */}
+                {/* 🚀 ESCUADRAS ACTIVAS (Selector limpio para existentes, lista + input para los nuevos que agregue) */}
 <div
   style={{
     display: "flex",
@@ -1583,7 +1583,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
             ...datosForm,
             equipos_dinamicos: [
               ...(datosForm.equipos_dinamicos || []),
-              { id: "", nombre_nuevo: "", tipo: "Varonil", esNuevo: true }, // 👈 Al agregar manual, se marca como nuevo para que salga el input
+              { id: "", nombre_nuevo: "", tipo: "Varonil", esNuevo: true }, // 👈 Al agregar nuevo, trae su selector y su input de texto libre
             ],
           });
         }}
@@ -1635,110 +1635,189 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           key={index}
           style={{
             display: "flex",
+            flexDirection: "column",
             gap: "6px",
-            alignItems: "center",
             backgroundColor: "#0f172a",
-            padding: "6px",
+            padding: "8px",
             borderRadius: "6px",
             border: "1px solid #334155",
           }}
         >
-          {/* Si NO es un equipo nuevo creado con el botón (es decir, ya viene de la BD), mostramos el selector abarcando todo el ancho */}
+          {/* Si es un equipo existente de la BD, solo mostramos su selector limpio */}
           {!item.esNuevo ? (
-            <select
-              disabled={!editandoCampos}
-              value={item.id || ""}
-              onChange={(e) => {
-                const val = e.target.value;
-                const nuevos = [...datosForm.equipos_dinamicos];
-                nuevos[index] = {
-                  ...nuevos[index],
-                  id: val,
-                  nombre_nuevo: "",
-                };
-                setDatosForm({
-                  ...datosForm,
-                  equipos_dinamicos: nuevos,
-                });
-              }}
-              style={{
-                flex: 1,
-                backgroundColor: "#1e293b",
-                border: "1px solid #30363d",
-                borderRadius: "6px",
-                padding: "6px",
-                color: "white",
-                fontSize: "10px",
-                outline: "none",
-                cursor: editandoCampos ? "pointer" : "default",
-              }}
-            >
-              <option value="">-- Selecciona de la lista --</option>
-              {equipos.map((eq) => (
-                <option key={eq.id} value={eq.id}>
-                  {eq.nombre_equipo.toUpperCase()} (
-                  {eq.tipo || eq.categoria || "General"})
-                </option>
-              ))}
-            </select>
-          ) : (
-            /* Si SÍ le picó a agregar más equipo, mostramos el input de texto para escribir el nuevo */
-            <input
-              type="text"
-              disabled={!editandoCampos}
-              placeholder="Escribe el nombre del nuevo equipo..."
-              value={item.nombre_nuevo || ""}
-              onChange={(e) => {
-                const val = e.target.value;
-                const nuevos = [...datosForm.equipos_dinamicos];
-                nuevos[index] = {
-                  ...nuevos[index],
-                  nombre_nuevo: val,
-                  id: "",
-                };
-                setDatosForm({
-                  ...datosForm,
-                  equipos_dinamicos: nuevos,
-                });
-              }}
-              style={{
-                flex: 1,
-                backgroundColor: "#1e293b",
-                border: "1px solid #30363d",
-                borderRadius: "6px",
-                padding: "6px",
-                color: "white",
-                fontSize: "10px",
-                outline: "none",
-              }}
-            />
-          )}
+            <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+              <select
+                disabled={!editandoCampos}
+                value={item.id || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const nuevos = [...datosForm.equipos_dinamicos];
+                  nuevos[index] = {
+                    ...nuevos[index],
+                    id: val,
+                    nombre_nuevo: "",
+                  };
+                  setDatosForm({
+                    ...datosForm,
+                    equipos_dinamicos: nuevos,
+                  });
+                }}
+                style={{
+                  flex: 1,
+                  backgroundColor: "#1e293b",
+                  border: "1px solid #30363d",
+                  borderRadius: "6px",
+                  padding: "6px",
+                  color: "white",
+                  fontSize: "10px",
+                  outline: "none",
+                  cursor: editandoCampos ? "pointer" : "default",
+                }}
+              >
+                <option value="">-- Selecciona de la lista --</option>
+                {equipos.map((eq) => (
+                  <option key={eq.id} value={eq.id}>
+                    {eq.nombre_equipo.toUpperCase()} (
+                    {eq.tipo || eq.categoria || "General"})
+                  </option>
+                ))}
+              </select>
 
-          {/* Botón para eliminar esta fila */}
-          {editandoCampos && (
-            <button
-              type="button"
-              onClick={() => {
-                const nuevos = datosForm.equipos_dinamicos.filter(
-                  (_, i) => i !== index,
-                );
-                setDatosForm({
-                  ...datosForm,
-                  equipos_dinamicos: nuevos,
-                });
-              }}
+              {editandoCampos && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const nuevos = datosForm.equipos_dinamicos.filter(
+                      (_, i) => i !== index,
+                    );
+                    setDatosForm({
+                      ...datosForm,
+                      equipos_dinamicos: nuevos,
+                    });
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "#ef4444",
+                    fontWeight: "900",
+                    cursor: "pointer",
+                    fontSize: "12px",
+                    padding: "0 4px",
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ) : (
+            /* Si es nuevo (agregado con el botón), mostramos tanto el selector como el input para escribir, igual que en el registro */
+            <div
               style={{
-                background: "none",
-                border: "none",
-                color: "#ef4444",
-                fontWeight: "900",
-                cursor: "pointer",
-                fontSize: "12px",
-                padding: "0 4px",
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+                width: "100%",
               }}
             >
-              ✕
-            </button>
+              <div
+                style={{ display: "flex", gap: "6px", alignItems: "center" }}
+              >
+                <select
+                  disabled={!editandoCampos}
+                  value={item.id || ""}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const nuevos = [...datosForm.equipos_dinamicos];
+                    nuevos[index] = {
+                      ...nuevos[index],
+                      id: val,
+                      nombre_nuevo: val ? "" : nuevos[index].nombre_nuevo,
+                    };
+                    setDatosForm({
+                      ...datosForm,
+                      equipos_dinamicos: nuevos,
+                    });
+                  }}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#1e293b",
+                    border: "1px solid #30363d",
+                    borderRadius: "6px",
+                    padding: "6px",
+                    color: "white",
+                    fontSize: "10px",
+                    outline: "none",
+                    cursor: editandoCampos ? "pointer" : "default",
+                  }}
+                >
+                  <option value="">-- Selecciona de la lista --</option>
+                  {equipos.map((eq) => (
+                    <option key={eq.id} value={eq.id}>
+                      {eq.nombre_equipo.toUpperCase()} (
+                      {eq.tipo || eq.categoria || "General"})
+                    </option>
+                  ))}
+                </select>
+
+                {editandoCampos && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nuevos = datosForm.equipos_dinamicos.filter(
+                        (_, i) => i !== index,
+                      );
+                      setDatosForm({
+                        ...datosForm,
+                        equipos_dinamicos: nuevos,
+                      });
+                    }}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#ef4444",
+                      fontWeight: "900",
+                      cursor: "pointer",
+                      fontSize: "12px",
+                      padding: "0 4px",
+                    }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* Input para escribir si no está en la lista */}
+              <input
+                type="text"
+                disabled={!editandoCampos || item.id !== ""}
+                placeholder="O escribe el nombre del nuevo equipo..."
+                value={item.nombre_nuevo || ""}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const nuevos = [...datosForm.equipos_dinamicos];
+                  nuevos[index] = {
+                    ...nuevos[index],
+                    nombre_nuevo: val,
+                    id: val ? "" : nuevos[index].id,
+                  };
+                  setDatosForm({
+                    ...datosForm,
+                    equipos_dinamicos: nuevos,
+                  });
+                }}
+                style={{
+                  width: "100%",
+                  boxSizing: "border-box",
+                  backgroundColor: item.id !== "" ? "#0f172a" : "#1e293b",
+                  border: "1px solid #30363d",
+                  borderRadius: "6px",
+                  padding: "6px",
+                  color: "white",
+                  fontSize: "10px",
+                  outline: "none",
+                }}
+              />
+            </div>
           )}
         </div>
       ))
