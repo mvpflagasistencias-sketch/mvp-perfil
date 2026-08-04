@@ -1627,67 +1627,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                     textTransform: "uppercase",
                     color: "#9ca3af",
                   }}
-                >
-                  
-                </label>
-                <div
-                  style={{
-                    backgroundColor: editandoCampos ? "#1e293b" : "#0f172a",
-                    border: "1px solid #30363d",
-                    borderRadius: "8px",
-                    padding: "10px",
-                    maxHeight: "140px",
-                    overflowY: "auto",
-                    textAlign: "left",
-                  }}
-                >
-                  {equipos.map((eq) => {
-                    const isSelected = datosForm.equipos_ids?.includes(eq.id);
-                    return (
-                      <label
-                        key={eq.id}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          padding: "6px 0",
-                          cursor: editandoCampos ? "pointer" : "default",
-                          color: "white",
-                          fontSize: "11px",
-                          borderBottom: "1px solid #1e293b",
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          disabled={!editandoCampos}
-                          checked={isSelected || false}
-                          onChange={(e) => {
-                            const currentIds = datosForm.equipos_ids || [];
-                            let newIds = [];
-                            if (e.target.checked) {
-                              newIds = [...currentIds, eq.id];
-                            } else {
-                              newIds = currentIds.filter((id) => id !== eq.id);
-                            }
-                            setDatosForm({ ...datosForm, equipos_ids: newIds });
-                          }}
-                        />
-                        <span style={{ fontWeight: "700" }}>
-                          {eq.nombre_equipo.toUpperCase()}
-                        </span>
-                        <span
-                          style={{
-                            color: "#64748b",
-                            fontSize: "9px",
-                            marginLeft: "auto",
-                          }}
-                        >
-                          ({eq.tipo || eq.categoria || "General"})
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
+                ></label>
               </div>
 
               {/* 🔐 SECCIÓN 3: SEGURIDAD (CONTRASENAS OCULTAS POR DEFECTO) */}
