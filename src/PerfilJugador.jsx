@@ -238,15 +238,12 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     const idActual = jugadorId || localStorage.getItem("atleta_id");
     const listaDinamica = datosForm.equipos_dinamicos || [];
 
-    const generoPerfil = (datosForm.genero || "").toLowerCase();
-    const esFemenino = generoPerfil.includes("femenino") || generoPerfil.includes("f") || generoPerfil.includes("mujer");
-
+    // Validamos únicamente los límites de cantidad (máx 2 de género, máx 2 mixtos)
     let countGenero = 0;
     let countMixto = 0;
 
     for (const item of listaDinamica) {
       let tipoEq = "Varonil";
-      let nombreEq = "";
 
       if (item.id) {
         const encontrado = equipos.find(
@@ -254,25 +251,12 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         );
         if (encontrado) {
           tipoEq = encontrado.categoria || encontrado.tipo || "Varonil";
-          nombreEq = encontrado.nombre_equipo || "";
         }
       } else if (item.nombre_nuevo) {
-        tipoEq = item.tipo || item.categoria || (esFemenino ? "Femenil" : "Varonil");
-        nombreEq = item.nombre_nuevo;
+        tipoEq = item.tipo || item.categoria || "Varonil";
       }
 
       const catLower = tipoEq.toLowerCase();
-
-      // 🛑 Validación estricta antes de guardar
-   // 🛑 Validación estricta corregida
-      if (esFemenino && catLower.includes("varonil")) {
-        alert(`❌ No se puede porque es un equipo varonil${nombreEq ? ` (${nombreEq})` : ""}.`);
-        return;
-      }
-      if (!esFemenino && catLower.includes("femenil")) {
-        alert(`❌ No se puede porque es un equipo femenil${nombreEq ? ` (${nombreEq})` : ""}.`);
-        return;
-      }
 
       if (catLower.includes("mixto")) {
         countMixto++;
@@ -283,7 +267,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
     if (countGenero > 2) {
       alert(
-        "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de tu género.",
+        "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de género.",
       );
       return;
     }
