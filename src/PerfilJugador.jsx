@@ -15,14 +15,14 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
   // 📝 ESTADO EXTENDIDO: Ahora incluye Nombre, Equipo, Teléfono, Jersey y Password
   const [modalPerfilAbierto, setModalPerfilAbierto] = useState(false);
-  const [datosForm, setDatosForm] = useState({
-    nombre: "",
-    nombre_equipo: "", // Se guardará el ID o el nombre seleccionado
-    numero_jersey: "",
-    telefono: "",
-    password: "",
-    confirmPassword: "",
-  });
+const [datosForm, setDatosForm] = useState({
+  nombre: "",
+  equipos_ids: [], // 👈 Arreglo para múltiples equipos
+  numero_jersey: "",
+  telefono: "",
+  password: "",
+  confirmPassword: "",
+});
 
   // 🚀 FOTO: Estado local para manejar el string de previsualización y guardado
   const [fotoBase64, setFotoBase64] = useState("");
@@ -124,25 +124,38 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         }
 
         // Sincronizamos los datos editables con el formulario
-       // Sincronizamos los datos editables con el formulario de forma totalmente dinámica
+        // Sincronizamos los datos editables con el formulario de forma totalmente dinámica
         let equipoIdDinamico = "";
         if (data.equipo_id) {
           equipoIdDinamico = data.equipo_id.toString();
-        } else if (data.nombre_equipo && data.nombre_equipo !== "Agente Libre") {
+        } else if (
+          data.nombre_equipo &&
+          data.nombre_equipo !== "Agente Libre"
+        ) {
           const match = resEquipos.data.find(
-            (e) => e.nombre_equipo.toUpperCase() === data.nombre_equipo.toUpperCase()
+            (e) =>
+              e.nombre_equipo.toUpperCase() ===
+              data.nombre_equipo.toUpperCase(),
           );
           if (match) equipoIdDinamico = match.id.toString();
         }
 
-        setDatosForm({
-          nombre: data.nombre || "",
-          nombre_equipo: equipoIdDinamico || "AGENTE LIBRE", 
-          numero_jersey: data.numero_jersey || "",
-          telefono: data.telefono || "",
-          password: "",
-          confirmPassword: "",
-        });
+      // Soportamos si el backend manda un arreglo de equipos_ids o un equipo_id individual
+let idsIniciales = [];
+if (Array.isArray(data.equipos_ids)) {
+  idsIniciales = data.equipos_ids;
+} else if (data.equipo_id) {
+  idsIniciales = [data.equipo_id];
+}
+
+setDatosForm({
+  nombre: data.nombre || "",
+  equipos_ids: idsIniciales,
+  numero_jersey: data.numero_jersey || "",
+  telefono: data.telefono || "",
+  password: "",
+  confirmPassword: "",
+});
 
         // Sincronizamos la foto inicial en el estado de preview
         setFotoBase64(data.foto_perfil || "");
@@ -202,9 +215,36 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   };
 
   // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES
+// 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES Y EQUIPOS
   const handleGuardarDatosPersonales = async () => {
     try {
       const idActual = jugadorId || localStorage.getItem("atleta_id");
+
+      // 🛑 Validación estricta: Máximo 2 equipos de género y 2 mixtos
+      const equiposSeleccionados = equipos.filter((eq) =>
+        datosForm.equipos_ids.includes(eq.id)
+      );
+      let countGenero = 0;
+      let countMixto = 0;
+
+      equiposSeleccionados.forEach((eq) => {
+        const tipoLower = (eq.tipo || eq.categoria || "").toLowerCase();
+        if (tipoLower.includes("mixto")) {
+          countMixto++;
+        } else {
+          countGenero++;
+        }
+      });
+
+      if (countGenero > 2) {
+        alert("⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de tu género.");
+        return;
+      }
+      if (countMixto > 2) {
+        alert("⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.");
+        return;
+      }
+
       const payload = { ...datosForm, foto_perfil: perfil.foto_perfil };
       delete payload.password;
       delete payload.confirmPassword;
@@ -216,7 +256,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       if (response.status === 200) {
         setPerfil({ ...perfil, ...payload });
         setEditandoCampos(false);
-        alert("✅ ¡Datos personales guardados con éxito!");
+        alert("✅ ¡Datos personales y escuadras guardados con éxito!");
       }
     } catch (err) {
       console.error("Error al actualizar datos:", err);
@@ -1468,43 +1508,39 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                     >
                       Escuadra Actual
                     </label>
-                    <select
-  disabled={!editandoCampos}
-  // Convertimos a string para asegurar comparación exacta
-  value={
-    datosForm.nombre_equipo
-      ? datosForm.nombre_equipo.toString()
-      : ""
-  }
-  onChange={(e) =>
-    setDatosForm({
-      ...datosForm,
-      nombre_equipo: e.target.value,
-    })
-  }
-  style={{
-    backgroundColor: editandoCampos ? "#1e293b" : "#0f172a",
-    border: "1px solid #30363d",
-    borderRadius: "8px",
-    padding: "10px",
-    color: editandoCampos ? "white" : "#64748b",
-    fontWeight: "700",
-    outline: "none",
-    cursor: editandoCampos ? "pointer" : "default",
-    width: "100%",
-    boxSizing: "border-box",
-  }}
->
-  <option value="" disabled>
-    Selecciona equipo
-  </option>
-  {/* Renderizado dinámico de los equipos reales desde la base de datos */}
-  {equipos.map((e) => (
-    <option key={e.id} value={e.id.toString()}>
-      {e.nombre_equipo.toUpperCase()}
-    </option>
-  ))}
-</select>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", width: "100%", marginTop: "6px" }}>
+  <label style={{ fontSize: "9px", fontWeight: "800", textTransform: "uppercase", color: "#9ca3af" }}>
+    Escuadras Activas (Máx. 2 de género y 2 mixtos)
+  </label>
+  <div style={{ backgroundColor: editandoCampos ? "#1e293b" : "#0f172a", border: "1px solid #30363d", borderRadius: "8px", padding: "10px", maxHeight: "140px", overflowY: "auto", textAlign: "left" }}>
+    {equipos.map((eq) => {
+      const isSelected = datosForm.equipos_ids?.includes(eq.id);
+      return (
+        <label key={eq.id} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 0", cursor: editandoCampos ? "pointer" : "default", color: "white", fontSize: "11px", borderBottom: "1px solid #1e293b" }}>
+          <input
+            type="checkbox"
+            disabled={!editandoCampos}
+            checked={isSelected || false}
+            onChange={(e) => {
+              const currentIds = datosForm.equipos_ids || [];
+              let newIds = [];
+              if (e.target.checked) {
+                newIds = [...currentIds, eq.id];
+              } else {
+                newIds = currentIds.filter((id) => id !== eq.id);
+              }
+              setDatosForm({ ...datosForm, equipos_ids: newIds });
+            }}
+          />
+          <span style={{ fontWeight: "700" }}>{eq.nombre_equipo.toUpperCase()}</span>
+          <span style={{ color: "#64748b", fontSize: "9px", marginLeft: "auto" }}>
+            ({eq.tipo || eq.categoria || "General"})
+          </span>
+        </label>
+      );
+    })}
+  </div>
+</div>
                   </div>
                 </div>
 
@@ -1543,6 +1579,86 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                       outline: "none",
                     }}
                   />
+                </div>
+              </div>
+
+              {/* 🚀 NUEVA SECCIÓN: SELECCIÓN MÚLTIPLE DE EQUIPOS (CON RESTRICCIONES) */}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "6px",
+                  width: "100%",
+                  marginTop: "12px",
+                }}
+              >
+                <label
+                  style={{
+                    fontSize: "9px",
+                    fontWeight: "800",
+                    textTransform: "uppercase",
+                    color: "#9ca3af",
+                  }}
+                >
+                  Escuadras Activas (Máx. 2 de género y 2 mixtos)
+                </label>
+                <div
+                  style={{
+                    backgroundColor: editandoCampos ? "#1e293b" : "#0f172a",
+                    border: "1px solid #30363d",
+                    borderRadius: "8px",
+                    padding: "10px",
+                    maxHeight: "140px",
+                    overflowY: "auto",
+                    textAlign: "left",
+                  }}
+                >
+                  {equipos.map((eq) => {
+                    const isSelected = datosForm.equipos_ids?.includes(eq.id);
+                    return (
+                      <label
+                        key={eq.id}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "8px",
+                          padding: "6px 0",
+                          cursor: editandoCampos ? "pointer" : "default",
+                          color: "white",
+                          fontSize: "11px",
+                          borderBottom: "1px solid #1e293b",
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          disabled={!editandoCampos}
+                          checked={isSelected || false}
+                          onChange={(e) => {
+                            const currentIds = datosForm.equipos_ids || [];
+                            let newIds = [];
+                            if (e.target.checked) {
+                              newIds = [...currentIds, eq.id];
+                            } else {
+                              newIds = currentIds.filter((id) => id !== eq.id);
+                            }
+                            setDatosForm({ ...datosForm, equipos_ids: newIds });
+                          }}
+                        />
+                        <span style={{ fontWeight: "700" }}>
+                          {eq.nombre_equipo.toUpperCase()}
+                        </span>
+                        <span
+                          style={{
+                            color: "#64748b",
+                            fontSize: "9px",
+                            marginLeft: "auto",
+                          }}
+                        >
+                          ({eq.tipo || eq.categoria || "General"})
+                        </span>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
 
