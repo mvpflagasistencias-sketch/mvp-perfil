@@ -234,64 +234,64 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES
   // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES Y EQUIPOS
   const handleGuardarDatosPersonales = async () => {
-    try {
-      const idActual = jugadorId || localStorage.getItem("atleta_id");
-      const listaDinamica = datosForm.equipos_dinamicos || [];
+  try {
+    const idActual = jugadorId || localStorage.getItem("atleta_id");
+    const listaDinamica = datosForm.equipos_dinamicos || [];
 
-      // Validamos conteos de restricciones (máx 2 género, máx 2 mixtos)
-      let countGenero = 0;
-      let countMixto = 0;
+    // Validamos conteos de restricciones (máx 2 género, máx 2 mixtos)
+    let countGenero = 0;
+    let countMixto = 0;
 
-      listaDinamica.forEach((item) => {
-        let tipoEq = "Varonil";
-        if (item.id) {
-          const encontrado = equipos.find(
-            (e) => e.id.toString() === item.id.toString(),
-          );
-          if (encontrado)
-            tipoEq = encontrado.tipo || encontrado.categoria || "Varonil";
-        } else if (item.nombre_nuevo) {
-          tipoEq = "Varonil"; // Por defecto o puedes inferirlo si escriben "Mixto"
-        }
-
-        if (tipoEq.toLowerCase().includes("mixto")) {
-          countMixto++;
-        } else {
-          countGenero++;
-        }
-      });
-
-      if (countGenero > 2) {
-        alert(
-          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de tu género.",
+    listaDinamica.forEach((item) => {
+      let tipoEq = "Varonil";
+      if (item.id) {
+        const encontrado = equipos.find(
+          (e) => e.id.toString() === item.id.toString(),
         );
-        return;
-      }
-      if (countMixto > 2) {
-        alert(
-          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.",
-        );
-        return;
+        if (encontrado)
+          tipoEq = encontrado.tipo || encontrado.categoria || "Varonil";
+      } else if (item.nombre_nuevo) {
+        tipoEq = item.tipo || "Varonil"; // 👈 AQUÍ ESTÁ LA MAGIA: Lee la categoría real que seleccionaste en el select
       }
 
-      const payload = { ...datosForm, foto_perfil: perfil.foto_perfil };
-      delete payload.password;
-      delete payload.confirmPassword;
+      if (tipoEq.toLowerCase().includes("mixto")) {
+        countMixto++;
+      } else {
+        countGenero++;
+      }
+    });
 
-      const response = await api.put(
-        `/api/jugadores/perfil/actualizar/${idActual}`,
-        payload,
+    if (countGenero > 2) {
+      alert(
+        "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de tu género.",
       );
-      if (response.status === 200) {
-        setPerfil({ ...perfil, ...payload });
-        setEditandoCampos(false);
-        alert("✅ ¡Datos personales y equipos actualizados con éxito!");
-      }
-    } catch (err) {
-      console.error("Error al actualizar datos:", err);
-      alert("❌ Error al intentar guardar los cambios.");
+      return;
     }
-  };
+    if (countMixto > 2) {
+      alert(
+        "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.",
+      );
+      return;
+    }
+
+    const payload = { ...datosForm, foto_perfil: perfil.foto_perfil };
+    delete payload.password;
+    delete payload.confirmPassword;
+
+    const response = await api.put(
+      `/api/jugadores/perfil/actualizar/${idActual}`,
+      payload,
+    );
+    if (response.status === 200) {
+      setPerfil({ ...perfil, ...payload });
+      setEditandoCampos(false);
+      alert("✅ ¡Datos personales y equipos actualizados con éxito!");
+    }
+  } catch (err) {
+    console.error("Error al actualizar datos:", err);
+    alert("❌ Error al intentar guardar los cambios.");
+  }
+};
   // 🛠️ SECCIÓN INDEPENDIENTE 3: GUARDAR EXCLUSIVAMENTE LA NUEVA CONTRASEÑA
   const handleGuardarPassword = async () => {
     if (
