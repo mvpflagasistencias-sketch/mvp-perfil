@@ -1469,44 +1469,42 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                       Escuadra Actual
                     </label>
                     <select
-                      disabled={!editandoCampos}
-                      // Convertimos a string para asegurar comparación exacta
-                      value={
-                        datosForm.nombre_equipo
-                          ? datosForm.nombre_equipo.toString()
-                          : ""
-                      }
-                      onChange={(e) =>
-                        setDatosForm({
-                          ...datosForm,
-                          nombre_equipo: e.target.value,
-                        })
-                      }
-                      style={{
-                        backgroundColor: editandoCampos ? "#1e293b" : "#0f172a",
-                        border: "1px solid #30363d",
-                        borderRadius: "8px",
-                        padding: "10px",
-                        color: editandoCampos ? "white" : "#64748b",
-                        fontWeight: "700",
-                        outline: "none",
-                        cursor: editandoCampos ? "pointer" : "default",
-                        width: "100%",
-                        boxSizing: "border-box",
-                      }}
-                    >
-                      <option value="" disabled>
-                        Selecciona equipo
-                      </option>
-                      {/* Aseguramos que este value sea string */}
-                      <option value="AGENTE LIBRE">AGENTE LIBRE</option>
-                      {equipos.map((e) => (
-                        // Convertimos el ID a string aquí también
-                        <option key={e.id} value={e.id.toString()}>
-                          {e.nombre_equipo.toUpperCase()}
-                        </option>
-                      ))}
-                    </select>
+  disabled={!editandoCampos}
+  // Convertimos a string para asegurar comparación exacta
+  value={
+    datosForm.nombre_equipo
+      ? datosForm.nombre_equipo.toString()
+      : ""
+  }
+  onChange={(e) =>
+    setDatosForm({
+      ...datosForm,
+      nombre_equipo: e.target.value,
+    })
+  }
+  style={{
+    backgroundColor: editandoCampos ? "#1e293b" : "#0f172a",
+    border: "1px solid #30363d",
+    borderRadius: "8px",
+    padding: "10px",
+    color: editandoCampos ? "white" : "#64748b",
+    fontWeight: "700",
+    outline: "none",
+    cursor: editandoCampos ? "pointer" : "default",
+    width: "100%",
+    boxSizing: "border-box",
+  }}
+>
+  <option value="" disabled>
+    Selecciona equipo
+  </option>
+  {/* Renderizado dinámico de los equipos reales desde la base de datos */}
+  {equipos.map((e) => (
+    <option key={e.id} value={e.id.toString()}>
+      {e.nombre_equipo.toUpperCase()}
+    </option>
+  ))}
+</select>
                   </div>
                 </div>
 
