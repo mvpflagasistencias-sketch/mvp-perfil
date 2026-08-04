@@ -1628,7 +1628,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                     color: "#9ca3af",
                   }}
                 >
-                  Escuadras Activas (Máx. 2 de género y 2 mixtos)
+                  
                 </label>
                 <div
                   style={{
