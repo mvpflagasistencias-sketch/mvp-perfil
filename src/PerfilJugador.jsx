@@ -124,9 +124,26 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         }
 
         // Sincronizamos los datos editables con el formulario
+       // 🟢 Buscamos el ID del equipo si la API nos mandó el nombre o el ID directo
+        let equipoIdEncontrado = "";
+        if (data.equipo_id) {
+          equipoIdEncontrado = data.equipo_id.toString();
+        } else if (data.nombre_equipo && data.nombre_equipo !== "Agente Libre" && data.nombre_equipo !== "UTNENES") {
+          const match = resEquipos.data.find(
+            (e) => e.nombre_equipo.toUpperCase() === data.nombre_equipo.toUpperCase()
+          );
+          if (match) equipoIdEncontrado = match.id.toString();
+        } else if (data.nombre_equipo === "UTNENES") {
+          const match = resEquipos.data.find(
+            (e) => e.nombre_equipo.toUpperCase() === "UTNENES"
+          );
+          if (match) equipoIdEncontrado = match.id.toString();
+        }
+
+        // Sincronizamos los datos editables con el formulario
         setDatosForm({
           nombre: data.nombre || "",
-          nombre_equipo: data.nombre_equipo || "",
+          nombre_equipo: equipoIdEncontrado || "AGENTE LIBRE", 
           numero_jersey: data.numero_jersey || "",
           telefono: data.telefono || "",
           password: "",
