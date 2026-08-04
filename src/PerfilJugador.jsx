@@ -1658,47 +1658,54 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                               }}
                             >
                               <select
-                                disabled={!editandoCampos}
-                                value={item.id || ""}
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  const nuevos = [
-                                    ...datosForm.equipos_dinamicos,
-                                  ];
-                                  nuevos[index] = {
-                                    ...nuevos[index],
-                                    id: val,
-                                    nombre_nuevo: "",
-                                  };
-                                  setDatosForm({
-                                    ...datosForm,
-                                    equipos_dinamicos: nuevos,
-                                  });
-                                }}
-                                style={{
-                                  flex: 1,
-                                  backgroundColor: "#1e293b",
-                                  border: "1px solid #30363d",
-                                  borderRadius: "6px",
-                                  padding: "6px",
-                                  color: "white",
-                                  fontSize: "10px",
-                                  outline: "none",
-                                  cursor: editandoCampos
-                                    ? "pointer"
-                                    : "default",
-                                }}
-                              >
-                                <option value="">
-                                  -- Selecciona de la lista --
-                                </option>
-                                {equipos.map((eq) => (
-                                  <option key={eq.id} value={eq.id}>
-                                    {eq.nombre_equipo.toUpperCase()} (
-                                    {eq.tipo || eq.categoria || "General"})
-                                  </option>
-                                ))}
-                              </select>
+  disabled={!editandoCampos}
+  value={item.id || ""}
+  onChange={(e) => {
+    const val = e.target.value;
+    const nuevos = [...datosForm.equipos_dinamicos];
+    nuevos[index] = {
+      ...nuevos[index],
+      id: val,
+      nombre_nuevo: "",
+    };
+    setDatosForm({
+      ...datosForm,
+      equipos_dinamicos: nuevos,
+    });
+  }}
+  style={{
+    flex: 1,
+    backgroundColor: "#1e293b",
+    border: "1px solid #30363d",
+    borderRadius: "6px",
+    padding: "6px",
+    color: "white",
+    fontSize: "10px",
+    outline: "none",
+    cursor: editandoCampos ? "pointer" : "default",
+  }}
+>
+  <option value="">-- Selecciona de la lista --</option>
+  {equipos
+    .filter((eq) => {
+      const cat = (eq.categoria || eq.tipo || "").toLowerCase();
+      const generoPerfil = (datosForm.genero || "").toLowerCase();
+
+      // Si el perfil es MUJER: mostrar únicamente Femenil y Mixto
+      if (generoPerfil.includes("femenino") || generoPerfil.includes("f") || generoPerfil.includes("mujer")) {
+        return cat.includes("femenil") || cat.includes("mixto");
+      }
+
+      // Si el perfil es HOMBRE: mostrar únicamente Varonil y Mixto
+      return cat.includes("varonil") || cat.includes("mixto");
+    })
+    .map((eq) => (
+      <option key={eq.id} value={eq.id}>
+        {eq.nombre_equipo.toUpperCase()} (
+        {eq.categoria || eq.tipo || "General"})
+      </option>
+    ))}
+</select>
 
                               {editandoCampos && (
                                 <button
