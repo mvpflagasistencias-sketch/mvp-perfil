@@ -264,6 +264,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       const catLower = tipoEq.toLowerCase();
 
       // 🛑 Validación estricta antes de guardar
+   // 🛑 Validación estricta corregida
       if (esFemenino && catLower.includes("varonil")) {
         alert(`❌ No se puede porque es un equipo varonil${nombreEq ? ` (${nombreEq})` : ""}.`);
         return;
