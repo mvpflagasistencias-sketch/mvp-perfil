@@ -124,26 +124,20 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         }
 
         // Sincronizamos los datos editables con el formulario
-       // 🟢 Buscamos el ID del equipo si la API nos mandó el nombre o el ID directo
-        let equipoIdEncontrado = "";
+       // Sincronizamos los datos editables con el formulario de forma totalmente dinámica
+        let equipoIdDinamico = "";
         if (data.equipo_id) {
-          equipoIdEncontrado = data.equipo_id.toString();
-        } else if (data.nombre_equipo && data.nombre_equipo !== "Agente Libre" && data.nombre_equipo !== "UTNENES") {
+          equipoIdDinamico = data.equipo_id.toString();
+        } else if (data.nombre_equipo && data.nombre_equipo !== "Agente Libre") {
           const match = resEquipos.data.find(
             (e) => e.nombre_equipo.toUpperCase() === data.nombre_equipo.toUpperCase()
           );
-          if (match) equipoIdEncontrado = match.id.toString();
-        } else if (data.nombre_equipo === "UTNENES") {
-          const match = resEquipos.data.find(
-            (e) => e.nombre_equipo.toUpperCase() === "UTNENES"
-          );
-          if (match) equipoIdEncontrado = match.id.toString();
+          if (match) equipoIdDinamico = match.id.toString();
         }
 
-        // Sincronizamos los datos editables con el formulario
         setDatosForm({
           nombre: data.nombre || "",
-          nombre_equipo: equipoIdEncontrado || "AGENTE LIBRE", 
+          nombre_equipo: equipoIdDinamico || "AGENTE LIBRE", 
           numero_jersey: data.numero_jersey || "",
           telefono: data.telefono || "",
           password: "",
