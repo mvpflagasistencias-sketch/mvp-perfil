@@ -141,16 +141,21 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         }
 
         // Soportamos si el backend manda un arreglo de equipos_ids o un equipo_id individual
-        let idsIniciales = [];
-        if (Array.isArray(data.equipos_ids)) {
-          idsIniciales = data.equipos_ids;
+        // Mapeamos los equipos del jugador al formato dinámico
+        let equiposInicialesList = [];
+        if (Array.isArray(data.equipos_detalles)) {
+          equiposInicialesList = data.equipos_detalles.map(eq => ({ id: eq.id, nombre_nuevo: "", tipo: eq.tipo }));
+        } else if (Array.isArray(data.equipos_ids)) {
+          equiposInicialesList = data.equipos_ids.map(id => ({ id: id, nombre_nuevo: "", tipo: "Varonil" }));
         } else if (data.equipo_id) {
-          idsIniciales = [data.equipo_id];
+          equiposInicialesList = [{ id: data.equipo_id, nombre_nuevo: "", tipo: "Varonil" }];
+        } else if (equipoIdDinamico) {
+          equiposInicialesList = [{ id: equipoIdDinamico, nombre_nuevo: "", tipo: "Varonil" }];
         }
 
         setDatosForm({
           nombre: data.nombre || "",
-          equipos_ids: idsIniciales,
+          equipos_dinamicos: equiposInicialesList, // 👈 Usamos el arreglo dinámico para las filas
           numero_jersey: data.numero_jersey || "",
           telefono: data.telefono || "",
           password: "",
@@ -216,58 +221,55 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
   // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES
   // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES Y EQUIPOS
-  const handleGuardarDatosPersonales = async () => {
-    try {
-      const idActual = jugadorId || localStorage.getItem("atleta_id");
+ const handleGuardarDatosPersonales = async () => {
+  try {
+    const idActual = jugadorId || localStorage.getItem("atleta_id");
+    const listaDinamica = datosForm.equipos_dinamicos || [];
 
-      // 🛑 Validación estricta: Máximo 2 equipos de género y 2 mixtos
-      const equiposSeleccionados = equipos.filter((eq) =>
-        datosForm.equipos_ids.includes(eq.id),
-      );
-      let countGenero = 0;
-      let countMixto = 0;
+    // Validamos conteos de restricciones (máx 2 género, máx 2 mixtos)
+    let countGenero = 0;
+    let countMixto = 0;
 
-      equiposSeleccionados.forEach((eq) => {
-        const tipoLower = (eq.tipo || eq.categoria || "").toLowerCase();
-        if (tipoLower.includes("mixto")) {
-          countMixto++;
-        } else {
-          countGenero++;
-        }
-      });
-
-      if (countGenero > 2) {
-        alert(
-          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de tu género.",
-        );
-        return;
-      }
-      if (countMixto > 2) {
-        alert(
-          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.",
-        );
-        return;
+    listaDinamica.forEach((item) => {
+      let tipoEq = "Varonil";
+      if (item.id) {
+        const encontrado = equipos.find(e => e.id.toString() === item.id.toString());
+        if (encontrado) tipoEq = encontrado.tipo || encontrado.categoria || "Varonil";
+      } else if (item.nombre_nuevo) {
+        tipoEq = "Varonil"; // Por defecto o puedes inferirlo si escriben "Mixto"
       }
 
-      const payload = { ...datosForm, foto_perfil: perfil.foto_perfil };
-      delete payload.password;
-      delete payload.confirmPassword;
-
-      const response = await api.put(
-        `/api/jugadores/perfil/actualizar/${idActual}`,
-        payload,
-      );
-      if (response.status === 200) {
-        setPerfil({ ...perfil, ...payload });
-        setEditandoCampos(false);
-        alert("✅ ¡Datos personales y escuadras guardados con éxito!");
+      if (tipoEq.toLowerCase().includes("mixto")) {
+        countMixto++;
+      } else {
+        countGenero++;
       }
-    } catch (err) {
-      console.error("Error al actualizar datos:", err);
-      alert("❌ Error al intentar guardar los cambios.");
+    });
+
+    if (countGenero > 2) {
+      alert("⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de tu género.");
+      return;
     }
-  };
+    if (countMixto > 2) {
+      alert("⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.");
+      return;
+    }
 
+    const payload = { ...datosForm, foto_perfil: perfil.foto_perfil };
+    delete payload.password;
+    delete payload.confirmPassword;
+
+    const response = await api.put(`/api/jugadores/perfil/actualizar/${idActual}`, payload);
+    if (response.status === 200) {
+      setPerfil({ ...perfil, ...payload });
+      setEditandoCampos(false);
+      alert("✅ ¡Datos personales y equipos actualizados con éxito!");
+    }
+  } catch (err) {
+    console.error("Error al actualizar datos:", err);
+    alert("❌ Error al intentar guardar los cambios.");
+  }
+};
   // 🛠️ SECCIÓN INDEPENDIENTE 3: GUARDAR EXCLUSIVAMENTE LA NUEVA CONTRASEÑA
   const handleGuardarPassword = async () => {
     if (
@@ -1526,88 +1528,100 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                 </div>
 
                 {/* 🚀 ESCUADRAS ACTIVAS (Bloque completo independiente abajo) */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "6px",
-                    width: "100%",
-                  }}
-                >
-                  <label
-                    style={{
-                      fontSize: "9px",
-                      fontWeight: "800",
-                      textTransform: "uppercase",
-                      color: "#9ca3af",
-                    }}
-                  >
-                    Escuadras Activas (Máx. 2 de género y 2 mixtos)
-                  </label>
-                  <div
-                    style={{
-                      backgroundColor: editandoCampos ? "#1e293b" : "#0f172a",
-                      border: "1px solid #30363d",
-                      borderRadius: "8px",
-                      padding: "10px",
-                      maxHeight: "140px",
-                      overflowY: "auto",
-                      textAlign: "left",
-                    }}
-                  >
-                    {equipos.map((eq) => {
-                      const isSelected = datosForm.equipos_ids?.includes(eq.id);
-                      return (
-                        <label
-                          key={eq.id}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "8px",
-                            padding: "6px 0",
-                            cursor: editandoCampos ? "pointer" : "default",
-                            color: "white",
-                            fontSize: "11px",
-                            borderBottom: "1px solid #1e293b",
-                          }}
-                        >
-                          <input
-                            type="checkbox"
-                            disabled={!editandoCampos}
-                            checked={isSelected || false}
-                            onChange={(e) => {
-                              const currentIds = datosForm.equipos_ids || [];
-                              let newIds = [];
-                              if (e.target.checked) {
-                                newIds = [...currentIds, eq.id];
-                              } else {
-                                newIds = currentIds.filter(
-                                  (id) => id !== eq.id,
-                                );
-                              }
-                              setDatosForm({
-                                ...datosForm,
-                                equipos_ids: newIds,
-                              });
-                            }}
-                          />
-                          <span style={{ fontWeight: "700" }}>
-                            {eq.nombre_equipo.toUpperCase()}
-                          </span>
-                          <span
-                            style={{
-                              color: "#64748b",
-                              fontSize: "9px",
-                              marginLeft: "auto",
-                            }}
-                          >
-                            ({eq.tipo || eq.categoria || "General"})
-                          </span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
+                {/* 🚀 ESCUADRAS ACTIVAS CON OPCIÓN DE AÑADIR NUEVO O SELECCIONAR EXISTENTE */}
+<div style={{ display: "flex", flexDirection: "column", gap: "6px", width: "100%" }}>
+  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <label style={{ fontSize: "9px", fontWeight: "800", textTransform: "uppercase", color: "#9ca3af" }}>
+      Escuadras Activas (Máx. 2 de género y 2 mixtos)
+    </label>
+    {editandoCampos && (
+      <button
+        type="button"
+        onClick={() => {
+          setDatosForm({
+            ...datosForm,
+            equipos_dinamicos: [...(datosForm.equipos_dinamicos || []), { id: "", nombre_nuevo: "", tipo: "Varonil" }]
+          });
+        }}
+        style={{
+          background: "none",
+          border: "1px dashed #60a5fa",
+          color: "#60a5fa",
+          fontSize: "9px",
+          fontWeight: "800",
+          padding: "2px 8px",
+          borderRadius: "4px",
+          cursor: "pointer",
+          textTransform: "uppercase"
+        }}
+      >
+        + Agregar más equipo
+      </button>
+    )}
+  </div>
+
+  <div style={{ backgroundColor: editandoCampos ? "#1e293b" : "#0f172a", border: "1px solid #30363d", borderRadius: "8px", padding: "10px", maxHeight: "160px", overflowY: "auto", display: "flex", flexDirection: "column", gap: "8px" }}>
+    {(!datosForm.equipos_dinamicos || datosForm.equipos_dinamicos.length === 0) ? (
+      <span style={{ fontSize: "11px", color: "#64748b", textAlign: "center", padding: "10px" }}>
+        No hay escuadras agregadas.
+      </span>
+    ) : (
+      datosForm.equipos_dinamicos.map((item, index) => (
+        <div key={index} style={{ display: "flex", gap: "6px", alignItems: "center", backgroundColor: "#0f172a", padding: "6px", borderRadius: "6px", border: "1px solid #334155" }}>
+          
+          {/* Selector de equipos existentes de la BD */}
+          <select
+            disabled={!editandoCampos}
+            value={item.id || ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              const nuevos = [...datosForm.equipos_dinamicos];
+              nuevos[index] = { ...nuevos[index], id: val, nombre_nuevo: "" }; 
+              setDatosForm({ ...datosForm, equipos_dinamicos: nuevos });
+            }}
+            style={{ flex: 1, backgroundColor: "#1e293b", border: "1px solid #30363d", borderRadius: "6px", padding: "6px", color: "white", fontSize: "10px", outline: "none", cursor: editandoCampos ? "pointer" : "default" }}
+          >
+            <option value="">-- Selecciona de la lista --</option>
+            {equipos.map((eq) => (
+              <option key={eq.id} value={eq.id}>
+                {eq.nombre_equipo.toUpperCase()} ({eq.tipo || eq.categoria || "General"})
+              </option>
+            ))}
+          </select>
+
+          {/* Input por si el equipo NO está en la base y quiere escribirlo */}
+          <input
+            type="text"
+            disabled={!editandoCampos || item.id !== ""}
+            placeholder="O escribe equipo nuevo..."
+            value={item.nombre_nuevo || ""}
+            onChange={(e) => {
+              const val = e.target.value;
+              const nuevos = [...datosForm.equipos_dinamicos];
+              nuevos[index] = { ...nuevos[index], nombre_nuevo: val, id: "" }; 
+              setDatosForm({ ...datosForm, equipos_dinamicos: nuevos });
+            }}
+            style={{ flex: 1, backgroundColor: item.id !== "" ? "#0f172a" : "#1e293b", border: "1px solid #30363d", borderRadius: "6px", padding: "6px", color: "white", fontSize: "10px", outline: "none" }}
+          />
+
+          {/* Botón para eliminar esta fila de equipo */}
+          {editandoCampos && (
+            <button
+              type="button"
+              onClick={() => {
+                const nuevos = datosForm.equipos_dinamicos.filter((_, i) => i !== index);
+                setDatosForm({ ...datosForm, equipos_dinamicos: nuevos });
+              }}
+              style={{ background: "none", border: "none", color: "#ef4444", fontWeight: "900", cursor: "pointer", fontSize: "12px", padding: "0 4px" }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      ))
+    )}
+  </div>
+</div>
               </div>
 
               {/* 🚀 NUEVA SECCIÓN: SELECCIÓN MÚLTIPLE DE EQUIPOS (CON RESTRICCIONES) */}
