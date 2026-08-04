@@ -15,14 +15,14 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
   // 📝 ESTADO EXTENDIDO: Ahora incluye Nombre, Equipo, Teléfono, Jersey y Password
   const [modalPerfilAbierto, setModalPerfilAbierto] = useState(false);
-const [datosForm, setDatosForm] = useState({
-  nombre: "",
-  equipos_ids: [], // 👈 Arreglo para múltiples equipos
-  numero_jersey: "",
-  telefono: "",
-  password: "",
-  confirmPassword: "",
-});
+  const [datosForm, setDatosForm] = useState({
+    nombre: "",
+    equipos_ids: [], // 👈 Arreglo para múltiples equipos
+    numero_jersey: "",
+    telefono: "",
+    password: "",
+    confirmPassword: "",
+  });
 
   // 🚀 FOTO: Estado local para manejar el string de previsualización y guardado
   const [fotoBase64, setFotoBase64] = useState("");
@@ -140,22 +140,22 @@ const [datosForm, setDatosForm] = useState({
           if (match) equipoIdDinamico = match.id.toString();
         }
 
-      // Soportamos si el backend manda un arreglo de equipos_ids o un equipo_id individual
-let idsIniciales = [];
-if (Array.isArray(data.equipos_ids)) {
-  idsIniciales = data.equipos_ids;
-} else if (data.equipo_id) {
-  idsIniciales = [data.equipo_id];
-}
+        // Soportamos si el backend manda un arreglo de equipos_ids o un equipo_id individual
+        let idsIniciales = [];
+        if (Array.isArray(data.equipos_ids)) {
+          idsIniciales = data.equipos_ids;
+        } else if (data.equipo_id) {
+          idsIniciales = [data.equipo_id];
+        }
 
-setDatosForm({
-  nombre: data.nombre || "",
-  equipos_ids: idsIniciales,
-  numero_jersey: data.numero_jersey || "",
-  telefono: data.telefono || "",
-  password: "",
-  confirmPassword: "",
-});
+        setDatosForm({
+          nombre: data.nombre || "",
+          equipos_ids: idsIniciales,
+          numero_jersey: data.numero_jersey || "",
+          telefono: data.telefono || "",
+          password: "",
+          confirmPassword: "",
+        });
 
         // Sincronizamos la foto inicial en el estado de preview
         setFotoBase64(data.foto_perfil || "");
@@ -215,14 +215,14 @@ setDatosForm({
   };
 
   // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES
-// 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES Y EQUIPOS
+  // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES Y EQUIPOS
   const handleGuardarDatosPersonales = async () => {
     try {
       const idActual = jugadorId || localStorage.getItem("atleta_id");
 
       // 🛑 Validación estricta: Máximo 2 equipos de género y 2 mixtos
       const equiposSeleccionados = equipos.filter((eq) =>
-        datosForm.equipos_ids.includes(eq.id)
+        datosForm.equipos_ids.includes(eq.id),
       );
       let countGenero = 0;
       let countMixto = 0;
@@ -237,11 +237,15 @@ setDatosForm({
       });
 
       if (countGenero > 2) {
-        alert("⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de tu género.");
+        alert(
+          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de tu género.",
+        );
         return;
       }
       if (countMixto > 2) {
-        alert("⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.");
+        alert(
+          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.",
+        );
         return;
       }
 
@@ -1313,7 +1317,7 @@ setDatosForm({
                 </div>
               </div>
 
-              {/* 🧑 SECCIÓN 2: DATOS PERSONALES (CLICK INDEPENDIENTE PARA ACTUALIZAR) */}
+              {/* 🧑 SECCIÓN 2: DATOS PERSONALES */}
               <div
                 style={{
                   backgroundColor: "#0f172a",
@@ -1328,7 +1332,7 @@ setDatosForm({
                 <div
                   style={{
                     display: "flex",
-                    justifycontent: "space-between",
+                    justifyContent: "space-between",
                     alignItems: "center",
                   }}
                 >
@@ -1354,7 +1358,6 @@ setDatosForm({
                         color: "#60a5fa",
                         fontSize: "10px",
                         fontWeight: "800",
-                        textTransform: "uppercase",
                         cursor: "pointer",
                       }}
                     >
@@ -1373,7 +1376,6 @@ setDatosForm({
                           color: "#ef4444",
                           fontSize: "10px",
                           fontWeight: "800",
-                          textTransform: "uppercase",
                           cursor: "pointer",
                         }}
                       >
@@ -1390,7 +1392,6 @@ setDatosForm({
                           color: "white",
                           fontSize: "10px",
                           fontWeight: "900",
-                          textTransform: "uppercase",
                           cursor: "pointer",
                         }}
                       >
@@ -1437,7 +1438,7 @@ setDatosForm({
                   />
                 </div>
 
-                {/* Identidad Deportiva - CORREGIDO */}
+                {/* Identidad Deportiva (Jersey y Teléfono en línea limpia) */}
                 <div
                   style={{
                     display: "grid",
@@ -1446,7 +1447,6 @@ setDatosForm({
                     width: "100%",
                   }}
                 >
-                  {/* Columna Jersey */}
                   <div
                     style={{
                       display: "flex",
@@ -1481,7 +1481,6 @@ setDatosForm({
                         padding: "10px",
                         color: editandoCampos ? "white" : "#64748b",
                         fontWeight: "700",
-                        outline: "none",
                         textAlign: "center",
                         width: "100%",
                         boxSizing: "border-box",
@@ -1489,13 +1488,11 @@ setDatosForm({
                     />
                   </div>
 
-                  {/* Columna Escuadra */}
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "column",
                       gap: "4px",
-                      minWidth: "0",
                     }}
                   >
                     <label
@@ -1506,50 +1503,35 @@ setDatosForm({
                         color: "#9ca3af",
                       }}
                     >
-                      Escuadra Actual
+                      Teléfono de Contacto
                     </label>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "6px", width: "100%", marginTop: "6px" }}>
-  <label style={{ fontSize: "9px", fontWeight: "800", textTransform: "uppercase", color: "#9ca3af" }}>
-    Escuadras Activas (Máx. 2 de género y 2 mixtos)
-  </label>
-  <div style={{ backgroundColor: editandoCampos ? "#1e293b" : "#0f172a", border: "1px solid #30363d", borderRadius: "8px", padding: "10px", maxHeight: "140px", overflowY: "auto", textAlign: "left" }}>
-    {equipos.map((eq) => {
-      const isSelected = datosForm.equipos_ids?.includes(eq.id);
-      return (
-        <label key={eq.id} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 0", cursor: editandoCampos ? "pointer" : "default", color: "white", fontSize: "11px", borderBottom: "1px solid #1e293b" }}>
-          <input
-            type="checkbox"
-            disabled={!editandoCampos}
-            checked={isSelected || false}
-            onChange={(e) => {
-              const currentIds = datosForm.equipos_ids || [];
-              let newIds = [];
-              if (e.target.checked) {
-                newIds = [...currentIds, eq.id];
-              } else {
-                newIds = currentIds.filter((id) => id !== eq.id);
-              }
-              setDatosForm({ ...datosForm, equipos_ids: newIds });
-            }}
-          />
-          <span style={{ fontWeight: "700" }}>{eq.nombre_equipo.toUpperCase()}</span>
-          <span style={{ color: "#64748b", fontSize: "9px", marginLeft: "auto" }}>
-            ({eq.tipo || eq.categoria || "General"})
-          </span>
-        </label>
-      );
-    })}
-  </div>
-</div>
+                    <input
+                      type="text"
+                      disabled={!editandoCampos}
+                      value={datosForm.telefono}
+                      onChange={(e) =>
+                        setDatosForm({ ...datosForm, telefono: e.target.value })
+                      }
+                      style={{
+                        backgroundColor: editandoCampos ? "#1e293b" : "#0f172a",
+                        border: "1px solid #30363d",
+                        borderRadius: "8px",
+                        padding: "10px",
+                        color: editandoCampos ? "white" : "#64748b",
+                        fontWeight: "700",
+                        outline: "none",
+                      }}
+                    />
                   </div>
                 </div>
 
-                {/* Teléfono */}
+                {/* 🚀 ESCUADRAS ACTIVAS (Bloque completo independiente abajo) */}
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: "4px",
+                    gap: "6px",
+                    width: "100%",
                   }}
                 >
                   <label
@@ -1560,25 +1542,71 @@ setDatosForm({
                       color: "#9ca3af",
                     }}
                   >
-                    Teléfono de Contacto
+                    Escuadras Activas (Máx. 2 de género y 2 mixtos)
                   </label>
-                  <input
-                    type="text"
-                    disabled={!editandoCampos}
-                    value={datosForm.telefono}
-                    onChange={(e) =>
-                      setDatosForm({ ...datosForm, telefono: e.target.value })
-                    }
+                  <div
                     style={{
                       backgroundColor: editandoCampos ? "#1e293b" : "#0f172a",
                       border: "1px solid #30363d",
                       borderRadius: "8px",
                       padding: "10px",
-                      color: editandoCampos ? "white" : "#64748b",
-                      fontWeight: "700",
-                      outline: "none",
+                      maxHeight: "140px",
+                      overflowY: "auto",
+                      textAlign: "left",
                     }}
-                  />
+                  >
+                    {equipos.map((eq) => {
+                      const isSelected = datosForm.equipos_ids?.includes(eq.id);
+                      return (
+                        <label
+                          key={eq.id}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                            padding: "6px 0",
+                            cursor: editandoCampos ? "pointer" : "default",
+                            color: "white",
+                            fontSize: "11px",
+                            borderBottom: "1px solid #1e293b",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            disabled={!editandoCampos}
+                            checked={isSelected || false}
+                            onChange={(e) => {
+                              const currentIds = datosForm.equipos_ids || [];
+                              let newIds = [];
+                              if (e.target.checked) {
+                                newIds = [...currentIds, eq.id];
+                              } else {
+                                newIds = currentIds.filter(
+                                  (id) => id !== eq.id,
+                                );
+                              }
+                              setDatosForm({
+                                ...datosForm,
+                                equipos_ids: newIds,
+                              });
+                            }}
+                          />
+                          <span style={{ fontWeight: "700" }}>
+                            {eq.nombre_equipo.toUpperCase()}
+                          </span>
+                          <span
+                            style={{
+                              color: "#64748b",
+                              fontSize: "9px",
+                              marginLeft: "auto",
+                            }}
+                          >
+                            ({eq.tipo || eq.categoria || "General"})
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
