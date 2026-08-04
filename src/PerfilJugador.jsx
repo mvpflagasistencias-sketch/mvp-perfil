@@ -238,28 +238,47 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     const idActual = jugadorId || localStorage.getItem("atleta_id");
     const listaDinamica = datosForm.equipos_dinamicos || [];
 
-    // Validamos conteos de restricciones (máx 2 género, máx 2 mixtos)
+    const generoPerfil = (datosForm.genero || "").toLowerCase();
+    const esFemenino = generoPerfil.includes("femenino") || generoPerfil.includes("f") || generoPerfil.includes("mujer");
+
     let countGenero = 0;
     let countMixto = 0;
 
-    listaDinamica.forEach((item) => {
+    for (const item of listaDinamica) {
       let tipoEq = "Varonil";
+      let nombreEq = "";
+
       if (item.id) {
         const encontrado = equipos.find(
           (e) => e.id.toString() === item.id.toString(),
         );
-        if (encontrado)
-          tipoEq = encontrado.tipo || encontrado.categoria || "Varonil";
+        if (encontrado) {
+          tipoEq = encontrado.categoria || encontrado.tipo || "Varonil";
+          nombreEq = encontrado.nombre_equipo || "";
+        }
       } else if (item.nombre_nuevo) {
-        tipoEq = item.tipo || "Varonil"; // 👈 AQUÍ ESTÁ LA MAGIA: Lee la categoría real que seleccionaste en el select
+        tipoEq = item.tipo || item.categoria || (esFemenino ? "Femenil" : "Varonil");
+        nombreEq = item.nombre_nuevo;
       }
 
-      if (tipoEq.toLowerCase().includes("mixto")) {
+      const catLower = tipoEq.toLowerCase();
+
+      // 🛑 Validación estricta antes de guardar
+      if (esFemenino && catLower.includes("varonil")) {
+        alert(`❌ No se puede porque es un equipo varonil${nombreEq ? ` (${nombreEq})` : ""}.`);
+        return;
+      }
+      if (!esFemenino && catLower.includes("femenil")) {
+        alert(`❌ No se puede porque es un equipo femenil${nombreEq ? ` (${nombreEq})` : ""}.`);
+        return;
+      }
+
+      if (catLower.includes("mixto")) {
         countMixto++;
       } else {
         countGenero++;
       }
-    });
+    }
 
     if (countGenero > 2) {
       alert(
@@ -289,7 +308,8 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     }
   } catch (err) {
     console.error("Error al actualizar datos:", err);
-    alert("❌ Error al intentar guardar los cambios.");
+    const mensajeError = err.response?.data?.error || "❌ Error al intentar guardar los cambios.";
+    alert(mensajeError);
   }
 };
   // 🛠️ SECCIÓN INDEPENDIENTE 3: GUARDAR EXCLUSIVAMENTE LA NUEVA CONTRASEÑA
