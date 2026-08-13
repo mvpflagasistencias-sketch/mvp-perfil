@@ -361,7 +361,7 @@ const [formData, setFormData] = useState({
                   Torneos y Equipos en los que participas
                 </label>
 
-                {formData.inscripciones.map((inscripcion, indexTorneo) => (
+                {formData.inscripciones?.map((inscripcion, indexTorneo) => (
                   <div key={indexTorneo} style={{ 
                     backgroundColor: "#141b2e", 
                     padding: "1.25rem", 
@@ -413,7 +413,7 @@ const [formData, setFormData] = useState({
                         Equipos para este torneo:
                       </label>
 
-                      {inscripcion.equiposSeleccionados.map((equipoActual, indexEq) => (
+                      {inscripcion.equiposSeleccionados?.map((equipoActual, indexEq) => (
                         <div key={indexEq} style={{ marginBottom: "12px" }}>
                           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                             <select
