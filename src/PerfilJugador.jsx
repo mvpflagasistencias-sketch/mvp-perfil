@@ -1922,15 +1922,15 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                   <option value="">
                                     -- Elige un equipo --
                                   </option>
-                                  {/* 🔍 FILTRO INTELIGENTE: Muestra los equipos del torneo o la lista general */}
+                                  {/* 🔍 FILTRO ESTRICTO: Muestra únicamente los equipos del torneo seleccionado */}
                                   {equipos
-                                    .filter(
-                                      (e) =>
-                                        !torneoItem.torneo_id ||
+                                    .filter((e) => {
+                                      if (!torneoItem.torneo_id) return false;
+                                      return (
                                         e.torneo_id?.toString() ===
-                                          torneoItem.torneo_id?.toString() ||
-                                        true,
-                                    )
+                                        torneoItem.torneo_id?.toString()
+                                      );
+                                    })
                                     .map((e) => (
                                       <option key={e.id} value={e.id}>
                                         {e.nombre_equipo.toUpperCase()} (
