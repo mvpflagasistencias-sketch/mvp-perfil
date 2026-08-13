@@ -55,102 +55,102 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    console.log("Género actual:", formData.genero);
-    console.log("Categoría general actual:", formData.categoria);
+  console.log("Género actual:", formData.genero);
+  console.log("Categoría general actual:", formData.categoria);
 
-    const gen = (formData.genero || "").trim().toUpperCase();
-    const catGlobal = (formData.categoria || "").trim().toUpperCase();
+  const gen = (formData.genero || "").trim().toUpperCase();
+  const catGlobal = (formData.categoria || "").trim().toUpperCase();
 
-    // 🟢 RESTRICCIÓN GLOBAL INICIAL (Evita que el formulario pase si hay contradicción arriba)
-    if (gen.includes("MASC") && catGlobal === "FEMENIL") {
-      alert("⚠️ Un jugador con género Masculino no puede registrarse con categoría general Femenil.");
-      return;
-    }
-    if (gen.includes("FEM") && catGlobal === "VARONIL") {
-      alert("⚠️ Un jugador con género Femenil no puede registrarse con categoría general Varonil.");
-      return;
-    }
+  // 🟢 1. RESTRICCIÓN GLOBAL INICIAL (Evita contradicciones directas en los inputs principales)
+  if (gen.includes("MASC") && catGlobal === "FEMENIL") {
+    alert("⚠️ Un jugador con género Masculino no puede registrarse con categoría general Femenil.");
+    return;
+  }
+  if (gen.includes("FEM") && catGlobal === "VARONIL") {
+    alert("⚠️ Un jugador con género Femenil no puede registrarse con categoría general Varonil.");
+    return;
+  }
 
-    if (!formData.inscripciones || formData.inscripciones.length === 0) {
-      alert("⚠️ Por favor, añade al menos un torneo.");
-      return;
-    }
+  // 🟢 2. Validación de que existan inscripciones
+  if (!formData.inscripciones || formData.inscripciones.length === 0) {
+    alert("⚠️ Por favor, añade al menos un torneo.");
+    return;
+  }
 
-  // 🟢 2. Validación de torneos, género y límites de equipos
+  // 🟢 3. Validación de torneos, género y límites de equipos por torneo
   for (let indexTorneo = 0; indexTorneo < formData.inscripciones.length; indexTorneo++) {
-      const insc = formData.inscripciones[indexTorneo];
-      const numTorneo = indexTorneo + 1;
+    const insc = formData.inscripciones[indexTorneo];
+    const numTorneo = indexTorneo + 1;
 
-      if (!insc.torneo_id) {
-        alert(`⚠️ El Torneo #${numTorneo} no ha sido seleccionado.`);
+    if (!insc.torneo_id) {
+      alert(`⚠️ El Torneo #${numTorneo} no ha sido seleccionado.`);
+      return;
+    }
+
+    const equiposSeleccionadosValidos = (insc.equiposSeleccionados || []).filter((el) => el && el.trim() !== "");
+    if (equiposSeleccionadosValidos.length === 0) {
+      alert(`⚠️ El Torneo #${numTorneo} debe tener al menos un equipo seleccionado.`);
+      return;
+    }
+
+    let contadorRamaPrincipal = 0;
+    let contadorMixtos = 0;
+    const esMasculino = gen.includes("MASC");
+    const esFemenino = gen.includes("FEM");
+
+    for (let i = 0; i < insc.equiposSeleccionados.length; i++) {
+      const val = insc.equiposSeleccionados[i];
+      if (!val || val === "") continue;
+
+      let categoriaEquipo = "";
+
+      if (val === "OTRO_EQUIPO") {
+        categoriaEquipo = insc.equiposManuales?.[i]?.categoria || "";
+      } else {
+        const encontrado = 
+          insc.equiposDisponibles?.find(eq => eq?.nombre_equipo && eq.nombre_equipo.toUpperCase() === val.toUpperCase()) ||
+          equipos.find(eq => eq?.nombre_equipo && eq.nombre_equipo.toUpperCase() === val.toUpperCase());
+        categoriaEquipo = encontrado?.categoria || "";
+      }
+
+      const catUpper = categoriaEquipo.toUpperCase().trim();
+
+      // 🟢 Restricción estricta de género por cada equipo seleccionado
+      if (esMasculino && catUpper === "FEMENIL") {
+        alert(`⚠️ Torneo #${numTorneo}: No puedes registrarte en el equipo "${val}" porque es de categoría FEMENIL y tu género es Masculino.`);
+        return;
+      }
+      if (esFemenino && catUpper === "VARONIL") {
+        alert(`⚠️ Torneo #${numTorneo}: No puedes registrarte en el equipo "${val}" porque es de categoría VARONIL y tu género es Femenil.`);
         return;
       }
 
-      const equiposSeleccionadosValidos = (insc.equiposSeleccionados || []).filter((e) => e && e.trim() !== "");
-      if (equiposSeleccionadosValidos.length === 0) {
-        alert(`⚠️ El Torneo #${numTorneo} debe tener al menos un equipo seleccionado.`);
-        return;
-      }
+      // Conteo de Rama principal vs Mixtos
+      const esRamaPrincipal =
+        (esMasculino && catUpper === "VARONIL") ||
+        (esFemenino && catUpper === "FEMENIL");
 
-      let contadorRamaPrincipal = 0;
-      let contadorMixtos = 0;
-      const generoJugador = (formData.genero || "").trim().toUpperCase();
-      const esMasculino = generoJugador.includes("MASC");
-      const esFemenino = generoJugador.includes("FEM");
-
-      for (let i = 0; i < insc.equiposSeleccionados.length; i++) {
-        const val = insc.equiposSeleccionados[i];
-        if (!val || val === "") continue;
-
-        let categoriaEquipo = "";
-
-        if (val === "OTRO_EQUIPO") {
-          categoriaEquipo = insc.equiposManuales?.[i]?.categoria || "";
-        } else {
-          const encontrado = 
-            insc.equiposDisponibles?.find(eq => eq?.nombre_equipo && eq.nombre_equipo.toUpperCase() === val.toUpperCase()) ||
-            equipos.find(eq => eq?.nombre_equipo && eq.nombre_equipo.toUpperCase() === val.toUpperCase());
-          categoriaEquipo = encontrado?.categoria || "";
-        }
-
-        const catUpper = categoriaEquipo.toUpperCase().trim();
-
-        // 🟢 VALIDACIÓN ESTRICTA POR CADA EQUIPO SELECCIONADO
-        if (esMasculino && catUpper === "FEMENIL") {
-          alert(`⚠️ Error en Torneo #${numTorneo}: Un jugador MASCULINO no puede inscribirse en el equipo "${val}" que es de categoría FEMENIL.`);
-          return;
-        }
-        if (esFemenino && catUpper === "VARONIL") {
-          alert(`⚠️ Error en Torneo #${numTorneo}: Un jugador FEMENIL no puede inscribirse en el equipo "${val}" que es de categoría VARONIL.`);
-          return;
-        }
-
-        // 🟢 Conteo de Rama y Mixtos
-        const esRamaPrincipal =
-          (esMasculino && catUpper === "VARONIL") ||
-          (esFemenino && catUpper === "FEMENIL");
-
-        if (esRamaPrincipal) {
-          contadorRamaPrincipal++;
-        } else if (catUpper === "MIXTO") {
-          contadorMixtos++;
-        }
-      }
-
-      // Validación de límites finales por torneo
-      if (contadorRamaPrincipal > 2) {
-        alert(`⚠️ En el Torneo #${numTorneo}, máximo 2 equipos de tu rama (${formData.genero.toUpperCase()}). Tienes ${contadorRamaPrincipal}.`);
-        return;
-      }
-      if (contadorMixtos > 2) {
-        alert(`⚠️ En el Torneo #${numTorneo}, máximo 2 equipos MIXTOS. Tienes ${contadorMixtos}.`);
-        return;
+      if (esRamaPrincipal) {
+        contadorRamaPrincipal++;
+      } else if (catUpper === "MIXTO") {
+        contadorMixtos++;
       }
     }
 
-  // 🟢 3. Validación de correo y envío
+    // Validación de límites finales por torneo (2 rama + 2 mixtos)
+    if (contadorRamaPrincipal > 2) {
+      alert(`⚠️ En el Torneo #${numTorneo}, máximo 2 equipos de tu rama. Tienes ${contadorRamaPrincipal}.`);
+      return;
+    }
+    if (contadorMixtos > 2) {
+      alert(`⚠️ En el Torneo #${numTorneo}, máximo 2 equipos MIXTOS. Tienes ${contadorMixtos}.`);
+      return;
+    }
+  }
+
+  // 🟢 4. Validación de correo y envío
   const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   if (!regexCorreo.test(formData.correo)) {
     alert("⚠️ Correo electrónico inválido.");
