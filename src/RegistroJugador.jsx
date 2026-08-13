@@ -27,7 +27,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
         // Cargamos equipos y torneos en paralelo
         const [resEquipos, resTorneos] = await Promise.all([
           api.get("/api/equipos"),
-          api.get("/api/torneos")
+          api.get("/api/torneos"),
         ]);
         console.log("📦 Equipos recibidos:", resEquipos.data);
         console.log("🏆 Torneos recibidos:", resTorneos.data);
@@ -78,7 +78,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
         categoriaEquipo = formData.equiposManuales?.[i]?.categoria || "";
       } else if (val) {
         const encontrado = equipos.find(
-          (eq) => eq?.nombre_equipo && eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
+          (eq) =>
+            eq?.nombre_equipo &&
+            eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
         );
         if (encontrado) {
           categoriaEquipo = encontrado.categoria || "";
@@ -87,8 +89,8 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
 
       const catUpper = categoriaEquipo.toUpperCase();
       const generoJugador = (formData.genero || "").toUpperCase();
-      
-      const esRamaPrincipal = 
+
+      const esRamaPrincipal =
         (generoJugador.includes("MASC") && catUpper.includes("VARONIL")) ||
         (generoJugador.includes("FEM") && catUpper.includes("FEMENIL"));
 
@@ -100,12 +102,16 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
     }
 
     if (contadorRamaPrincipal > 2) {
-      alert(`⚠️ Solo puedes pertenecer a un máximo de 2 equipos de tu misma rama (${formData.genero.toUpperCase()}). Tienes ${contadorRamaPrincipal}.`);
+      alert(
+        `⚠️ Solo puedes pertenecer a un máximo de 2 equipos de tu misma rama (${formData.genero.toUpperCase()}). Tienes ${contadorRamaPrincipal}.`,
+      );
       return;
     }
 
     if (contadorMixtos > 2) {
-      alert(`⚠️ Solo puedes pertenecer a un máximo de 2 equipos MIXTOS. Tienes ${contadorMixtos}.`);
+      alert(
+        `⚠️ Solo puedes pertenecer a un máximo de 2 equipos MIXTOS. Tienes ${contadorMixtos}.`,
+      );
       return;
     }
 
@@ -122,7 +128,9 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
           }
         } else if (val) {
           const encontrado = equipos.find(
-            (eq) => eq?.nombre_equipo && eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
+            (eq) =>
+              eq?.nombre_equipo &&
+              eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
           );
           if (encontrado) {
             equiposIdsFinales.push(encontrado.id);
@@ -461,7 +469,6 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   <option value="MIXTO" style={{ backgroundColor: "#0f172a" }}>
                     MIXTO
                   </option>
-                  
                 </select>
               </div>
 
@@ -658,7 +665,6 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                             >
                               MIXTO
                             </option>
-                            
                           </select>
                         </div>
                       </div>
