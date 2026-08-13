@@ -3,31 +3,31 @@ import api from "./api";
 
 const RegistroJugador = ({ onRegistroExitoso }) => {
   const [equipos, setEquipos] = useState([]);
-  const [torneos, setTorneos] = useState([]); // Estado para almacenar los torneos
+  const [torneos, setTorneos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-      nombre: "",
-      correo: "",
-      telefono: "",
-      genero: "Masculino",
-      categoria: "",
-      numero_jersey: "",
-      password: "",
-      edad: "",
-      nombre_tutor: "",
-      foto_perfil: null,
-      inscripciones: [
-        {
-          torneo_id: "",
-          equiposSeleccionados: [""],
-          equiposManuales: [{}]
-        }
-      ]
-    });
+    nombre: "",
+    correo: "",
+    telefono: "",
+    genero: "Masculino",
+    categoria: "",
+    numero_jersey: "",
+    password: "",
+    edad: "",
+    nombre_tutor: "",
+    foto_perfil: null,
+    inscripciones: [
+      {
+        torneo_id: "",
+        equiposSeleccionados: [""],
+        equiposManuales: [{}]
+      }
+    ]
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Cargamos equipos y torneos en paralelo
         const [resEquipos, resTorneos] = await Promise.all([
           api.get("/api/equipos"),
           api.get("/api/torneos"),
@@ -56,101 +56,38 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 🟢 2. Validación actualizada para múltiples torneos
-    const torneosValidos = formData.torneos_ids.filter(id => id && id.trim() !== "");
-    if (torneosValidos.length === 0) {
-      alert("⚠️ Por favor, selecciona al menos un torneo.");
+    // 🟢 Validación de que existan inscripciones y torneos seleccionados
+    if (!formData.inscripciones || formData.inscripciones.length === 0) {
+      alert("⚠️ Por favor, añade al menos un torneo.");
       return;
+    }
+
+    for (let insc of formData.inscripciones) {
+      if (!insc.torneo_id) {
+        alert("⚠️ Hay un torneo seleccionado que está vacío.");
+        return;
+      }
+      if (!insc.equiposSeleccionados || insc.equiposSeleccionados.length === 0) {
+        alert("⚠️ Cada torneo debe tener al menos un equipo seleccionado.");
+        return;
+      }
     }
 
     const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!regexCorreo.test(formData.correo)) {
-      alert(
-        "⚠️ Por favor, introduce un correo electrónico válido (ej. usuario@gmail.com).",
-      );
-      return;
-    }
-
-    // 🟢 VALIDACIÓN ESTRICTA: Máximo 2 de su rama principal y 2 mixtos
-    let contadorRamaPrincipal = 0;
-    let contadorMixtos = 0;
-
-    for (let i = 0; i < formData.equiposSeleccionados.length; i++) {
-      const val = formData.equiposSeleccionados[i];
-      let categoriaEquipo = "";
-
-      if (val === "OTRO_EQUIPO") {
-        categoriaEquipo = formData.equiposManuales?.[i]?.categoria || "";
-      } else if (val) {
-        const encontrado = equipos.find(
-          (eq) =>
-            eq?.nombre_equipo &&
-            eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
-        );
-        if (encontrado) {
-          categoriaEquipo = encontrado.categoria || "";
-        }
-      }
-
-      const catUpper = categoriaEquipo.toUpperCase();
-      const generoJugador = (formData.genero || "").toUpperCase();
-
-      const esRamaPrincipal =
-        (generoJugador.includes("MASC") && catUpper.includes("VARONIL")) ||
-        (generoJugador.includes("FEM") && catUpper.includes("FEMENIL"));
-
-      if (esRamaPrincipal) {
-        contadorRamaPrincipal++;
-      } else if (catUpper.includes("MIXTO")) {
-        contadorMixtos++;
-      }
-    }
-
-    if (contadorRamaPrincipal > 2) {
-      alert(
-        `⚠️ Solo puedes pertenecer a un máximo de 2 equipos de tu misma rama (${formData.genero.toUpperCase()}). Tienes ${contadorRamaPrincipal}.`,
-      );
-      return;
-    }
-
-    if (contadorMixtos > 2) {
-      alert(
-        `⚠️ Solo puedes pertenecer a un máximo de 2 equipos MIXTOS. Tienes ${contadorMixtos}.`,
-      );
+      alert("⚠️ Por favor, introduce un correo electrónico válido (ej. usuario@gmail.com).");
       return;
     }
 
     setLoading(true);
     try {
-      let equiposIdsFinales = [];
-      let equiposManualesFinales = [];
-
-      formData.equiposSeleccionados.forEach((val, index) => {
-        if (val === "OTRO_EQUIPO") {
-          const manualObj = formData.equiposManuales?.[index];
-          if (manualObj && manualObj.nombre) {
-            equiposManualesFinales.push(manualObj);
-          }
-        } else if (val) {
-          const encontrado = equipos.find(
-            (eq) =>
-              eq?.nombre_equipo &&
-              eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
-          );
-          if (encontrado) {
-            equiposIdsFinales.push(encontrado.id);
-          }
-        }
-      });
-
-      // Aseguramos limpiar duplicados en los torneos seleccionados
-      const torneosFinales = [...new Set(torneosValidos)];
-
       const payload = {
         ...formData,
-        torneos_ids: torneosFinales, // Enviamos el arreglo limpio
-        equipos_manuales: equiposManualesFinales,
-        equipos_ids: equiposIdsFinales,
+        inscripciones: formData.inscripciones.map(insc => ({
+          torneo_id: insc.torneo_id,
+          equipos_seleccionados: (insc.equiposSeleccionados || []).filter(Boolean),
+          equipos_manuales: (insc.equiposManuales || []).filter(m => m && m.nombre)
+        }))
       };
 
       await api.post("/api/jugadores/registro", payload);
@@ -360,7 +297,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   Torneos y Equipos en los que participas
                 </label>
 
-                {formData.inscripciones?.map((inscripcion, indexTorneo) => (
+                {(formData.inscripciones || []).map((inscripcion, indexTorneo) => (
                   <div key={indexTorneo} style={{ 
                     backgroundColor: "#141b2e", 
                     padding: "1.25rem", 
@@ -412,7 +349,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                         Equipos para este torneo:
                       </label>
 
-                      {inscripcion.equiposSeleccionados?.map((equipoActual, indexEq) => (
+                      {(inscripcion.equiposSeleccionados || []).map((equipoActual, indexEq) => (
                         <div key={indexEq} style={{ marginBottom: "12px" }}>
                           <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
                             <select
@@ -561,6 +498,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                   + Añadir otro torneo
                 </button>
               </div>
+
               <div style={styles.fullWidth}>
                 <label style={styles.label}>Nombre del Jugador</label>
                 <input
@@ -659,239 +597,6 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                     MIXTO
                   </option>
                 </select>
-              </div>
-
-              {/* 🟢 SECCIÓN DE EQUIPOS DINÁMICOS (MÁXIMO 4: 2 DE SU RAMA + 2 MIXTOS) */}
-              <div style={styles.fullWidth}>
-                <label style={styles.label}>
-                  Equipos (Máximo 4: Dos de tu rama y dos mixtos)
-                </label>
-                {formData.equiposSeleccionados.map((equipoActual, index) => (
-                  <div key={index} style={{ marginBottom: "12px" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        gap: "10px",
-                        alignItems: "center",
-                      }}
-                    >
-                      <select
-                        style={{ ...styles.input, flex: 1 }}
-                        value={equipoActual}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          const nuevos = [...formData.equiposSeleccionados];
-                          nuevos[index] = val;
-                          setFormData({
-                            ...formData,
-                            equiposSeleccionados: nuevos,
-                          });
-                        }}
-                        required
-                      >
-                        <option value="">-- Elige un equipo --</option>
-                        {Array.isArray(equipos) &&
-                          equipos.map((eq) => {
-                            if (!eq || !eq.nombre_equipo) return null;
-                            const nombreConCategoria = eq.categoria
-                              ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase()
-                              : eq.nombre_equipo.toUpperCase();
-                            return (
-                              <option
-                                key={eq.id}
-                                value={eq.nombre_equipo.toUpperCase()}
-                              >
-                                {nombreConCategoria}
-                              </option>
-                            );
-                          })}
-                        <option value="OTRO_EQUIPO">
-                          + OTRO (Escribir manualmente)
-                        </option>
-                      </select>
-
-                      {index > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const nuevos = formData.equiposSeleccionados.filter(
-                              (_, i) => i !== index,
-                            );
-                            const manualesCopy = [
-                              ...(formData.equiposManuales || []),
-                            ];
-                            manualesCopy.splice(index, 1);
-                            setFormData({
-                              ...formData,
-                              equiposSeleccionados: nuevos,
-                              equiposManuales: manualesCopy,
-                            });
-                          }}
-                          style={{
-                            background: "#ef4444",
-                            color: "#fff",
-                            border: "none",
-                            padding: "10px 14px",
-                            borderRadius: "8px",
-                            cursor: "pointer",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          ✕
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Si este selector específico es OTRO_EQUIPO, mostramos su input y categoría independiente */}
-                    {equipoActual === "OTRO_EQUIPO" && (
-                      <div style={{ marginTop: "8px" }}>
-                        {Array.isArray(equipos) &&
-                          formData.equiposManuales?.[index]?.nombre &&
-                          equipos.some(
-                            (eq) =>
-                              eq &&
-                              typeof eq.nombre_equipo === "string" &&
-                              eq.nombre_equipo.trim().toUpperCase() ===
-                                (formData.equiposManuales[index]?.nombre || "")
-                                  .trim()
-                                  .toUpperCase(),
-                          ) && (
-                            <p
-                              style={{
-                                color: "#ef4444",
-                                fontSize: "0.75rem",
-                                marginBottom: "5px",
-                              }}
-                            >
-                              ⚠️ ¡Este equipo ya existe! Selecciónalo en la
-                              lista superior para ahorrar tiempo.
-                            </p>
-                          )}
-
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "10px",
-                            flexWrap: "wrap",
-                          }}
-                        >
-                          <input
-                            type="text"
-                            style={{
-                              ...styles.input,
-                              flex: 2,
-                              border: "2px solid #2563eb",
-                              margin: 0,
-                            }}
-                            placeholder={`ESCRIBE EL NOMBRE DEL EQUIPO MANUAL #${index + 1}`}
-                            value={
-                              formData.equiposManuales?.[index]?.nombre || ""
-                            }
-                            onChange={(e) => {
-                              const manualesCopy = [
-                                ...(formData.equiposManuales || []),
-                              ];
-                              manualesCopy[index] = {
-                                ...(manualesCopy[index] || {}),
-                                nombre: e.target.value
-                                  ? e.target.value.toUpperCase()
-                                  : "",
-                              };
-                              setFormData({
-                                ...formData,
-                                equiposManuales: manualesCopy,
-                              });
-                            }}
-                            autoComplete="off"
-                            required
-                          />
-
-                          <select
-                            style={{
-                              ...styles.input,
-                              flex: 1,
-                              border: "2px solid #2563eb",
-                              margin: 0,
-                            }}
-                            value={
-                              formData.equiposManuales?.[index]?.categoria || ""
-                            }
-                            onChange={(e) => {
-                              const manualesCopy = [
-                                ...(formData.equiposManuales || []),
-                              ];
-                              manualesCopy[index] = {
-                                ...(manualesCopy[index] || {}),
-                                categoria: e.target.value,
-                              };
-                              setFormData({
-                                ...formData,
-                                equiposManuales: manualesCopy,
-                              });
-                            }}
-                          >
-                            <option
-                              value=""
-                              style={{ backgroundColor: "#0f172a" }}
-                            >
-                              -- Categoría (Opcional) --
-                            </option>
-                            <option
-                              value="VARONIL"
-                              style={{ backgroundColor: "#0f172a" }}
-                            >
-                              VARONIL
-                            </option>
-                            <option
-                              value="FEMENIL"
-                              style={{ backgroundColor: "#0f172a" }}
-                            >
-                              FEMENIL
-                            </option>
-                            <option
-                              value="MIXTO"
-                              style={{ backgroundColor: "#0f172a" }}
-                            >
-                              MIXTO
-                            </option>
-                          </select>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-
-                {/* Candado actualizado: Permite agregar equipos hasta llegar al límite de 4 */}
-                {formData.equiposSeleccionados.length < 4 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormData({
-                        ...formData,
-                        equiposSeleccionados: [
-                          ...formData.equiposSeleccionados,
-                          "",
-                        ],
-                        equiposManuales: [
-                          ...(formData.equiposManuales || []),
-                          {},
-                        ],
-                      });
-                    }}
-                    style={{
-                      background: "transparent",
-                      color: "#60a5fa",
-                      border: "none",
-                      cursor: "pointer",
-                      fontWeight: "bold",
-                      marginTop: "4px",
-                      padding: 0,
-                      fontSize: "0.85rem",
-                    }}
-                  >
-                    + Agregar otro equipo (Máximo 4)
-                  </button>
-                )}
               </div>
 
               <div>
