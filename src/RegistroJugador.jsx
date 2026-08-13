@@ -3,11 +3,13 @@ import api from "./api";
 
 const RegistroJugador = ({ onRegistroExitoso }) => {
   const [equipos, setEquipos] = useState([]);
+  const [torneos, setTorneos] = useState([]); // 1. Estado para almacenar los torneos
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
     correo: "",
     telefono: "",
+    torneo_id: "", // 2. Agregamos torneo_id al estado inicial
     equiposSeleccionados: [""],
     equiposManuales: [{}],
     genero: "Masculino",
@@ -20,16 +22,22 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
   });
 
   useEffect(() => {
-    const fetchEquipos = async () => {
+    const fetchData = async () => {
       try {
-        const res = await api.get("/api/equipos");
-        console.log("📦 Equipos recibidos de la API:", res.data);
-        setEquipos(res.data);
+        // Cargamos equipos y torneos en paralelo
+        const [resEquipos, resTorneos] = await Promise.all([
+          api.get("/api/equipos"),
+          api.get("/api/torneos")
+        ]);
+        console.log("📦 Equipos recibidos:", resEquipos.data);
+        console.log("🏆 Torneos recibidos:", resTorneos.data);
+        setEquipos(resEquipos.data);
+        setTorneos(resTorneos.data);
       } catch (err) {
-        console.error("Error cargando equipos", err);
+        console.error("Error cargando datos iniciales", err);
       }
     };
-    fetchEquipos();
+    fetchData();
   }, []);
 
   const handleFotoChange = (e) => {
@@ -45,6 +53,11 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!formData.torneo_id) {
+      alert("⚠️ Por favor, selecciona un torneo.");
+      return;
+    }
+
     const regexCorreo = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!regexCorreo.test(formData.correo)) {
       alert(
@@ -53,7 +66,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       return;
     }
 
-    // 🟢 VALIDACIÓN ESTRICTA DEL CEO: Máximo 2 de su rama principal y 2 mixtos
+    // 🟢 VALIDACIÓN ESTRICTA: Máximo 2 de su rama principal y 2 mixtos
     let contadorRamaPrincipal = 0;
     let contadorMixtos = 0;
 
@@ -75,7 +88,6 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       const catUpper = categoriaEquipo.toUpperCase();
       const generoJugador = (formData.genero || "").toUpperCase();
       
-      // Determinamos si es de su rama (si es varonil y el jugador es masculino/varonil, o femenil)
       const esRamaPrincipal = 
         (generoJugador.includes("MASC") && catUpper.includes("VARONIL")) ||
         (generoJugador.includes("FEM") && catUpper.includes("FEMENIL"));
@@ -125,7 +137,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
       };
 
       await api.post("/api/jugadores/registro", payload);
-      alert("✅ ¡Registro exitoso!");
+      alert("✅ ¡Registro exitoso en el torneo!");
       if (onRegistroExitoso) onRegistroExitoso();
     } catch (err) {
       const mensajeError =
@@ -325,6 +337,33 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
             </div>
 
             <div style={styles.grid}>
+              {/* 🟢 SECCIÓN SELECTOR DE TORNEO */}
+              <div style={styles.fullWidth}>
+                <label style={styles.label}>Selecciona el Torneo</label>
+                <select
+                  style={styles.input}
+                  value={formData.torneo_id}
+                  onChange={(e) =>
+                    setFormData({ ...formData, torneo_id: e.target.value })
+                  }
+                  required
+                >
+                  <option value="" style={{ backgroundColor: "#0f172a" }}>
+                    -- Elige un torneo --
+                  </option>
+                  {Array.isArray(torneos) &&
+                    torneos.map((t) => (
+                      <option
+                        key={t.id}
+                        value={t.id}
+                        style={{ backgroundColor: "#0f172a" }}
+                      >
+                        {t.nombre_torneo || t.nombre || `Torneo #${t.id}`}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
               <div style={styles.fullWidth}>
                 <label style={styles.label}>Nombre del Jugador</label>
                 <input
