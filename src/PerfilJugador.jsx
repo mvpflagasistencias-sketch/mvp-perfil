@@ -364,6 +364,11 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     return resumen.length > 0 ? resumen.join(" | ") : "AGENTE LIBRE";
   };
 
+  // 🟢 Agrega este puente aquí abajito para que tu JSX que usa obtenerNombreEquipo() no falle:
+  const obtenerNombreEquipo = () => {
+    return obtenerEquiposParticipando();
+  };
+
   if (loading) {
     return (
       <div
