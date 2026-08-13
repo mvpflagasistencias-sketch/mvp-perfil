@@ -55,13 +55,28 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  // 🟢 1. Validación de que existan inscripciones
-  if (!formData.inscripciones || formData.inscripciones.length === 0) {
-    alert("⚠️ Por favor, añade al menos un torneo.");
-    return;
-  }
+    console.log("Género actual:", formData.genero);
+    console.log("Categoría general actual:", formData.categoria);
+
+    const gen = (formData.genero || "").trim().toUpperCase();
+    const catGlobal = (formData.categoria || "").trim().toUpperCase();
+
+    // 🟢 RESTRICCIÓN GLOBAL INICIAL (Evita que el formulario pase si hay contradicción arriba)
+    if (gen.includes("MASC") && catGlobal === "FEMENIL") {
+      alert("⚠️ Un jugador con género Masculino no puede registrarse con categoría general Femenil.");
+      return;
+    }
+    if (gen.includes("FEM") && catGlobal === "VARONIL") {
+      alert("⚠️ Un jugador con género Femenil no puede registrarse con categoría general Varonil.");
+      return;
+    }
+
+    if (!formData.inscripciones || formData.inscripciones.length === 0) {
+      alert("⚠️ Por favor, añade al menos un torneo.");
+      return;
+    }
 
   // 🟢 2. Validación de torneos, género y límites de equipos
   for (let indexTorneo = 0; indexTorneo < formData.inscripciones.length; indexTorneo++) {
