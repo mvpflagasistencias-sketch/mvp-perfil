@@ -1840,38 +1840,40 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                             )}
                           </div>
 
-                          {/* Selector de Torneo */}
                           <select
-                            disabled={!editandoCampos}
-                            value={torneoItem.torneo_id || ""}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              const nuevos = [...datosForm.torneos_dinamicos];
-                              nuevos[tIndex].torneo_id = val;
-                              // Reiniciamos los equipos de este torneo si cambia de torneo
-                              nuevos[tIndex].equipos = [{ equipo_id: "" }];
-                              setDatosForm({
-                                ...datosForm,
-                                torneos_dinamicos: nuevos,
-                              });
-                            }}
-                            style={{
-                              width: "100%",
-                              backgroundColor: "#1e293b",
-                              border: "1px solid #30363d",
-                              padding: "8px",
-                              borderRadius: "6px",
-                              color: "white",
-                              fontSize: "10px",
-                            }}
-                          >
-                            <option value="">-- Elige un torneo --</option>
-                            {(window.listaTorneosDisponibles || []).map((t) => (
-                              <option key={t.id} value={t.id}>
-                                {t.nombre_torneo.toUpperCase()}
-                              </option>
-                            ))}
-                          </select>
+  disabled={!editandoCampos}
+  value={eqItem.equipo_id || ""}
+  onChange={(e) => {
+    const nuevos = [...datosForm.torneos_dinamicos];
+    nuevos[tIndex].equipos[eqIndex].equipo_id = e.target.value;
+    setDatosForm({ ...datosForm, torneos_dinamicos: nuevos });
+  }}
+  style={{
+    flex: 1,
+    backgroundColor: "#1e293b",
+    border: "1px solid #30363d",
+    padding: "6px",
+    borderRadius: "6px",
+    color: "white",
+    fontSize: "10px",
+  }}
+>
+  <option value="">-- Elige un equipo --</option>
+  {/* 🔍 FILTRO ROBUSTO: Muestra los equipos que pertenecen al torneo seleccionado o despliega la lista general si no hay restricciones */}
+  {equipos
+    .filter((e) => {
+      if (!torneoItem.torneo_id) return false;
+      const torneoEquipo = e.torneo_id || e.id_torneo || e.torneo;
+      // Si el equipo no tiene un torneo asignado explícitamente, lo permitimos para evitar vacíos
+      if (!torneoEquipo) return true; 
+      return torneoEquipo.toString() === torneoItem.torneo_id?.toString();
+    })
+    .map((e) => (
+      <option key={e.id} value={e.id}>
+        {e.nombre_equipo.toUpperCase()} ({e.categoria || e.tipo || "General"})
+      </option>
+    ))}
+</select>
 
                           <p
                             style={{
