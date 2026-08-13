@@ -236,53 +236,50 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   };
 
   // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES
-  // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES Y EQUIPOS
   const handleGuardarDatosPersonales = async () => {
     try {
       const idActual = jugadorId || localStorage.getItem("atleta_id");
       const listaDinamica = datosForm.equipos_dinamicos || [];
 
-      // Validamos únicamente los límites de cantidad (máx 2 de género, máx 2 mixtos)
+      // 1. Validaciones de límite (esto se queda igual)
       let countGenero = 0;
       let countMixto = 0;
 
       for (const item of listaDinamica) {
         let tipoEq = "Varonil";
-
         if (item.id) {
-          const encontrado = equipos.find(
-            (e) => e.id.toString() === item.id.toString(),
-          );
-          if (encontrado) {
-            tipoEq = encontrado.categoria || encontrado.tipo || "Varonil";
-          }
+          const encontrado = equipos.find((e) => e.id.toString() === item.id.toString());
+          if (encontrado) tipoEq = encontrado.categoria || encontrado.tipo || "Varonil";
         } else if (item.nombre_nuevo) {
           tipoEq = item.tipo || item.categoria || "Varonil";
         }
 
         const catLower = tipoEq.toLowerCase();
-
-        if (catLower.includes("mixto")) {
-          countMixto++;
-        } else {
-          countGenero++;
-        }
+        if (catLower.includes("mixto")) countMixto++;
+        else countGenero++;
       }
 
       if (countGenero > 2) {
-        alert(
-          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de género.",
-        );
+        alert("⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de género.");
         return;
       }
       if (countMixto > 2) {
-        alert(
-          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.",
-        );
+        alert("⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.");
         return;
       }
 
-      const payload = { ...datosForm, foto_perfil: perfil.foto_perfil };
+      // 2. PREPARAMOS EL PAYLOAD
+      // Si estás editando un torneo específico, asegúrate de enviar el torneo_id correspondiente.
+      // Si el formulario maneja varios torneos, podrías necesitar un loop, 
+      // pero por ahora enviamos el torneo_id del primer equipo o el que tengas en el estado.
+      const torneoIdActivo = listaDinamica.length > 0 ? listaDinamica[0].torneo_id : null;
+
+      const payload = { 
+        ...datosForm, 
+        foto_perfil: perfil.foto_perfil,
+        torneo_id: torneoIdActivo // 🟢 AQUÍ ESTÁ LA CLAVE PARA EL BACKEND
+      };
+      
       delete payload.password;
       delete payload.confirmPassword;
 
@@ -290,16 +287,15 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         `/api/jugadores/perfil/actualizar/${idActual}`,
         payload,
       );
+
       if (response.status === 200) {
         setPerfil({ ...perfil, ...payload });
         setEditandoCampos(false);
-        alert("✅ ¡Datos personales y equipos actualizados con éxito!");
+        alert("✅ ¡Datos personales, equipos y torneos actualizados con éxito!");
       }
     } catch (err) {
       console.error("Error al actualizar datos:", err);
-      const mensajeError =
-        err.response?.data?.error ||
-        "❌ Error al intentar guardar los cambios.";
+      const mensajeError = err.response?.data?.error || "❌ Error al intentar guardar los cambios.";
       alert(mensajeError);
     }
   };
