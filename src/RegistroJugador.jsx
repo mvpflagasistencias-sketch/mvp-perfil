@@ -345,31 +345,80 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
             </div>
 
             <div style={styles.grid}>
-              {/* 🟢 SECCIÓN SELECTOR DE TORNEO */}
+              {/* 🟢 SECCIÓN SELECTOR DE TORNEOS MÚLTIPLES */}
               <div style={styles.fullWidth}>
-                <label style={styles.label}>Selecciona el Torneo</label>
-                <select
-                  style={styles.input}
-                  value={formData.torneo_id}
-                  onChange={(e) =>
-                    setFormData({ ...formData, torneo_id: e.target.value })
-                  }
-                  required
+                <label style={styles.label}>
+                  Selecciona los Torneos (Puedes elegir varios)
+                </label>
+                <div
+                  style={{
+                    ...styles.input,
+                    maxHeight: "150px",
+                    overflowY: "auto",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px",
+                    padding: "10px",
+                  }}
                 >
-                  <option value="" style={{ backgroundColor: "#0f172a" }}>
-                    -- Elige un torneo --
-                  </option>
-                  {Array.isArray(torneos) &&
-                    torneos.map((t) => (
-                      <option
-                        key={t.id}
-                        value={t.id}
-                        style={{ backgroundColor: "#0f172a" }}
-                      >
-                        {t.nombre_torneo || t.nombre || `Torneo #${t.id}`}
-                      </option>
-                    ))}
-                </select>
+                  {Array.isArray(torneos) && torneos.length > 0 ? (
+                    torneos.map((t) => {
+                      // Verificamos si este torneo ya está seleccionado en el array
+                      const isChecked = formData.torneos_ids?.includes(
+                        t.id.toString(),
+                      );
+                      return (
+                        <label
+                          key={t.id}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                            cursor: "pointer",
+                            color: "#fff",
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            value={t.id}
+                            checked={isChecked || false}
+                            onChange={(e) => {
+                              const torneoId = e.target.value;
+                              let currentTorneos = formData.torneos_ids
+                                ? [...formData.torneos_ids]
+                                : [];
+
+                              if (e.target.checked) {
+                                currentTorneos.push(torneoId);
+                              } else {
+                                currentTorneos = currentTorneos.filter(
+                                  (id) => id !== torneoId,
+                                );
+                              }
+
+                              setFormData({
+                                ...formData,
+                                torneos_ids: currentTorneos,
+                              });
+                            }}
+                            style={{
+                              width: "16px",
+                              height: "16px",
+                              cursor: "pointer",
+                            }}
+                          />
+                          <span>
+                            {t.nombre_torneo || t.nombre || `Torneo #${t.id}`}
+                          </span>
+                        </label>
+                      );
+                    })
+                  ) : (
+                    <span style={{ color: "#94a3b8" }}>
+                      No hay torneos disponibles
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div style={styles.fullWidth}>
