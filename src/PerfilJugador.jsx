@@ -13,11 +13,11 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [menuAbierto, setMenuAbierto] = useState(false);
   const [tabActiva, setTabActiva] = useState("promos");
 
-  // 📝 ESTADO EXTENDIDO: Ahora incluye Nombre, Equipo, Teléfono, Jersey y Password
+  // 📝 ESTADO EXTENDIDO: Inicializado correctamente con torneos_dinamicos
   const [modalPerfilAbierto, setModalPerfilAbierto] = useState(false);
   const [datosForm, setDatosForm] = useState({
     nombre: "",
-    equipos_ids: [], // 👈 Arreglo para múltiples equipos
+    torneos_dinamicos: [], 
     numero_jersey: "",
     telefono: "",
     password: "",
@@ -27,7 +27,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   // 🚀 FOTO: Estado local para manejar el string de previsualización y guardado
   const [fotoBase64, setFotoBase64] = useState("");
 
-  // 🔒 CONTROL DE EDICIÓN: Bloquea o desbloquea secciones de forma independiente
+  // 🔒 CONTROL DE EDICIÓN
   const [editandoCampos, setEditandoCampos] = useState(false);
   const [verSeccionPassword, setVerSeccionPassword] = useState(false);
 
@@ -38,7 +38,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [datosEquipo, setDatosEquipo] = useState({
     asistencias: 0,
     totalesPartidos: 16,
-    historial: [], // 👈 Añadido para asegurar la estructura limpia
+    historial: [],
     fotos: [
       "https://images.unsplash.com/photo-1587280501635-68a0e82cd5ff?q=80&w=400&auto=format&fit=crop",
       "https://images.unsplash.com/photo-1544698310-74ea9d1c8258?q=80&w=400&auto=format&fit=crop",
@@ -151,13 +151,15 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           if (match) equipoIdDinamico = match.id.toString();
         }
 
-        // Mapeamos los torneos y equipos que ya trae el perfil para el modal dinámico
+       // Mapeamos los torneos y equipos que ya trae el perfil para el modal dinámico
         let torneosInicialesList = [];
         if (Array.isArray(data.torneos) && data.torneos.length > 0) {
           torneosInicialesList = data.torneos.map((t) => ({
             torneo_id: t.torneo_id ? t.torneo_id.toString() : "",
             equipos: Array.isArray(t.equipos) && t.equipos.length > 0
-              ? t.equipos.map((eq) => ({ equipo_id: eq.id ? eq.id.toString() : "" }))
+              ? t.equipos.map((eq) => ({ 
+                  equipo_id: (eq.equipo_id || eq.id) ? (eq.equipo_id || eq.id).toString() : "" 
+                }))
               : [{ equipo_id: "" }]
           }));
         } else {
