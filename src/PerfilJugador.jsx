@@ -151,40 +151,32 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           if (match) equipoIdDinamico = match.id.toString();
         }
 
-        // Soportamos si el backend manda un arreglo de equipos_ids o un equipo_id individual
-        // Mapeamos los equipos del jugador al formato dinámico
-        let equiposInicialesList = [];
-        if (Array.isArray(data.equipos_detalles)) {
-          equiposInicialesList = data.equipos_detalles.map((eq) => ({
-            id: eq.id,
-            nombre_nuevo: "",
-            tipo: eq.tipo,
+        // Mapeamos los torneos que ya trae el perfil con sus equipos correspondientes
+        let torneosInicialesList = [];
+        if (Array.isArray(data.torneos) && data.torneos.length > 0) {
+          torneosInicialesList = data.torneos.map((t) => ({
+            torneo_id: t.torneo_id ? t.torneo_id.toString() : "",
+            equipos:
+              Array.isArray(t.equipos) && t.equipos.length > 0
+                ? t.equipos.map((eq) => ({
+                    equipo_id: eq.id ? eq.id.toString() : "",
+                  }))
+                : [{ equipo_id: "" }],
           }));
-        } else if (Array.isArray(data.equipos_ids)) {
-          equiposInicialesList = data.equipos_ids.map((id) => ({
-            id: id,
-            nombre_nuevo: "",
-            tipo: "Varonil",
-          }));
-        } else if (data.equipo_id) {
-          equiposInicialesList = [
-            { id: data.equipo_id, nombre_nuevo: "", tipo: "Varonil" },
-          ];
-        } else if (equipoIdDinamico) {
-          equiposInicialesList = [
-            { id: equipoIdDinamico, nombre_nuevo: "", tipo: "Varonil" },
+        } else {
+          torneosInicialesList = [
+            { torneo_id: "", equipos: [{ equipo_id: "" }] },
           ];
         }
 
         setDatosForm({
           nombre: data.nombre || "",
-          equipos_dinamicos: equiposInicialesList, // 👈 Usamos el arreglo dinámico para las filas
+          torneos_dinamicos: torneosInicialesList, // 👈 Pasamos la lista agrupada de torneos
           numero_jersey: data.numero_jersey || "",
           telefono: data.telefono || "",
           password: "",
           confirmPassword: "",
         });
-
         // Sincronizamos la foto inicial en el estado de preview
         setFotoBase64(data.foto_perfil || "");
       } catch (err) {
@@ -1829,7 +1821,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                             )}
                           </div>
 
-                         
                           {/* Selector de Torneo */}
                           <select
                             disabled={!editandoCampos}
