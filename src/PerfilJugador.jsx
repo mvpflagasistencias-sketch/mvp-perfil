@@ -104,6 +104,21 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           data.asistencias = resAsistencias.data.asistencias || 0;
         }
 
+        // CÓDIGO CORREGIDO:
+        if (resAsistencias.data) {
+          setDatosEquipo((prev) => ({
+            ...prev,
+            asistencias: resAsistencias.data.asistencias,
+            totalesPartidos: resAsistencias.data.totalesPartidos,
+            historial: resAsistencias.data.historial || [],
+            torneosInscritos: resAsistencias.data.torneos || data.torneos || [], // 👈 Añadido aquí
+          }));
+
+          // También se lo inyectamos al perfil por si tu vista lo lee de ahí
+          data.historial = resAsistencias.data.historial || [];
+          data.asistencias = resAsistencias.data.asistencias || 0;
+        }
+
         // Mapeo masivo para formatear y acumular todas las promociones que devuelva la tabla intermedia
         if (resPromociones.data && resPromociones.data.length > 0) {
           const listaFormateada = resPromociones.data.map((promo) => ({
@@ -234,69 +249,71 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES
   // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES Y EQUIPOS
   const handleGuardarDatosPersonales = async () => {
-  try {
-    const idActual = jugadorId || localStorage.getItem("atleta_id");
-    const listaDinamica = datosForm.equipos_dinamicos || [];
+    try {
+      const idActual = jugadorId || localStorage.getItem("atleta_id");
+      const listaDinamica = datosForm.equipos_dinamicos || [];
 
-    // Validamos únicamente los límites de cantidad (máx 2 de género, máx 2 mixtos)
-    let countGenero = 0;
-    let countMixto = 0;
+      // Validamos únicamente los límites de cantidad (máx 2 de género, máx 2 mixtos)
+      let countGenero = 0;
+      let countMixto = 0;
 
-    for (const item of listaDinamica) {
-      let tipoEq = "Varonil";
+      for (const item of listaDinamica) {
+        let tipoEq = "Varonil";
 
-      if (item.id) {
-        const encontrado = equipos.find(
-          (e) => e.id.toString() === item.id.toString(),
-        );
-        if (encontrado) {
-          tipoEq = encontrado.categoria || encontrado.tipo || "Varonil";
+        if (item.id) {
+          const encontrado = equipos.find(
+            (e) => e.id.toString() === item.id.toString(),
+          );
+          if (encontrado) {
+            tipoEq = encontrado.categoria || encontrado.tipo || "Varonil";
+          }
+        } else if (item.nombre_nuevo) {
+          tipoEq = item.tipo || item.categoria || "Varonil";
         }
-      } else if (item.nombre_nuevo) {
-        tipoEq = item.tipo || item.categoria || "Varonil";
+
+        const catLower = tipoEq.toLowerCase();
+
+        if (catLower.includes("mixto")) {
+          countMixto++;
+        } else {
+          countGenero++;
+        }
       }
 
-      const catLower = tipoEq.toLowerCase();
-
-      if (catLower.includes("mixto")) {
-        countMixto++;
-      } else {
-        countGenero++;
+      if (countGenero > 2) {
+        alert(
+          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de género.",
+        );
+        return;
       }
-    }
+      if (countMixto > 2) {
+        alert(
+          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.",
+        );
+        return;
+      }
 
-    if (countGenero > 2) {
-      alert(
-        "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de género.",
+      const payload = { ...datosForm, foto_perfil: perfil.foto_perfil };
+      delete payload.password;
+      delete payload.confirmPassword;
+
+      const response = await api.put(
+        `/api/jugadores/perfil/actualizar/${idActual}`,
+        payload,
       );
-      return;
+      if (response.status === 200) {
+        setPerfil({ ...perfil, ...payload });
+        setEditandoCampos(false);
+        alert("✅ ¡Datos personales y equipos actualizados con éxito!");
+      }
+    } catch (err) {
+      console.error("Error al actualizar datos:", err);
+      const mensajeError =
+        err.response?.data?.error ||
+        "❌ Error al intentar guardar los cambios.";
+      alert(mensajeError);
     }
-    if (countMixto > 2) {
-      alert(
-        "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.",
-      );
-      return;
-    }
-
-    const payload = { ...datosForm, foto_perfil: perfil.foto_perfil };
-    delete payload.password;
-    delete payload.confirmPassword;
-
-    const response = await api.put(
-      `/api/jugadores/perfil/actualizar/${idActual}`,
-      payload,
-    );
-    if (response.status === 200) {
-      setPerfil({ ...perfil, ...payload });
-      setEditandoCampos(false);
-      alert("✅ ¡Datos personales y equipos actualizados con éxito!");
-    }
-  } catch (err) {
-    console.error("Error al actualizar datos:", err);
-    const mensajeError = err.response?.data?.error || "❌ Error al intentar guardar los cambios.";
-    alert(mensajeError);
-  }
-};
+  };
   // 🛠️ SECCIÓN INDEPENDIENTE 3: GUARDAR EXCLUSIVAMENTE LA NUEVA CONTRASEÑA
   const handleGuardarPassword = async () => {
     if (
@@ -844,8 +861,8 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         >
           {[
             { id: "promos", label: "📢 Promos" },
+            { id: "torneos", label: "🏆 Torneos" }, // 👈 Reemplazamos Galería por Torneos
             { id: "asistencias", label: "📊 Asistencias" },
-            { id: "fotos", label: "📸 Galería" },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -1117,6 +1134,168 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                   </p>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* 🏆 NUEVA SECCIÓN UX PROFESIONAL: TORNEOS Y EQUIPOS INSCRITOS */}
+          {tabActiva === "torneos" && (
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+            >
+              <div style={{ textAlign: "left", marginBottom: "4px" }}>
+                <p
+                  style={{
+                    margin: 0,
+                    fontSize: "13px",
+                    fontWeight: "900",
+                    color: "#60a5fa",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Torneos y Escuadras Activas
+                </p>
+                <span style={{ fontSize: "10px", color: "#94a3b8" }}>
+                  Tus inscripciones oficiales registradas en el sistema.
+                </span>
+              </div>
+
+              {!datosEquipo.torneosInscritos ||
+              datosEquipo.torneosInscritos.length === 0 ? (
+                <div
+                  style={{
+                    backgroundColor: "#0f172a",
+                    border: "1px dashed #30363d",
+                    padding: "24px 16px",
+                    borderRadius: "16px",
+                    textAlign: "center",
+                  }}
+                >
+                  <span style={{ fontSize: "24px" }}>🏈</span>
+                  <p
+                    style={{
+                      fontSize: "11px",
+                      color: "#94a3b8",
+                      fontWeight: "700",
+                      marginTop: "10px",
+                      marginBottom: 0,
+                    }}
+                  >
+                    No cuentas con torneos inscritos en este momento.
+                  </p>
+                </div>
+              ) : (
+                datosEquipo.torneosInscritos.map((torneo, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      backgroundColor: "#0f172a",
+                      border: "1px solid #30363d",
+                      borderRadius: "16px",
+                      padding: "14px",
+                      boxSizing: "border-box",
+                      textAlign: "left",
+                      boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        borderBottom: "1px solid #1e293b",
+                        paddingBottom: "8px",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: "900",
+                          color: "#f8fafc",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        🏆{" "}
+                        {torneo.nombre_torneo ||
+                          torneo.torneo ||
+                          `Torneo #${index + 1}`}
+                      </span>
+                      <span
+                        style={{
+                          fontSize: "9px",
+                          backgroundColor: "#1e293b",
+                          color: "#60a5fa",
+                          padding: "3px 8px",
+                          borderRadius: "6px",
+                          fontWeight: "800",
+                        }}
+                      >
+                        ACTIVO
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "6px",
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: "9px",
+                          color: "#64748b",
+                          fontWeight: "800",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        Equipos en este torneo:
+                      </span>
+                      {(
+                        torneo.equipos ||
+                        torneo.equipos_seleccionados ||
+                        []
+                      ).map((eq, eqIdx) => (
+                        <div
+                          key={eqIdx}
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            backgroundColor: "#1e293b",
+                            padding: "8px 10px",
+                            borderRadius: "8px",
+                            border: "1px solid #334155",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "800",
+                              color: "white",
+                            }}
+                          >
+                            ⚡{" "}
+                            {typeof eq === "string"
+                              ? eq
+                              : eq.nombre_equipo || eq.nombre}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: "9px",
+                              color: "#22c55e",
+                              fontWeight: "900",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            {eq.categoria || eq.tipo || "Oficial"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           )}
         </div>
@@ -1663,54 +1842,76 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                               }}
                             >
                               <select
-  disabled={!editandoCampos}
-  value={item.id || ""}
-  onChange={(e) => {
-    const val = e.target.value;
-    const nuevos = [...datosForm.equipos_dinamicos];
-    nuevos[index] = {
-      ...nuevos[index],
-      id: val,
-      nombre_nuevo: "",
-    };
-    setDatosForm({
-      ...datosForm,
-      equipos_dinamicos: nuevos,
-    });
-  }}
-  style={{
-    flex: 1,
-    backgroundColor: "#1e293b",
-    border: "1px solid #30363d",
-    borderRadius: "6px",
-    padding: "6px",
-    color: "white",
-    fontSize: "10px",
-    outline: "none",
-    cursor: editandoCampos ? "pointer" : "default",
-  }}
->
-  <option value="">-- Selecciona de la lista --</option>
-  {equipos
-    .filter((eq) => {
-      const cat = (eq.categoria || eq.tipo || "").toLowerCase();
-      const generoPerfil = (datosForm.genero || "").toLowerCase();
+                                disabled={!editandoCampos}
+                                value={item.id || ""}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const nuevos = [
+                                    ...datosForm.equipos_dinamicos,
+                                  ];
+                                  nuevos[index] = {
+                                    ...nuevos[index],
+                                    id: val,
+                                    nombre_nuevo: "",
+                                  };
+                                  setDatosForm({
+                                    ...datosForm,
+                                    equipos_dinamicos: nuevos,
+                                  });
+                                }}
+                                style={{
+                                  flex: 1,
+                                  backgroundColor: "#1e293b",
+                                  border: "1px solid #30363d",
+                                  borderRadius: "6px",
+                                  padding: "6px",
+                                  color: "white",
+                                  fontSize: "10px",
+                                  outline: "none",
+                                  cursor: editandoCampos
+                                    ? "pointer"
+                                    : "default",
+                                }}
+                              >
+                                <option value="">
+                                  -- Selecciona de la lista --
+                                </option>
+                                {equipos
+                                  .filter((eq) => {
+                                    const cat = (
+                                      eq.categoria ||
+                                      eq.tipo ||
+                                      ""
+                                    ).toLowerCase();
+                                    const generoPerfil = (
+                                      datosForm.genero || ""
+                                    ).toLowerCase();
 
-      // Si el perfil es MUJER: mostrar únicamente Femenil y Mixto
-      if (generoPerfil.includes("femenino") || generoPerfil.includes("f") || generoPerfil.includes("mujer")) {
-        return cat.includes("femenil") || cat.includes("mixto");
-      }
+                                    // Si el perfil es MUJER: mostrar únicamente Femenil y Mixto
+                                    if (
+                                      generoPerfil.includes("femenino") ||
+                                      generoPerfil.includes("f") ||
+                                      generoPerfil.includes("mujer")
+                                    ) {
+                                      return (
+                                        cat.includes("femenil") ||
+                                        cat.includes("mixto")
+                                      );
+                                    }
 
-      // Si el perfil es HOMBRE: mostrar únicamente Varonil y Mixto
-      return cat.includes("varonil") || cat.includes("mixto");
-    })
-    .map((eq) => (
-      <option key={eq.id} value={eq.id}>
-        {eq.nombre_equipo.toUpperCase()} (
-        {eq.categoria || eq.tipo || "General"})
-      </option>
-    ))}
-</select>
+                                    // Si el perfil es HOMBRE: mostrar únicamente Varonil y Mixto
+                                    return (
+                                      cat.includes("varonil") ||
+                                      cat.includes("mixto")
+                                    );
+                                  })
+                                  .map((eq) => (
+                                    <option key={eq.id} value={eq.id}>
+                                      {eq.nombre_equipo.toUpperCase()} (
+                                      {eq.categoria || eq.tipo || "General"})
+                                    </option>
+                                  ))}
+                              </select>
 
                               {editandoCampos && (
                                 <button
