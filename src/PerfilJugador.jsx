@@ -1852,12 +1852,36 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                             }}
                           >
                             <option value="">-- Elige un torneo --</option>
-                            {/* Aseguramos la fuente de datos, usando window como respaldo si no hay estado */}
-                            {(
-                              torneosDisponibles ||
-                              window.listaTorneosDisponibles ||
-                              []
-                            ).map((t) => (
+                            {(window.listaTorneosDisponibles || []).map((t) => (
+                              <option key={t.id} value={t.id}>
+                                {t.nombre_torneo.toUpperCase()}
+                              </option>
+                            ))}
+                          </select>
+                          {/* Selector de Torneo */}
+                          <select
+                            disabled={!editandoCampos}
+                            value={torneoItem.torneo_id || ""}
+                            onChange={(e) => {
+                              const nuevos = [...datosForm.torneos_dinamicos];
+                              nuevos[tIndex].torneo_id = e.target.value;
+                              setDatosForm({
+                                ...datosForm,
+                                torneos_dinamicos: nuevos,
+                              });
+                            }}
+                            style={{
+                              width: "100%",
+                              backgroundColor: "#1e293b",
+                              border: "1px solid #30363d",
+                              padding: "8px",
+                              borderRadius: "6px",
+                              color: "white",
+                              fontSize: "10px",
+                            }}
+                          >
+                            <option value="">-- Elige un torneo --</option>
+                            {(window.listaTorneosDisponibles || []).map((t) => (
                               <option key={t.id} value={t.id}>
                                 {t.nombre_torneo.toUpperCase()}
                               </option>
