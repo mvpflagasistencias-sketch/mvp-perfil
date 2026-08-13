@@ -94,13 +94,13 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
         // CÓDIGO CORREGIDO:
         if (resAsistencias.data) {
-          console.log("Datos de asistencias/torneos recibidos:", resAsistencias.data); // 👈 Añade esto
+          console.log("Datos de asistencias recibidos:", resAsistencias.data);
           setDatosEquipo((prev) => ({
             ...prev,
             asistencias: resAsistencias.data.asistencias,
             totalesPartidos: resAsistencias.data.totalesPartidos,
             historial: resAsistencias.data.historial || [],
-            torneosInscritos: resAsistencias.data.torneos || data.torneos || [], // 👈 Añadido aquí
+            torneosInscritos: data.torneos || [], // 👈 ¡Cámbialo aquí para que lea de la data del perfil!
           }));
 
           // También se lo inyectamos al perfil por si tu vista lo lee de ahí
