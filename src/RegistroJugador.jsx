@@ -381,8 +381,10 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                               required
                             >
                               <option value="">-- Elige un equipo --</option>
-                              {Array.isArray(equipos) &&
-                                equipos.map((eq) => {
+                              
+                              {/* 🟢 Cambiado a equiposDisponibles para que filtre por torneo */}
+                              {Array.isArray(inscripcion.equiposDisponibles) &&
+                                inscripcion.equiposDisponibles.map((eq) => {
                                   if (!eq || !eq.nombre_equipo) return null;
                                   const nombreConCategoria = eq.categoria
                                     ? `${eq.nombre_equipo} (${eq.categoria})`.toUpperCase()
@@ -393,6 +395,7 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                                     </option>
                                   );
                                 })}
+
                               <option value="OTRO_EQUIPO">+ OTRO (Escribir manualmente)</option>
                             </select>
 
