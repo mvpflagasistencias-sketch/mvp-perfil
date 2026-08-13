@@ -90,22 +90,11 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         setPerfil(data);
         setEquipos(resEquipos.data);
 
-        // CÓDIGO CORREGIDO:
-        if (resAsistencias.data) {
-          setDatosEquipo((prev) => ({
-            ...prev,
-            asistencias: resAsistencias.data.asistencias,
-            totalesPartidos: resAsistencias.data.totalesPartidos,
-            historial: resAsistencias.data.historial || [], // 👈 ¡Faltaba guardar esto!
-          }));
-
-          // También se lo inyectamos al perfil por si tu vista lo lee de ahí
-          data.historial = resAsistencias.data.historial || [];
-          data.asistencias = resAsistencias.data.asistencias || 0;
-        }
+      
 
         // CÓDIGO CORREGIDO:
         if (resAsistencias.data) {
+          console.log("Datos de asistencias/torneos recibidos:", resAsistencias.data); // 👈 Añade esto
           setDatosEquipo((prev) => ({
             ...prev,
             asistencias: resAsistencias.data.asistencias,
