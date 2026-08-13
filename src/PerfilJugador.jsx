@@ -1829,35 +1829,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                             )}
                           </div>
 
-                          {/* Selector de Torneo */}
-                          <select
-                            disabled={!editandoCampos}
-                            value={torneoItem.torneo_id || ""}
-                            onChange={(e) => {
-                              const nuevos = [...datosForm.torneos_dinamicos];
-                              nuevos[tIndex].torneo_id = e.target.value;
-                              setDatosForm({
-                                ...datosForm,
-                                torneos_dinamicos: nuevos,
-                              });
-                            }}
-                            style={{
-                              width: "100%",
-                              backgroundColor: "#1e293b",
-                              border: "1px solid #30363d",
-                              padding: "8px",
-                              borderRadius: "6px",
-                              color: "white",
-                              fontSize: "10px",
-                            }}
-                          >
-                            <option value="">-- Elige un torneo --</option>
-                            {(window.listaTorneosDisponibles || []).map((t) => (
-                              <option key={t.id} value={t.id}>
-                                {t.nombre_torneo.toUpperCase()}
-                              </option>
-                            ))}
-                          </select>
+                         
                           {/* Selector de Torneo */}
                           <select
                             disabled={!editandoCampos}
