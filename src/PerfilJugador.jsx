@@ -17,7 +17,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   const [modalPerfilAbierto, setModalPerfilAbierto] = useState(false);
   const [datosForm, setDatosForm] = useState({
     nombre: "",
-    torneos_dinamicos: [], 
+    torneos_dinamicos: [],
     numero_jersey: "",
     telefono: "",
     password: "",
@@ -151,19 +151,25 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           if (match) equipoIdDinamico = match.id.toString();
         }
 
-       // Mapeamos los torneos y equipos que ya trae el perfil para el modal dinámico
+        // Mapeamos los torneos y equipos que ya trae el perfil para el modal dinámico
         let torneosInicialesList = [];
         if (Array.isArray(data.torneos) && data.torneos.length > 0) {
           torneosInicialesList = data.torneos.map((t) => ({
             torneo_id: t.torneo_id ? t.torneo_id.toString() : "",
-            equipos: Array.isArray(t.equipos) && t.equipos.length > 0
-              ? t.equipos.map((eq) => ({ 
-                  equipo_id: (eq.equipo_id || eq.id) ? (eq.equipo_id || eq.id).toString() : "" 
-                }))
-              : [{ equipo_id: "" }]
+            equipos:
+              Array.isArray(t.equipos) && t.equipos.length > 0
+                ? t.equipos.map((eq) => ({
+                    equipo_id:
+                      eq.equipo_id || eq.id
+                        ? (eq.equipo_id || eq.id).toString()
+                        : "",
+                  }))
+                : [{ equipo_id: "" }],
           }));
         } else {
-          torneosInicialesList = [{ torneo_id: "", equipos: [{ equipo_id: "" }] }];
+          torneosInicialesList = [
+            { torneo_id: "", equipos: [{ equipo_id: "" }] },
+          ];
         }
 
         setDatosForm({
@@ -348,20 +354,27 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
   const obtenerEquiposParticipando = () => {
     // Si no existen los datos dinámicos o el arreglo está vacío, es agente libre
-    if (!datosForm.torneos_dinamicos || datosForm.torneos_dinamicos.length === 0) {
+    if (
+      !datosForm.torneos_dinamicos ||
+      datosForm.torneos_dinamicos.length === 0
+    ) {
       return "AGENTE LIBRE";
     }
 
     // Recorremos todos los torneos y extraemos los nombres de los equipos
-    const resumen = datosForm.torneos_dinamicos.map(t => {
-      // Filtramos equipos que tengan ID válido y buscamos su nombre
-      const nombres = t.equipos
-        .map(eq => equipos.find(e => e.id.toString() === eq.equipo_id.toString()))
-        .filter(Boolean)
-        .map(e => e.nombre_equipo);
-      
-      return nombres.length > 0 ? nombres.join(", ") : null;
-    }).filter(Boolean);
+    const resumen = datosForm.torneos_dinamicos
+      .map((t) => {
+        // Filtramos equipos que tengan ID válido y buscamos su nombre
+        const nombres = t.equipos
+          .map((eq) =>
+            equipos.find((e) => e.id.toString() === eq.equipo_id.toString()),
+          )
+          .filter(Boolean)
+          .map((e) => e.nombre_equipo);
+
+        return nombres.length > 0 ? nombres.join(", ") : null;
+      })
+      .filter(Boolean);
 
     return resumen.length > 0 ? resumen.join(" | ") : "AGENTE LIBRE";
   };
@@ -1840,40 +1853,37 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                             )}
                           </div>
 
+                          {/* Selector de Torneo */}
                           <select
-  disabled={!editandoCampos}
-  value={eqItem.equipo_id || ""}
-  onChange={(e) => {
-    const nuevos = [...datosForm.torneos_dinamicos];
-    nuevos[tIndex].equipos[eqIndex].equipo_id = e.target.value;
-    setDatosForm({ ...datosForm, torneos_dinamicos: nuevos });
-  }}
-  style={{
-    flex: 1,
-    backgroundColor: "#1e293b",
-    border: "1px solid #30363d",
-    padding: "6px",
-    borderRadius: "6px",
-    color: "white",
-    fontSize: "10px",
-  }}
->
-  <option value="">-- Elige un equipo --</option>
-  {/* 🔍 FILTRO ROBUSTO: Muestra los equipos que pertenecen al torneo seleccionado o despliega la lista general si no hay restricciones */}
-  {equipos
-    .filter((e) => {
-      if (!torneoItem.torneo_id) return false;
-      const torneoEquipo = e.torneo_id || e.id_torneo || e.torneo;
-      // Si el equipo no tiene un torneo asignado explícitamente, lo permitimos para evitar vacíos
-      if (!torneoEquipo) return true; 
-      return torneoEquipo.toString() === torneoItem.torneo_id?.toString();
-    })
-    .map((e) => (
-      <option key={e.id} value={e.id}>
-        {e.nombre_equipo.toUpperCase()} ({e.categoria || e.tipo || "General"})
-      </option>
-    ))}
-</select>
+                            disabled={!editandoCampos}
+                            value={torneoItem.torneo_id || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              const nuevos = [...datosForm.torneos_dinamicos];
+                              nuevos[tIndex].torneo_id = val;
+                              nuevos[tIndex].equipos = [{ equipo_id: "" }];
+                              setDatosForm({
+                                ...datosForm,
+                                torneos_dinamicos: nuevos,
+                              });
+                            }}
+                            style={{
+                              width: "100%",
+                              backgroundColor: "#1e293b",
+                              border: "1px solid #30363d",
+                              padding: "8px",
+                              borderRadius: "6px",
+                              color: "white",
+                              fontSize: "10px",
+                            }}
+                          >
+                            <option value="">-- Elige un torneo --</option>
+                            {(window.listaTorneosDisponibles || []).map((t) => (
+                              <option key={t.id} value={t.id}>
+                                {t.nombre_torneo.toUpperCase()}
+                              </option>
+                            ))}
+                          </select>
 
                           <p
                             style={{
@@ -1888,79 +1898,124 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                           </p>
 
                           {/* Lista de equipos dentro del torneo */}
-{(torneoItem.equipos || [{ equipo_id: "" }]).map((eqItem, eqIndex) => (
-  <div
-    key={eqIndex}
-    style={{
-      display: "flex",
-      gap: "6px",
-      alignItems: "center",
-      marginBottom: "6px",
-    }}
-  >
-    <select
-      disabled={!editandoCampos}
-      value={eqItem.equipo_id || ""}
-      onChange={(e) => {
-        const nuevos = [...datosForm.torneos_dinamicos];
-        nuevos[tIndex].equipos[eqIndex].equipo_id = e.target.value;
-        setDatosForm({
-          ...datosForm,
-          torneos_dinamicos: nuevos,
-        });
-      }}
-      style={{
-        flex: 1,
-        backgroundColor: "#1e293b",
-        border: "1px solid #30363d",
-        padding: "6px",
-        borderRadius: "6px",
-        color: "white",
-        fontSize: "10px",
-      }}
-    >
-      <option value="">-- Elige un equipo --</option>
-      {equipos
-        .filter((e) => {
-          if (!torneoItem.torneo_id) return false;
-          const torneoEquipo = e.torneo_id || e.id_torneo || e.torneo;
-          if (!torneoEquipo) return true;
-          return torneoEquipo.toString() === torneoItem.torneo_id?.toString();
-        })
-        .map((e) => (
-          <option key={e.id} value={e.id}>
-            {e.nombre_equipo.toUpperCase()} ({e.categoria || e.tipo || "General"})
-          </option>
-        ))}
-    </select>
+                          {(torneoItem.equipos || [{ equipo_id: "" }]).map(
+                            (eqItem, eqIndex) => (
+                              <div
+                                key={eqIndex}
+                                style={{
+                                  display: "flex",
+                                  gap: "6px",
+                                  alignItems: "center",
+                                  marginBottom: "6px",
+                                }}
+                              >
+                                <select
+                                  disabled={!editandoCampos}
+                                  value={eqItem.equipo_id || ""}
+                                  onChange={(e) => {
+                                    const nuevos = [
+                                      ...datosForm.torneos_dinamicos,
+                                    ];
+                                    nuevos[tIndex].equipos[eqIndex].equipo_id =
+                                      e.target.value;
+                                    setDatosForm({
+                                      ...datosForm,
+                                      torneos_dinamicos: nuevos,
+                                    });
+                                  }}
+                                  style={{
+                                    flex: 1,
+                                    backgroundColor: "#1e293b",
+                                    border: "1px solid #30363d",
+                                    padding: "6px",
+                                    borderRadius: "6px",
+                                    color: "white",
+                                    fontSize: "10px",
+                                  }}
+                                >
+                                  <option value="">
+                                    -- Elige un equipo --
+                                  </option>
+                                  {equipos
+                                    .filter((e) => {
+                                      if (!torneoItem.torneo_id) return false;
+                                      const torneoEquipo =
+                                        e.torneo_id || e.id_torneo || e.torneo;
+                                      if (!torneoEquipo) return true;
+                                      return (
+                                        torneoEquipo.toString() ===
+                                        torneoItem.torneo_id?.toString()
+                                      );
+                                    })
+                                    .map((e) => (
+                                      <option key={e.id} value={e.id}>
+                                        {e.nombre_equipo.toUpperCase()} (
+                                        {e.categoria || e.tipo || "General"})
+                                      </option>
+                                    ))}
+                                </select>
 
-    {editandoCampos && (
-      <button
-        type="button"
-        onClick={() => {
-          const nuevos = [...datosForm.torneos_dinamicos];
-          nuevos[tIndex].equipos = nuevos[tIndex].equipos.filter((_, i) => i !== eqIndex);
-          setDatosForm({
-            ...datosForm,
-            torneos_dinamicos: nuevos,
-          });
-        }}
-        style={{
-          background: "none",
-          border: "none",
-          color: "#ef4444",
-          fontWeight: "900",
-          fontSize: "14px",
-          cursor: "pointer",
-          padding: "0 4px",
-        }}
-        title="Eliminar equipo"
-      >
-        ✕
-      </button>
-    )}
-  </div>
-))}
+                                {editandoCampos && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const nuevos = [
+                                        ...datosForm.torneos_dinamicos,
+                                      ];
+                                      nuevos[tIndex].equipos = nuevos[
+                                        tIndex
+                                      ].equipos.filter((_, i) => i !== eqIndex);
+                                      setDatosForm({
+                                        ...datosForm,
+                                        torneos_dinamicos: nuevos,
+                                      });
+                                    }}
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      color: "#ef4444",
+                                      fontWeight: "900",
+                                      fontSize: "14px",
+                                      cursor: "pointer",
+                                      padding: "0 4px",
+                                    }}
+                                    title="Eliminar equipo"
+                                  >
+                                    ✕
+                                  </button>
+                                )}
+                              </div>
+                            ),
+                          )}
+
+                          {editandoCampos && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const nuevos = [...datosForm.torneos_dinamicos];
+                                if (!nuevos[tIndex].equipos)
+                                  nuevos[tIndex].equipos = [];
+                                nuevos[tIndex].equipos.push({ equipo_id: "" });
+                                setDatosForm({
+                                  ...datosForm,
+                                  torneos_dinamicos: nuevos,
+                                });
+                              }}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "#60a5fa",
+                                fontSize: "9px",
+                                fontWeight: "800",
+                                cursor: "pointer",
+                                textAlign: "left",
+                                marginTop: "4px",
+                                textTransform: "uppercase",
+                              }}
+                            >
+                              + Agregar otro equipo a este torneo
+                            </button>
+                          )}
                         </div>
                       ))
                     )}
