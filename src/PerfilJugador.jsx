@@ -1896,51 +1896,50 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                 }}
                               >
                                 <select
-                                  disabled={!editandoCampos}
-                                  value={eqItem.equipo_id || ""}
-                                  onChange={(e) => {
-                                    const nuevos = [
-                                      ...datosForm.torneos_dinamicos,
-                                    ];
-                                    nuevos[tIndex].equipos[eqIndex].equipo_id =
-                                      e.target.value;
-                                    setDatosForm({
-                                      ...datosForm,
-                                      torneos_dinamicos: nuevos,
-                                    });
-                                  }}
-                                  style={{
-                                    flex: 1,
-                                    backgroundColor: "#1e293b",
-                                    border: "1px solid #30363d",
-                                    padding: "6px",
-                                    borderRadius: "6px",
-                                    color: "white",
-                                    fontSize: "10px",
-                                  }}
-                                >
-                                  <option value="">
-                                    -- Elige un equipo --
-                                  </option>
-                                  {/* 🔍 FILTRO INTELIGENTE: Soporta múltiples nombres de columnas o muestra la lista completa si no viene filtrada */}
-                                  {equipos
-                                    .filter((e) => {
-                                      if (!torneoItem.torneo_id) return false;
-                                      const torneoEquipo =
-                                        e.torneo_id || e.id_torneo || e.torneo;
-                                      if (!torneoEquipo) return true; // Si el equipo no especifica torneo, lo dejamos visible por seguridad
-                                      return (
-                                        torneoEquipo.toString() ===
-                                        torneoItem.torneo_id?.toString()
-                                      );
-                                    })
-                                    .map((e) => (
-                                      <option key={e.id} value={e.id}>
-                                        {e.nombre_equipo.toUpperCase()} (
-                                        {e.categoria || e.tipo || "General"})
-                                      </option>
-                                    ))}
-                                </select>
+  disabled={!editandoCampos}
+  value={eqItem.equipo_id || ""}
+  onChange={(e) => {
+    const nuevos = [
+      ...datosForm.torneos_dinamicos,
+    ];
+    nuevos[tIndex].equipos[eqIndex].equipo_id =
+      e.target.value;
+    setDatosForm({
+      ...datosForm,
+      torneos_dinamicos: nuevos,
+    });
+  }}
+  style={{
+    flex: 1,
+    backgroundColor: "#1e293b",
+    border: "1px solid #30363d",
+    padding: "6px",
+    borderRadius: "6px",
+    color: "white",
+    fontSize: "10px",
+  }}
+>
+  <option value="">
+    -- Elige un equipo --
+  </option>
+  {/* 🔍 FILTRO ESTRICTO POR TORNEO */}
+  {equipos
+    .filter((e) => {
+      if (!torneoItem.torneo_id) return false; // Si no hay torneo seleccionado, no muestra nada
+      const torneoEquipo = e.torneo_id || e.id_torneo || e.torneo;
+      if (!torneoEquipo) return false; // Si el equipo no tiene torneo asignado en la BD, no se muestra en este torneo
+      return (
+        torneoEquipo.toString() ===
+        torneoItem.torneo_id?.toString()
+      );
+    })
+    .map((e) => (
+      <option key={e.id} value={e.id}>
+        {e.nombre_equipo.toUpperCase()} (
+        {e.categoria || e.tipo || "General"})
+      </option>
+    ))}
+</select>
 
                                 {/* ❌ Botón para eliminar este equipo específico */}
                                 {editandoCampos && (
