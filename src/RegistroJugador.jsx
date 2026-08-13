@@ -5,26 +5,25 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
   const [equipos, setEquipos] = useState([]);
   const [torneos, setTorneos] = useState([]); // Estado para almacenar los torneos
   const [loading, setLoading] = useState(false);
-const [formData, setFormData] = useState({
-    nombre: "",
-    correo: "",
-    telefono: "",
-    genero: "Masculino",
-    categoria: "",
-    numero_jersey: "",
-    password: "",
-    edad: "",
-    nombre_tutor: "",
-    foto_perfil: null,
-    // 🟢 Reemplazamos los torneos y equipos sueltos por tarjetas de inscripciones independientes
-    inscripciones: [
-      {
-        torneo_id: "",
-        equiposSeleccionados: [""],
-        equiposManuales: [{}]
-      }
-    ]
-  });
+  const [formData, setFormData] = useState({
+      nombre: "",
+      correo: "",
+      telefono: "",
+      genero: "Masculino",
+      categoria: "",
+      numero_jersey: "",
+      password: "",
+      edad: "",
+      nombre_tutor: "",
+      foto_perfil: null,
+      inscripciones: [
+        {
+          torneo_id: "",
+          equiposSeleccionados: [""],
+          equiposManuales: [{}]
+        }
+      ]
+    });
   useEffect(() => {
     const fetchData = async () => {
       try {
