@@ -1926,13 +1926,12 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                   <option value="">
                                     -- Elige un equipo --
                                   </option>
-                                  {/* 🔍 FILTRO ESTRICTO POR TORNEO */}
                                   {equipos
                                     .filter((e) => {
-                                      if (!torneoItem.torneo_id) return false; // Si no hay torneo seleccionado, no muestra nada
+                                      if (!torneoItem.torneo_id) return false;
                                       const torneoEquipo =
                                         e.torneo_id || e.id_torneo || e.torneo;
-                                      if (!torneoEquipo) return false; // Si el equipo no tiene torneo asignado en la BD, no se muestra en este torneo
+                                      if (!torneoEquipo) return true;
                                       return (
                                         torneoEquipo.toString() ===
                                         torneoItem.torneo_id?.toString()
@@ -1956,7 +1955,9 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                       ];
                                       nuevos[tIndex].equipos = nuevos[
                                         tIndex
-                                      ].equipos.filter((_, i) => i !== eqIndex);
+                                      ].equipos.filter(
+                                        (_, i) => i !== eqIndex,
+                                      );
                                       setDatosForm({
                                         ...datosForm,
                                         torneos_dinamicos: nuevos,
@@ -1978,35 +1979,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                 )}
                               </div>
                             ),
-                          )}
-
-                          {editandoCampos && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const nuevos = [...datosForm.torneos_dinamicos];
-                                if (!nuevos[tIndex].equipos)
-                                  nuevos[tIndex].equipos = [];
-                                nuevos[tIndex].equipos.push({ equipo_id: "" });
-                                setDatosForm({
-                                  ...datosForm,
-                                  torneos_dinamicos: nuevos,
-                                });
-                              }}
-                              style={{
-                                background: "none",
-                                border: "none",
-                                color: "#60a5fa",
-                                fontSize: "9px",
-                                fontWeight: "800",
-                                cursor: "pointer",
-                                textAlign: "left",
-                                marginTop: "4px",
-                                textTransform: "uppercase",
-                              }}
-                            >
-                              + Agregar otro equipo a este torneo
-                            </button>
                           )}
                         </div>
                       ))
