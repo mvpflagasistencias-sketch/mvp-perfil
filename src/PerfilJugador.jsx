@@ -151,33 +151,28 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           if (match) equipoIdDinamico = match.id.toString();
         }
 
-        // Mapeamos los torneos que ya trae el perfil con sus equipos correspondientes
+        // Mapeamos los torneos y equipos que ya trae el perfil para el modal dinámico
         let torneosInicialesList = [];
         if (Array.isArray(data.torneos) && data.torneos.length > 0) {
           torneosInicialesList = data.torneos.map((t) => ({
             torneo_id: t.torneo_id ? t.torneo_id.toString() : "",
-            equipos:
-              Array.isArray(t.equipos) && t.equipos.length > 0
-                ? t.equipos.map((eq) => ({
-                    equipo_id: eq.id ? eq.id.toString() : "",
-                  }))
-                : [{ equipo_id: "" }],
+            equipos: Array.isArray(t.equipos) && t.equipos.length > 0
+              ? t.equipos.map((eq) => ({ equipo_id: eq.id ? eq.id.toString() : "" }))
+              : [{ equipo_id: "" }]
           }));
         } else {
-          torneosInicialesList = [
-            { torneo_id: "", equipos: [{ equipo_id: "" }] },
-          ];
+          torneosInicialesList = [{ torneo_id: "", equipos: [{ equipo_id: "" }] }];
         }
 
         setDatosForm({
           nombre: data.nombre || "",
-          torneos_dinamicos: torneosInicialesList, // 👈 Pasamos la lista agrupada de torneos
+          torneos_dinamicos: torneosInicialesList, // 👈 Estructura agrupada principal
           numero_jersey: data.numero_jersey || "",
           telefono: data.telefono || "",
           password: "",
           confirmPassword: "",
         });
-        // Sincronizamos la foto inicial en el estado de preview
+
         setFotoBase64(data.foto_perfil || "");
       } catch (err) {
         console.error("Error al obtener perfil del atleta o asistencias", err);
@@ -349,24 +344,24 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     }
   };
 
-  const obtenerNombreEquipo = () => {
-    if (!perfil || !perfil.nombre_equipo) return "AGENTE LIBRE";
-
-    const valor = perfil.nombre_equipo.toString();
-
-    // 1. Si es "AGENTE LIBRE", no busques más
-    if (valor === "AGENTE LIBRE") return "AGENTE LIBRE";
-
-    // 2. Intentamos buscar por ID (si es un número válido)
-    const idEquipo = Number(valor);
-
-    if (!isNaN(idEquipo) && idEquipo !== 0) {
-      const equipoEncontrado = equipos.find((e) => e.id === idEquipo);
-      if (equipoEncontrado) return equipoEncontrado.nombre_equipo;
+  const obtenerEquiposParticipando = () => {
+    // Si no existen los datos dinámicos o el arreglo está vacío, es agente libre
+    if (!datosForm.torneos_dinamicos || datosForm.torneos_dinamicos.length === 0) {
+      return "AGENTE LIBRE";
     }
 
-    // 3. Si no es un ID o no se encontró en la lista, devolvemos el texto original
-    return valor.toUpperCase();
+    // Recorremos todos los torneos y extraemos los nombres de los equipos
+    const resumen = datosForm.torneos_dinamicos.map(t => {
+      // Filtramos equipos que tengan ID válido y buscamos su nombre
+      const nombres = t.equipos
+        .map(eq => equipos.find(e => e.id.toString() === eq.equipo_id.toString()))
+        .filter(Boolean)
+        .map(e => e.nombre_equipo);
+      
+      return nombres.length > 0 ? nombres.join(", ") : null;
+    }).filter(Boolean);
+
+    return resumen.length > 0 ? resumen.join(" | ") : "AGENTE LIBRE";
   };
 
   if (loading) {
@@ -1896,50 +1891,51 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                 }}
                               >
                                 <select
-  disabled={!editandoCampos}
-  value={eqItem.equipo_id || ""}
-  onChange={(e) => {
-    const nuevos = [
-      ...datosForm.torneos_dinamicos,
-    ];
-    nuevos[tIndex].equipos[eqIndex].equipo_id =
-      e.target.value;
-    setDatosForm({
-      ...datosForm,
-      torneos_dinamicos: nuevos,
-    });
-  }}
-  style={{
-    flex: 1,
-    backgroundColor: "#1e293b",
-    border: "1px solid #30363d",
-    padding: "6px",
-    borderRadius: "6px",
-    color: "white",
-    fontSize: "10px",
-  }}
->
-  <option value="">
-    -- Elige un equipo --
-  </option>
-  {/* 🔍 FILTRO ESTRICTO POR TORNEO */}
-  {equipos
-    .filter((e) => {
-      if (!torneoItem.torneo_id) return false; // Si no hay torneo seleccionado, no muestra nada
-      const torneoEquipo = e.torneo_id || e.id_torneo || e.torneo;
-      if (!torneoEquipo) return false; // Si el equipo no tiene torneo asignado en la BD, no se muestra en este torneo
-      return (
-        torneoEquipo.toString() ===
-        torneoItem.torneo_id?.toString()
-      );
-    })
-    .map((e) => (
-      <option key={e.id} value={e.id}>
-        {e.nombre_equipo.toUpperCase()} (
-        {e.categoria || e.tipo || "General"})
-      </option>
-    ))}
-</select>
+                                  disabled={!editandoCampos}
+                                  value={eqItem.equipo_id || ""}
+                                  onChange={(e) => {
+                                    const nuevos = [
+                                      ...datosForm.torneos_dinamicos,
+                                    ];
+                                    nuevos[tIndex].equipos[eqIndex].equipo_id =
+                                      e.target.value;
+                                    setDatosForm({
+                                      ...datosForm,
+                                      torneos_dinamicos: nuevos,
+                                    });
+                                  }}
+                                  style={{
+                                    flex: 1,
+                                    backgroundColor: "#1e293b",
+                                    border: "1px solid #30363d",
+                                    padding: "6px",
+                                    borderRadius: "6px",
+                                    color: "white",
+                                    fontSize: "10px",
+                                  }}
+                                >
+                                  <option value="">
+                                    -- Elige un equipo --
+                                  </option>
+                                  {/* 🔍 FILTRO ESTRICTO POR TORNEO */}
+                                  {equipos
+                                    .filter((e) => {
+                                      if (!torneoItem.torneo_id) return false; // Si no hay torneo seleccionado, no muestra nada
+                                      const torneoEquipo =
+                                        e.torneo_id || e.id_torneo || e.torneo;
+                                      if (!torneoEquipo) return false; // Si el equipo no tiene torneo asignado en la BD, no se muestra en este torneo
+                                      return (
+                                        torneoEquipo.toString() ===
+                                        torneoItem.torneo_id?.toString()
+                                      );
+                                    })
+                                    .map((e) => (
+                                      <option key={e.id} value={e.id}>
+                                        {e.nombre_equipo.toUpperCase()} (
+                                        {e.categoria || e.tipo || "General"})
+                                      </option>
+                                    ))}
+                                </select>
 
                                 {/* ❌ Botón para eliminar este equipo específico */}
                                 {editandoCampos && (
