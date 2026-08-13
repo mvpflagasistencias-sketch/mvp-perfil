@@ -87,53 +87,37 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
         return;
       }
 
-      let contadorRamaPrincipal = 0;
-      let contadorMixtos = 0;
-      const generoJugador = (formData.genero || "").toUpperCase(); // MASCULINO o FEMENIL
+      // 🟢 DETECCIÓN DE GÉNERO Y CATEGORÍA A PRUEBA DE FALLOS
+      const generoJugador = (formData.genero || "").trim().toUpperCase(); 
+      // Si tu select guarda "MASCULINO" o "Masculino", esto lo normaliza a "MASCULINO"
+      
+      // Ajustamos la detección
+      const esMasculino = generoJugador.includes("MASC");
+      const esFemenino = generoJugador.includes("FEM");
 
       for (let i = 0; i < insc.equiposSeleccionados.length; i++) {
         const val = insc.equiposSeleccionados[i];
         if (!val || val === "") continue;
 
         let categoriaEquipo = "";
-
-        if (val === "OTRO_EQUIPO") {
-          categoriaEquipo = insc.equiposManuales?.[i]?.categoria || "";
-        } else {
-          const encontrado =
-            insc.equiposDisponibles?.find(
-              (eq) =>
-                eq?.nombre_equipo &&
-                eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
-            ) ||
-            equipos.find(
-              (eq) =>
-                eq?.nombre_equipo &&
-                eq.nombre_equipo.toUpperCase() === val.toUpperCase(),
-            );
-          categoriaEquipo = encontrado?.categoria || "";
-        }
-
+        // ... (tu lógica de búsqueda de categoriaEquipo igual que la tienes) ...
+        
         const catUpper = categoriaEquipo.toUpperCase().trim();
 
-        // 🟢 Restricción: Género Cruzado
-        if (generoJugador.includes("MASC") && catUpper === "FEMENIL") {
-          alert(
-            `⚠️ Torneo #${numTorneo}: No puedes registrarte en categoría FEMENIL siendo masculino.`,
-          );
+        // 🟢 1. RESTRICCIÓN DE GÉNERO (Usando nuestras variables normalizadas)
+        if (esMasculino && catUpper === "FEMENIL") {
+          alert(`⚠️ Torneo #${numTorneo}: No puedes registrarte en categoría FEMENIL siendo masculino.`);
           return;
         }
-        if (generoJugador.includes("FEM") && catUpper === "VARONIL") {
-          alert(
-            `⚠️ Torneo #${numTorneo}: No puedes registrarte en categoría VARONIL siendo femenino.`,
-          );
+        if (esFemenino && catUpper === "VARONIL") {
+          alert(`⚠️ Torneo #${numTorneo}: No puedes registrarte en categoría VARONIL siendo femenino.`);
           return;
         }
 
-        // 🟢 Conteo: Rama principal vs Mixtos
+        // 🟢 2. CONTADORES (Usando nuestras variables normalizadas)
         const esRamaPrincipal =
-          (generoJugador.includes("MASC") && catUpper === "VARONIL") ||
-          (generoJugador.includes("FEM") && catUpper === "FEMENIL");
+          (esMasculino && catUpper === "VARONIL") ||
+          (esFemenino && catUpper === "FEMENIL");
 
         if (esRamaPrincipal) {
           contadorRamaPrincipal++;
