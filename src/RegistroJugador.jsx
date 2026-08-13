@@ -328,10 +328,27 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
                     <select
                       style={styles.input}
                       value={inscripcion.torneo_id}
-                      onChange={(e) => {
+                      onChange={async (e) => {
+                        const torneoIdSeleccionado = e.target.value;
                         const nuevasInscripciones = [...formData.inscripciones];
-                        nuevasInscripciones[indexTorneo].torneo_id = e.target.value;
+                        nuevasInscripciones[indexTorneo].torneo_id = torneoIdSeleccionado;
+                        
+                        // Limpiamos los equipos seleccionados previamente y los disponibles de este torneo
+                        nuevasInscripciones[indexTorneo].equiposSeleccionados = [""];
+                        nuevasInscripciones[indexTorneo].equiposDisponibles = [];
                         setFormData({ ...formData, inscripciones: nuevasInscripciones });
+
+                        // Si elige un torneo, pedimos sus equipos específicos a la API
+                        if (torneoIdSeleccionado) {
+                          try {
+                            const res = await api.get(`/api/torneos/${torneoIdSeleccionado}/equipos`);
+                            const actualizadas = [...formData.inscripciones];
+                            actualizadas[indexTorneo].equiposDisponibles = res.data;
+                            setFormData({ ...formData, inscripciones: actualizadas });
+                          } catch (err) {
+                            console.error("Error al cargar equipos del torneo", err);
+                          }
+                        }
                       }}
                       required
                     >
