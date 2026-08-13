@@ -73,14 +73,23 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       }
 
       try {
-        // Realizamos las peticiones en paralelo para optimizar la velocidad de carga en Railway, consumiendo el endpoint por jugador_id
-        const [resPerfil, resEquipos, resAsistencias, resPromociones] =
-          await Promise.all([
-            api.get(`/api/jugadores/perfil/${idActual}`),
-            api.get("/api/equipos"),
-            api.get(`/api/jugadores/${idActual}/contador-asistencias`),
-            api.get(`/api/promociones/jugador/${idActual}`), // Pide la promo por el ID del jugador, igual que las asistencias
-          ]);
+        // Realizamos las peticiones en paralelo incluyendo la de torneos
+        const [
+          resPerfil,
+          resEquipos,
+          resAsistencias,
+          resPromociones,
+          resTorneos,
+        ] = await Promise.all([
+          api.get(`/api/jugadores/perfil/${idActual}`),
+          api.get("/api/equipos"),
+          api.get(`/api/jugadores/${idActual}/contador-asistencias`),
+          api.get(`/api/promociones/jugador/${idActual}`),
+          api.get("/api/torneos"), // 👈 Petición nueva para cargar la lista de torneos
+        ]);
+
+        // Guardamos los torneos en una variable global o un estado para que el select los lea
+        window.listaTorneosDisponibles = resTorneos.data || [];
 
         let data = resPerfil.data;
         if (data.avatar_config && typeof data.avatar_config === "string") {
@@ -1843,9 +1852,14 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                             }}
                           >
                             <option value="">-- Elige un torneo --</option>
-                            {(window.listaTorneosDisponibles || []).map((t) => (
+                            {/* Aseguramos la fuente de datos, usando window como respaldo si no hay estado */}
+                            {(
+                              torneosDisponibles ||
+                              window.listaTorneosDisponibles ||
+                              []
+                            ).map((t) => (
                               <option key={t.id} value={t.id}>
-                                {t.nombre_torneo}
+                                {t.nombre_torneo.toUpperCase()}
                               </option>
                             ))}
                           </select>
