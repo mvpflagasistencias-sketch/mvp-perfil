@@ -90,8 +90,6 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         setPerfil(data);
         setEquipos(resEquipos.data);
 
-      
-
         // CÓDIGO CORREGIDO:
         if (resAsistencias.data) {
           console.log("Datos de asistencias recibidos:", resAsistencias.data);
@@ -248,8 +246,11 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       for (const item of listaDinamica) {
         let tipoEq = "Varonil";
         if (item.id) {
-          const encontrado = equipos.find((e) => e.id.toString() === item.id.toString());
-          if (encontrado) tipoEq = encontrado.categoria || encontrado.tipo || "Varonil";
+          const encontrado = equipos.find(
+            (e) => e.id.toString() === item.id.toString(),
+          );
+          if (encontrado)
+            tipoEq = encontrado.categoria || encontrado.tipo || "Varonil";
         } else if (item.nombre_nuevo) {
           tipoEq = item.tipo || item.categoria || "Varonil";
         }
@@ -260,26 +261,31 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       }
 
       if (countGenero > 2) {
-        alert("⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de género.");
+        alert(
+          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de género.",
+        );
         return;
       }
       if (countMixto > 2) {
-        alert("⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.");
+        alert(
+          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos mixtos.",
+        );
         return;
       }
 
       // 2. PREPARAMOS EL PAYLOAD
       // Si estás editando un torneo específico, asegúrate de enviar el torneo_id correspondiente.
-      // Si el formulario maneja varios torneos, podrías necesitar un loop, 
+      // Si el formulario maneja varios torneos, podrías necesitar un loop,
       // pero por ahora enviamos el torneo_id del primer equipo o el que tengas en el estado.
-      const torneoIdActivo = listaDinamica.length > 0 ? listaDinamica[0].torneo_id : null;
+      const torneoIdActivo =
+        listaDinamica.length > 0 ? listaDinamica[0].torneo_id : null;
 
-      const payload = { 
-        ...datosForm, 
+      const payload = {
+        ...datosForm,
         foto_perfil: perfil.foto_perfil,
-        torneo_id: torneoIdActivo // 🟢 AQUÍ ESTÁ LA CLAVE PARA EL BACKEND
+        torneo_id: torneoIdActivo, // 🟢 AQUÍ ESTÁ LA CLAVE PARA EL BACKEND
       };
-      
+
       delete payload.password;
       delete payload.confirmPassword;
 
@@ -291,11 +297,15 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       if (response.status === 200) {
         setPerfil({ ...perfil, ...payload });
         setEditandoCampos(false);
-        alert("✅ ¡Datos personales, equipos y torneos actualizados con éxito!");
+        alert(
+          "✅ ¡Datos personales, equipos y torneos actualizados con éxito!",
+        );
       }
     } catch (err) {
       console.error("Error al actualizar datos:", err);
-      const mensajeError = err.response?.data?.error || "❌ Error al intentar guardar los cambios.";
+      const mensajeError =
+        err.response?.data?.error ||
+        "❌ Error al intentar guardar los cambios.";
       alert(mensajeError);
     }
   };
@@ -1718,13 +1728,14 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                   </div>
                 </div>
 
-                {/* 🚀 ESCUADRAS ACTIVAS (Comportamiento inteligente: si usas uno, el otro se oculta) */}
+                {/* 🏆 TORNEOS Y EQUIPOS - DISEÑO ACTUALIZADO */}
                 <div
                   style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: "6px",
+                    gap: "10px",
                     width: "100%",
+                    marginTop: "12px",
                   }}
                 >
                   <div
@@ -1742,415 +1753,207 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                         color: "#9ca3af",
                       }}
                     >
-                      Escuadras Activas (Máx. 2 de género y 2 mixtos)
+                      Torneos y equipos en los que participas
                     </label>
-                    {editandoCampos && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDatosForm({
-                            ...datosForm,
-                            equipos_dinamicos: [
-                              ...(datosForm.equipos_dinamicos || []),
-                              {
-                                id: "",
-                                nombre_nuevo: "",
-                                tipo: "Varonil",
-                                esNuevo: true,
-                              },
-                            ],
-                          });
-                        }}
-                        style={{
-                          background: "none",
-                          border: "1px dashed #60a5fa",
-                          color: "#60a5fa",
-                          fontSize: "9px",
-                          fontWeight: "800",
-                          padding: "2px 8px",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        + Agregar más equipo
-                      </button>
-                    )}
                   </div>
 
                   <div
                     style={{
-                      backgroundColor: editandoCampos ? "#1e293b" : "#0f172a",
-                      border: "1px solid #30363d",
-                      borderRadius: "8px",
-                      padding: "10px",
-                      maxHeight: "180px",
-                      overflowY: "auto",
                       display: "flex",
                       flexDirection: "column",
-                      gap: "8px",
+                      gap: "12px",
                     }}
                   >
-                    {!datosForm.equipos_dinamicos ||
-                    datosForm.equipos_dinamicos.length === 0 ? (
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          color: "#64748b",
-                          textAlign: "center",
-                          padding: "10px",
-                        }}
-                      >
-                        No hay escuadras agregadas.
-                      </span>
-                    ) : (
-                      datosForm.equipos_dinamicos.map((item, index) => (
+                    {(datosForm.torneos_dinamicos || []).map(
+                      (torneoItem, tIndex) => (
                         <div
-                          key={index}
+                          key={tIndex}
                           style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "6px",
                             backgroundColor: "#0f172a",
-                            padding: "8px",
-                            borderRadius: "6px",
                             border: "1px solid #334155",
+                            borderRadius: "12px",
+                            padding: "12px",
                           }}
                         >
-                          {/* Si es un equipo existente de la BD, solo mostramos su selector limpio */}
-                          {!item.esNuevo ? (
-                            <div
+                          {/* Cabecera del Torneo */}
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            <span
                               style={{
-                                display: "flex",
-                                gap: "6px",
-                                alignItems: "center",
+                                fontSize: "11px",
+                                fontWeight: "900",
+                                color: "#60a5fa",
+                                textTransform: "uppercase",
                               }}
                             >
-                              <select
-                                disabled={!editandoCampos}
-                                value={item.id || ""}
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  const nuevos = [
-                                    ...datosForm.equipos_dinamicos,
-                                  ];
-                                  nuevos[index] = {
-                                    ...nuevos[index],
-                                    id: val,
-                                    nombre_nuevo: "",
-                                  };
+                              Torneo #{tIndex + 1}
+                            </span>
+                            {editandoCampos && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const nuevos =
+                                    datosForm.torneos_dinamicos.filter(
+                                      (_, i) => i !== tIndex,
+                                    );
                                   setDatosForm({
                                     ...datosForm,
-                                    equipos_dinamicos: nuevos,
+                                    torneos_dinamicos: nuevos,
                                   });
                                 }}
                                 style={{
-                                  flex: 1,
-                                  backgroundColor: "#1e293b",
-                                  border: "1px solid #30363d",
-                                  borderRadius: "6px",
-                                  padding: "6px",
-                                  color: "white",
+                                  background: "none",
+                                  border: "none",
+                                  color: "#ef4444",
                                   fontSize: "10px",
-                                  outline: "none",
-                                  cursor: editandoCampos
-                                    ? "pointer"
-                                    : "default",
+                                  cursor: "pointer",
                                 }}
                               >
-                                <option value="">
-                                  -- Selecciona de la lista --
-                                </option>
-                                {equipos
-                                  .filter((eq) => {
-                                    const cat = (
-                                      eq.categoria ||
-                                      eq.tipo ||
-                                      ""
-                                    ).toLowerCase();
-                                    const generoPerfil = (
-                                      datosForm.genero || ""
-                                    ).toLowerCase();
+                                Minimizar ✕
+                              </button>
+                            )}
+                          </div>
 
-                                    // Si el perfil es MUJER: mostrar únicamente Femenil y Mixto
-                                    if (
-                                      generoPerfil.includes("femenino") ||
-                                      generoPerfil.includes("f") ||
-                                      generoPerfil.includes("mujer")
-                                    ) {
-                                      return (
-                                        cat.includes("femenil") ||
-                                        cat.includes("mixto")
-                                      );
-                                    }
+                          {/* Selector de Torneo */}
+                          <select
+                            disabled={!editandoCampos}
+                            value={torneoItem.torneo_id || ""}
+                            onChange={(e) => {
+                              const nuevos = [...datosForm.torneos_dinamicos];
+                              nuevos[tIndex].torneo_id = e.target.value;
+                              setDatosForm({
+                                ...datosForm,
+                                torneos_dinamicos: nuevos,
+                              });
+                            }}
+                            style={{
+                              width: "100%",
+                              backgroundColor: "#1e293b",
+                              border: "1px solid #30363d",
+                              padding: "8px",
+                              borderRadius: "6px",
+                              color: "white",
+                              fontSize: "10px",
+                            }}
+                          >
+                            <option value="">-- Elige un torneo --</option>
+                            {(window.listaTorneosDisponibles || []).map((t) => (
+                              <option key={t.id} value={t.id}>
+                                {t.nombre_torneo}
+                              </option>
+                            ))}
+                          </select>
 
-                                    // Si el perfil es HOMBRE: mostrar únicamente Varonil y Mixto
-                                    return (
-                                      cat.includes("varonil") ||
-                                      cat.includes("mixto")
-                                    );
-                                  })
-                                  .map((eq) => (
-                                    <option key={eq.id} value={eq.id}>
-                                      {eq.nombre_equipo.toUpperCase()} (
-                                      {eq.categoria || eq.tipo || "General"})
-                                    </option>
-                                  ))}
+                          <p
+                            style={{
+                              fontSize: "9px",
+                              color: "#64748b",
+                              margin: "10px 0 5px 0",
+                            }}
+                          >
+                            Equipos para este torneo:
+                          </p>
+
+                          {/* Lista de equipos dentro del torneo */}
+                          {(torneoItem.equipos || [{ equipo_id: "" }]).map(
+                            (eqItem, eqIndex) => (
+                              <select
+                                key={eqIndex}
+                                disabled={!editandoCampos}
+                                value={eqItem.equipo_id || ""}
+                                onChange={(e) => {
+                                  const nuevos = [
+                                    ...datosForm.torneos_dinamicos,
+                                  ];
+                                  nuevos[tIndex].equipos[eqIndex].equipo_id =
+                                    e.target.value;
+                                  setDatosForm({
+                                    ...datosForm,
+                                    torneos_dinamicos: nuevos,
+                                  });
+                                }}
+                                style={{
+                                  width: "100%",
+                                  backgroundColor: "#1e293b",
+                                  border: "1px solid #30363d",
+                                  padding: "6px",
+                                  borderRadius: "6px",
+                                  color: "white",
+                                  fontSize: "10px",
+                                  marginBottom: "6px",
+                                }}
+                              >
+                                <option value="">-- Elige un equipo --</option>
+                                {equipos.map((e) => (
+                                  <option key={e.id} value={e.id}>
+                                    {e.nombre_equipo}
+                                  </option>
+                                ))}
                               </select>
+                            ),
+                          )}
 
-                              {editandoCampos && (
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    const nuevos =
-                                      datosForm.equipos_dinamicos.filter(
-                                        (_, i) => i !== index,
-                                      );
-                                    setDatosForm({
-                                      ...datosForm,
-                                      equipos_dinamicos: nuevos,
-                                    });
-                                  }}
-                                  style={{
-                                    background: "none",
-                                    border: "none",
-                                    color: "#ef4444",
-                                    fontWeight: "900",
-                                    cursor: "pointer",
-                                    fontSize: "12px",
-                                    padding: "0 4px",
-                                  }}
-                                >
-                                  ✕
-                                </button>
-                              )}
-                            </div>
-                          ) : (
-                            /* Si es nuevo, mostramos ambos pero condicionamos su visibilidad */
-                            <div
+                          {editandoCampos && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const nuevos = [...datosForm.torneos_dinamicos];
+                                nuevos[tIndex].equipos.push({ equipo_id: "" });
+                                setDatosForm({
+                                  ...datosForm,
+                                  torneos_dinamicos: nuevos,
+                                });
+                              }}
                               style={{
-                                display: "flex",
-                                flexDirection: "column",
-                                gap: "6px",
-                                width: "100%",
+                                background: "none",
+                                border: "none",
+                                color: "#60a5fa",
+                                fontSize: "9px",
+                                cursor: "pointer",
+                                textAlign: "left",
                               }}
                             >
-                              {/* Selector (Se oculta si ya escribió algo en el input de abajo) */}
-                              {!item.nombre_nuevo && (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    gap: "6px",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <select
-                                    disabled={!editandoCampos}
-                                    value={item.id || ""}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      const nuevos = [
-                                        ...datosForm.equipos_dinamicos,
-                                      ];
-                                      nuevos[index] = {
-                                        ...nuevos[index],
-                                        id: val,
-                                        nombre_nuevo: "",
-                                      };
-                                      setDatosForm({
-                                        ...datosForm,
-                                        equipos_dinamicos: nuevos,
-                                      });
-                                    }}
-                                    style={{
-                                      flex: 1,
-                                      backgroundColor: "#1e293b",
-                                      border: "1px solid #30363d",
-                                      borderRadius: "6px",
-                                      padding: "6px",
-                                      color: "white",
-                                      fontSize: "10px",
-                                      outline: "none",
-                                      cursor: editandoCampos
-                                        ? "pointer"
-                                        : "default",
-                                    }}
-                                  >
-                                    <option value="">
-                                      -- Selecciona de la lista --
-                                    </option>
-                                    {equipos.map((eq) => (
-                                      <option key={eq.id} value={eq.id}>
-                                        {eq.nombre_equipo.toUpperCase()} (
-                                        {eq.tipo || eq.categoria || "General"})
-                                      </option>
-                                    ))}
-                                  </select>
-
-                                  {editandoCampos && (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const nuevos =
-                                          datosForm.equipos_dinamicos.filter(
-                                            (_, i) => i !== index,
-                                          );
-                                        setDatosForm({
-                                          ...datosForm,
-                                          equipos_dinamicos: nuevos,
-                                        });
-                                      }}
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                        color: "#ef4444",
-                                        fontWeight: "900",
-                                        cursor: "pointer",
-                                        fontSize: "12px",
-                                        padding: "0 4px",
-                                      }}
-                                    >
-                                      ✕
-                                    </button>
-                                  )}
-                                </div>
-                              )}
-
-                              {/* Input para escribir + Selector inteligente de categoría (Se oculta si ya seleccionó un valor en el selector de arriba) */}
-                              {(!item.id || item.id === "") && (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    gap: "6px",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <input
-                                    type="text"
-                                    disabled={!editandoCampos}
-                                    placeholder="O escribe el nombre del nuevo equipo..."
-                                    value={item.nombre_nuevo || ""}
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      const nuevos = [
-                                        ...datosForm.equipos_dinamicos,
-                                      ];
-                                      nuevos[index] = {
-                                        ...nuevos[index],
-                                        nombre_nuevo: val,
-                                        id: "",
-                                        tipo:
-                                          nuevos[index].tipo ||
-                                          (datosForm.genero?.toLowerCase() ===
-                                          "femenino"
-                                            ? "Femenil"
-                                            : "Varonil"),
-                                      };
-                                      setDatosForm({
-                                        ...datosForm,
-                                        equipos_dinamicos: nuevos,
-                                      });
-                                    }}
-                                    style={{
-                                      flex: 1,
-                                      backgroundColor: "#1e293b",
-                                      border: "1px solid #30363d",
-                                      borderRadius: "6px",
-                                      padding: "6px",
-                                      color: "white",
-                                      fontSize: "10px",
-                                      outline: "none",
-                                    }}
-                                  />
-
-                                  {/* 🚀 Selector inteligente de categoría filtrado por el género del perfil */}
-                                  <select
-                                    disabled={!editandoCampos}
-                                    value={
-                                      item.tipo ||
-                                      (datosForm.genero?.toLowerCase() ===
-                                      "femenino"
-                                        ? "Femenil"
-                                        : "Varonil")
-                                    }
-                                    onChange={(e) => {
-                                      const val = e.target.value;
-                                      const nuevos = [
-                                        ...datosForm.equipos_dinamicos,
-                                      ];
-                                      nuevos[index] = {
-                                        ...nuevos[index],
-                                        tipo: val,
-                                      };
-                                      setDatosForm({
-                                        ...datosForm,
-                                        equipos_dinamicos: nuevos,
-                                      });
-                                    }}
-                                    style={{
-                                      width: "100px",
-                                      backgroundColor: "#1e293b",
-                                      border: "1px solid #30363d",
-                                      borderRadius: "6px",
-                                      padding: "6px",
-                                      color: "white",
-                                      fontSize: "10px",
-                                      outline: "none",
-                                      cursor: editandoCampos
-                                        ? "pointer"
-                                        : "default",
-                                    }}
-                                  >
-                                    {datosForm.genero?.toLowerCase() ===
-                                      "femenino" ||
-                                    datosForm.genero?.toLowerCase() === "f" ? (
-                                      <>
-                                        <option value="Femenil">Femenil</option>
-                                        <option value="Mixto">Mixto</option>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <option value="Varonil">Varonil</option>
-                                        <option value="Mixto">Mixto</option>
-                                      </>
-                                    )}
-                                  </select>
-
-                                  {/* Botón para borrar la tarjeta */}
-                                  {editandoCampos && (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const nuevos =
-                                          datosForm.equipos_dinamicos.filter(
-                                            (_, i) => i !== index,
-                                          );
-                                        setDatosForm({
-                                          ...datosForm,
-                                          equipos_dinamicos: nuevos,
-                                        });
-                                      }}
-                                      style={{
-                                        background: "none",
-                                        border: "none",
-                                        color: "#ef4444",
-                                        fontWeight: "900",
-                                        cursor: "pointer",
-                                        fontSize: "12px",
-                                        padding: "0 4px",
-                                      }}
-                                    >
-                                      ✕
-                                    </button>
-                                  )}
-                                </div>
-                              )}
-                            </div>
+                              + Agregar otro equipo a este torneo
+                            </button>
                           )}
                         </div>
-                      ))
+                      ),
                     )}
                   </div>
+
+                  {editandoCampos && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDatosForm({
+                          ...datosForm,
+                          torneos_dinamicos: [
+                            ...(datosForm.torneos_dinamicos || []),
+                            { torneo_id: "", equipos: [{ equipo_id: "" }] },
+                          ],
+                        });
+                      }}
+                      style={{
+                        width: "100%",
+                        padding: "10px",
+                        backgroundColor: "#2563eb",
+                        border: "none",
+                        borderRadius: "8px",
+                        color: "white",
+                        fontWeight: "900",
+                        fontSize: "10px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      + Añadir otro torneo
+                    </button>
+                  )}
                 </div>
               </div>
 
