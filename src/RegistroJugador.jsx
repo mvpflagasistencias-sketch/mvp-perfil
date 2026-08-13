@@ -3,13 +3,13 @@ import api from "./api";
 
 const RegistroJugador = ({ onRegistroExitoso }) => {
   const [equipos, setEquipos] = useState([]);
-  const [torneos, setTorneos] = useState([]); // 1. Estado para almacenar los torneos
+  const [torneos, setTorneos] = useState([]); // Estado para almacenar los torneos
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     nombre: "",
     correo: "",
     telefono: "",
-    torneo_id: "", // 2. Agregamos torneo_id al estado inicial
+    torneos_ids: [""], // 🟢 1. Cambiado a array para soportar múltiples selectores
     equiposSeleccionados: [""],
     equiposManuales: [{}],
     genero: "Masculino",
@@ -53,8 +53,10 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.torneo_id) {
-      alert("⚠️ Por favor, selecciona un torneo.");
+    // 🟢 2. Validación actualizada para múltiples torneos
+    const torneosValidos = formData.torneos_ids.filter(id => id && id.trim() !== "");
+    if (torneosValidos.length === 0) {
+      alert("⚠️ Por favor, selecciona al menos un torneo.");
       return;
     }
 
@@ -138,14 +140,18 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
         }
       });
 
+      // Aseguramos limpiar duplicados en los torneos seleccionados
+      const torneosFinales = [...new Set(torneosValidos)];
+
       const payload = {
         ...formData,
+        torneos_ids: torneosFinales, // Enviamos el arreglo limpio
         equipos_manuales: equiposManualesFinales,
         equipos_ids: equiposIdsFinales,
       };
 
       await api.post("/api/jugadores/registro", payload);
-      alert("✅ ¡Registro exitoso en el torneo!");
+      alert("✅ ¡Registro exitoso en los torneos!");
       if (onRegistroExitoso) onRegistroExitoso();
     } catch (err) {
       const mensajeError =
@@ -345,82 +351,107 @@ const RegistroJugador = ({ onRegistroExitoso }) => {
             </div>
 
             <div style={styles.grid}>
-              {/* 🟢 SECCIÓN SELECTOR DE TORNEOS MÚLTIPLES */}
+              {/* 🟢 SECCIÓN SELECTORES DINÁMICOS DE TORNEOS */}
               <div style={styles.fullWidth}>
-                <label style={styles.label}>
-                  Selecciona los Torneos (Puedes elegir varios)
-                </label>
-                <div
-                  style={{
-                    ...styles.input,
-                    maxHeight: "150px",
-                    overflowY: "auto",
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "8px",
-                    padding: "10px",
-                  }}
-                >
-                  {Array.isArray(torneos) && torneos.length > 0 ? (
-                    torneos.map((t) => {
-                      // Verificamos si este torneo ya está seleccionado en el array
-                      const isChecked = formData.torneos_ids?.includes(
-                        t.id.toString(),
-                      );
-                      return (
-                        <label
-                          key={t.id}
+                <label style={styles.label}>Selecciona los Torneos</label>
+
+                {/* Renderizamos un select por cada elemento que exista en el array torneos_ids */}
+                {formData.torneos_ids &&
+                  formData.torneos_ids.map((torneoId, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: "flex",
+                        gap: "10px",
+                        marginBottom: "10px",
+                        alignItems: "center",
+                      }}
+                    >
+                      <select
+                        style={{ ...styles.input, flex: 1 }}
+                        value={torneoId}
+                        onChange={(e) => {
+                          const nuevosTorneos = [...formData.torneos_ids];
+                          nuevosTorneos[index] = e.target.value;
+                          setFormData({
+                            ...formData,
+                            torneos_ids: nuevosTorneos,
+                          });
+                        }}
+                        required
+                      >
+                        <option value="" style={{ backgroundColor: "#0f172a" }}>
+                          -- Elige un torneo --
+                        </option>
+                        {Array.isArray(torneos) &&
+                          torneos.map((t) => (
+                            <option
+                              key={t.id}
+                              value={t.id}
+                              style={{ backgroundColor: "#0f172a" }}
+                            >
+                              {t.nombre_torneo || t.nombre || `Torneo #${t.id}`}
+                            </option>
+                          ))}
+                      </select>
+
+                      {/* Botón para eliminar este select (aparece solo si hay más de uno) */}
+                      {formData.torneos_ids.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const nuevosTorneos = formData.torneos_ids.filter(
+                              (_, i) => i !== index,
+                            );
+                            setFormData({
+                              ...formData,
+                              torneos_ids: nuevosTorneos,
+                            });
+                          }}
                           style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                            cursor: "pointer",
+                            backgroundColor: "#ef4444",
                             color: "#fff",
+                            border: "none",
+                            padding: "10px 14px",
+                            borderRadius: "8px",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            height: "fit-content",
                           }}
                         >
-                          <input
-                            type="checkbox"
-                            value={t.id}
-                            checked={isChecked || false}
-                            onChange={(e) => {
-                              const torneoId = e.target.value;
-                              let currentTorneos = formData.torneos_ids
-                                ? [...formData.torneos_ids]
-                                : [];
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
 
-                              if (e.target.checked) {
-                                currentTorneos.push(torneoId);
-                              } else {
-                                currentTorneos = currentTorneos.filter(
-                                  (id) => id !== torneoId,
-                                );
-                              }
-
-                              setFormData({
-                                ...formData,
-                                torneos_ids: currentTorneos,
-                              });
-                            }}
-                            style={{
-                              width: "16px",
-                              height: "16px",
-                              cursor: "pointer",
-                            }}
-                          />
-                          <span>
-                            {t.nombre_torneo || t.nombre || `Torneo #${t.id}`}
-                          </span>
-                        </label>
-                      );
-                    })
-                  ) : (
-                    <span style={{ color: "#94a3b8" }}>
-                      No hay torneos disponibles
-                    </span>
-                  )}
-                </div>
+                {/* Botón para agregar otro campo de selección de torneo */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const currentTorneos = formData.torneos_ids
+                      ? [...formData.torneos_ids]
+                      : [];
+                    setFormData({
+                      ...formData,
+                      torneos_ids: [...currentTorneos, ""],
+                    });
+                  }}
+                  style={{
+                    backgroundColor: "#2563eb",
+                    color: "#fff",
+                    border: "none",
+                    padding: "8px 14px",
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                    fontWeight: "500",
+                    marginTop: "5px",
+                  }}
+                >
+                  + Añadir otro torneo
+                </button>
               </div>
-
               <div style={styles.fullWidth}>
                 <label style={styles.label}>Nombre del Jugador</label>
                 <input
