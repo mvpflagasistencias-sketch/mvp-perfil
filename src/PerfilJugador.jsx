@@ -1939,11 +1939,17 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                   {equipos
                                     .filter((e) => {
                                       if (!torneoItem.torneo_id) return false;
-                                      const torneoEquipo =
-                                        e.torneo_id || e.id_torneo || e.torneo;
 
-                                      // 🟢 Si el equipo no tiene torneo vinculado, lo filtramos (no se muestra)
-                                      if (!torneoEquipo) return false;
+                                      // Buscamos todas las variantes posibles de la propiedad del torneo
+                                      const torneoEquipo =
+                                        e.torneo_id ||
+                                        e.id_torneo ||
+                                        e.torneo ||
+                                        e.torneoId;
+
+                                      // 🟢 Si el objeto de equipo de plano no trae propiedad de torneo, lo dejamos pasar temporalmente
+                                      // para confirmar si ese es el campo que falta en el JSON de la API /api/equipos
+                                      if (!torneoEquipo) return true;
 
                                       return (
                                         torneoEquipo.toString() ===
