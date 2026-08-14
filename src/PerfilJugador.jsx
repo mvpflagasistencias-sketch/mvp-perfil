@@ -178,10 +178,15 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         for (const tItem of torneosInicialesList) {
           if (tItem.torneo_id) {
             try {
-              const res = await api.get(`/api/equipos/por-torneo/${tItem.torneo_id}`);
+              const res = await api.get(
+                `/api/equipos/por-torneo/${tItem.torneo_id}`,
+              );
               mapaEquiposIniciales[tItem.torneo_id] = res.data;
             } catch (err) {
-              console.error(`Error al cargar equipos iniciales para el torneo ${tItem.torneo_id}:`, err);
+              console.error(
+                `Error al cargar equipos iniciales para el torneo ${tItem.torneo_id}:`,
+                err,
+              );
             }
           }
         }
@@ -1970,15 +1975,59 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                   <option value="">
                                     -- Elige un equipo --
                                   </option>
-                                  {/* 🟢 AQUÍ ESTÁ EL CAMBIO: Leemos del estado dinámico indexado por el ID del torneo */}
+
                                   {(
-                                    equiposPorTorneo[torneoItem.torneo_id] || []
-                                  ).map((e) => (
-                                    <option key={e.id} value={e.id}>
-                                      {e.nombre_equipo.toUpperCase()} (
-                                      {e.categoria || "General"})
-                                    </option>
-                                  ))}
+                                    equiposPorTorneo[torneoItem.torneo_id] ||
+                                    equiposPorTorneo[
+                                      String(torneoItem.torneo_id)
+                                    ] ||
+                                    equiposPorTorneo[
+                                      Number(torneoItem.torneo_id)
+                                    ] ||
+                                    []
+                                  )
+                                    .filter((e) => {
+                                      // 🟢 RESTRICCIÓN DE RAMA / CATEGORÍA:
+                                      // Suponiendo que el género/categoría del jugador lo tienes en 'datosForm.genero' o 'perfil.genero'
+                                      // (ajusta esta variable según cómo guardes el sexo/género del atleta en tu estado, ej: 'Masculino'/'Femenil'):
+                                      const generoAtleta =
+                                        datosForm.genero ||
+                                        perfil?.genero ||
+                                        "";
+                                      const categoriaEquipo = e.categoria; // 'Varonil', 'Femenil' o 'Mixto'
+
+                                      // Si el equipo es Mixto, todos pueden entrar
+                                      if (categoriaEquipo === "Mixto")
+                                        return true;
+
+                                      // Si el atleta es hombre (o varonil) y el equipo es Femenil, se bloquea
+                                      if (
+                                        (generoAtleta === "Masculino" ||
+                                          generoAtleta === "Hombre" ||
+                                          generoAtleta === "Varonil") &&
+                                        categoriaEquipo === "Femenil"
+                                      ) {
+                                        return false;
+                                      }
+
+                                      // Si el atleta es mujer (o femenil) y el equipo es Varonil, se bloquea
+                                      if (
+                                        (generoAtleta === "Femenino" ||
+                                          generoAtleta === "Mujer" ||
+                                          generoAtleta === "Femenil") &&
+                                        categoriaEquipo === "Varonil"
+                                      ) {
+                                        return false;
+                                      }
+
+                                      return true;
+                                    })
+                                    .map((e) => (
+                                      <option key={e.id} value={e.id}>
+                                        {e.nombre_equipo.toUpperCase()} (
+                                        {e.categoria || "General"})
+                                      </option>
+                                    ))}
                                 </select>
 
                                 {editandoCampos && (
