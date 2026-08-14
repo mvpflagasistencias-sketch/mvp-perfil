@@ -1941,7 +1941,10 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                       if (!torneoItem.torneo_id) return false;
                                       const torneoEquipo =
                                         e.torneo_id || e.id_torneo || e.torneo;
-                                      if (!torneoEquipo) return true;
+
+                                      // 🟢 Si el equipo no tiene torneo vinculado, lo filtramos (no se muestra)
+                                      if (!torneoEquipo) return false;
+
                                       return (
                                         torneoEquipo.toString() ===
                                         torneoItem.torneo_id?.toString()
