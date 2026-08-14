@@ -241,7 +241,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   const handleGuardarDatosPersonales = async () => {
     try {
       const idActual = jugadorId || localStorage.getItem("atleta_id");
-      const listaDinamica = datosForm.equipos_dinamicos || [];
+      const listaDinamica = datosForm.torneos_dinamicos || []; // 🟢 CORREGIDO: Apunta a torneos_dinamicos
 
       // 1. Validaciones de límite (esto se queda igual)
       let countGenero = 0;
