@@ -258,6 +258,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
   };
 
   // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES Y EQUIPOS
+  // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES Y EQUIPOS
   const handleGuardarDatosPersonales = async () => {
     try {
       const idActual = jugadorId || localStorage.getItem("atleta_id");
@@ -266,7 +267,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       let countGenero = 0;
       let countMixto = 0;
 
-      // 🟢 RECORREMOS CADA TORNEO Y SUS EQUIPOS SELECCIONADOS DINÁMICAMENTE
+      // 🟢 1. RECORREMOS CADA TORNEO Y SUS EQUIPOS SELECCIONADOS DINÁMICAMENTE
       for (const torneoItem of listaTorneos) {
         const equiposDelTorneo = torneoItem.equipos || [];
         const equiposDisponibles = equiposPorTorneo[torneoItem.torneo_id] || [];
@@ -290,7 +291,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         }
       }
 
-      // 🛑 VALIDACIONES ESTRICTAS DE LÍMITE
+      // 🛑 2. VALIDACIONES ESTRICTAS DE LÍMITE
       if (countGenero > 2) {
         alert(
           "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de género (Varonil/Femenil).",
@@ -304,27 +305,37 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
         return;
       }
 
-      // 2. PREPARAMOS EL PAYLOAD
-      const payload = {
-        ...datosForm,
-        foto_perfil: perfil.foto_perfil,
-      };
+      // 🟢 3. ENVÍO CORRECTO AL BACKEND (Iterando los torneos para que el backend los guarde en la BD)
+      for (const torneoItem of listaTorneos) {
+        const payloadTorneo = {
+          ...datosForm,
+          foto_perfil: perfil.foto_perfil,
+          torneo_id: torneoItem.torneo_id, // 👈 Clave que el backend espera
+          equipos_dinamicos: (torneoItem.equipos || []).map(eq => ({
+            id: eq.equipo_id               // 👈 Estructura que procesa la tabla intermedia
+          }))
+        };
 
-      delete payload.password;
-      delete payload.confirmPassword;
+        delete payloadTorneo.password;
+        delete payloadTorneo.confirmPassword;
+        delete payloadTorneo.torneos_dinamicos;
 
-      const response = await api.put(
-        `/api/jugadores/perfil/actualizar/${idActual}`,
-        payload,
-      );
-
-      if (response.status === 200) {
-        setPerfil({ ...perfil, ...payload });
-        setEditandoCampos(false);
-        alert(
-          "✅ ¡Datos personales, equipos y torneos actualizados con éxito!",
+        const response = await api.put(
+          `/api/jugadores/perfil/actualizar/${idActual}`,
+          payloadTorneo,
         );
+
+        if (response.status !== 200) {
+          throw new Error("Error al actualizar los torneos y equipos.");
+        }
       }
+
+      // 4. ÉXITO FINAL
+      setPerfil({ ...perfil, ...datosForm });
+      setEditandoCampos(false);
+      alert(
+        "✅ ¡Datos personales, equipos y torneos actualizados con éxito!",
+      );
     } catch (err) {
       console.error("Error al actualizar datos:", err);
       const mensajeError =
