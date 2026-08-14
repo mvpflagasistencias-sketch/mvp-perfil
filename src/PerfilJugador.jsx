@@ -173,6 +173,20 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
           ];
         }
 
+        // 🟢 NUEVO: Precargamos los equipos de cada torneo inicial para que no aparezca vacío el select
+        const mapaEquiposIniciales = {};
+        for (const tItem of torneosInicialesList) {
+          if (tItem.torneo_id) {
+            try {
+              const res = await api.get(`/api/equipos/por-torneo/${tItem.torneo_id}`);
+              mapaEquiposIniciales[tItem.torneo_id] = res.data;
+            } catch (err) {
+              console.error(`Error al cargar equipos iniciales para el torneo ${tItem.torneo_id}:`, err);
+            }
+          }
+        }
+        setEquiposPorTorneo(mapaEquiposIniciales);
+
         setDatosForm({
           nombre: data.nombre || "",
           torneos_dinamicos: torneosInicialesList, // 👈 Estructura agrupada principal
