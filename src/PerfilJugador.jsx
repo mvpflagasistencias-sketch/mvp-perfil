@@ -1956,21 +1956,15 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                   <option value="">
                                     -- Elige un equipo --
                                   </option>
-                                  {equipos
-                                    .filter((e) => {
-                                      // Si no hay torneo seleccionado, no muestra nada
-                                      if (!torneoItem.torneo_id) return false;
-
-                                      // 🟢 Como la tabla 'equipos' no tiene torneo_id (la relación está en torneo_equipos),
-                                      // temporalmente permitimos listar los equipos generales de la liga para que el usuario pueda seleccionarlos
-                                      return true;
-                                    })
-                                    .map((e) => (
-                                      <option key={e.id} value={e.id}>
-                                        {e.nombre_equipo.toUpperCase()} (
-                                        {e.categoria || "General"})
-                                      </option>
-                                    ))}
+                                  {/* 🟢 AQUÍ ESTÁ EL CAMBIO: Leemos del estado dinámico indexado por el ID del torneo */}
+                                  {(
+                                    equiposPorTorneo[torneoItem.torneo_id] || []
+                                  ).map((e) => (
+                                    <option key={e.id} value={e.id}>
+                                      {e.nombre_equipo.toUpperCase()} (
+                                      {e.categoria || "General"})
+                                    </option>
+                                  ))}
                                 </select>
 
                                 {editandoCampos && (
