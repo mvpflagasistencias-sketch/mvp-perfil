@@ -1938,30 +1938,17 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                   </option>
                                   {equipos
                                     .filter((e) => {
-                                      // 1. Si no hay un torneo seleccionado en este bloque, no mostramos nada
+                                      // Si no hay torneo seleccionado, no muestra nada
                                       if (!torneoItem.torneo_id) return false;
 
-                                      // 2. Buscamos el ID del torneo asociado al equipo
-                                      const torneoEquipo =
-                                        e.torneo_id ||
-                                        e.id_torneo ||
-                                        e.torneo ||
-                                        e.torneoId;
-
-                                      // 🟢 ELIMINAMOS EL 'if (!torneoEquipo) return true;'
-                                      // Ahora, si no tiene torneo, simplemente NO lo mostramos (return false)
-                                      if (!torneoEquipo) return false;
-
-                                      // 3. Comparamos estrictamente
-                                      return (
-                                        torneoEquipo.toString() ===
-                                        torneoItem.torneo_id?.toString()
-                                      );
+                                      // 🟢 Como la tabla 'equipos' no tiene torneo_id (la relación está en torneo_equipos),
+                                      // temporalmente permitimos listar los equipos generales de la liga para que el usuario pueda seleccionarlos
+                                      return true;
                                     })
                                     .map((e) => (
                                       <option key={e.id} value={e.id}>
                                         {e.nombre_equipo.toUpperCase()} (
-                                        {e.categoria || e.tipo || "General"})
+                                        {e.categoria || "General"})
                                       </option>
                                     ))}
                                 </select>
