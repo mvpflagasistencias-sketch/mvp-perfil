@@ -1938,19 +1938,21 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                   </option>
                                   {equipos
                                     .filter((e) => {
+                                      // 1. Si no hay un torneo seleccionado en este bloque, no mostramos nada
                                       if (!torneoItem.torneo_id) return false;
 
-                                      // Buscamos todas las variantes posibles de la propiedad del torneo
+                                      // 2. Buscamos el ID del torneo asociado al equipo
                                       const torneoEquipo =
                                         e.torneo_id ||
                                         e.id_torneo ||
                                         e.torneo ||
                                         e.torneoId;
 
-                                      // 🟢 Si el objeto de equipo de plano no trae propiedad de torneo, lo dejamos pasar temporalmente
-                                      // para confirmar si ese es el campo que falta en el JSON de la API /api/equipos
-                                      if (!torneoEquipo) return true;
+                                      // 🟢 ELIMINAMOS EL 'if (!torneoEquipo) return true;'
+                                      // Ahora, si no tiene torneo, simplemente NO lo mostramos (return false)
+                                      if (!torneoEquipo) return false;
 
+                                      // 3. Comparamos estrictamente
                                       return (
                                         torneoEquipo.toString() ===
                                         torneoItem.torneo_id?.toString()
