@@ -257,36 +257,43 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
     }
   };
 
-  // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES
+  // 🛠️ SECCIÓN INDEPENDIENTE 2: GUARDAR EXCLUSIVAMENTE LOS DATOS PERSONALES Y EQUIPOS
   const handleGuardarDatosPersonales = async () => {
     try {
       const idActual = jugadorId || localStorage.getItem("atleta_id");
-      const listaDinamica = datosForm.torneos_dinamicos || []; // 🟢 CORREGIDO: Apunta a torneos_dinamicos
+      const listaTorneos = datosForm.torneos_dinamicos || []; 
 
-      // 1. Validaciones de límite (esto se queda igual)
       let countGenero = 0;
       let countMixto = 0;
 
-      for (const item of listaDinamica) {
-        let tipoEq = "Varonil";
-        if (item.id) {
-          const encontrado = equipos.find(
-            (e) => e.id.toString() === item.id.toString(),
-          );
-          if (encontrado)
-            tipoEq = encontrado.categoria || encontrado.tipo || "Varonil";
-        } else if (item.nombre_nuevo) {
-          tipoEq = item.tipo || item.categoria || "Varonil";
-        }
+      // 🟢 RECORREMOS CADA TORNEO Y SUS EQUIPOS SELECCIONADOS DINÁMICAMENTE
+      for (const torneoItem of listaTorneos) {
+        const equiposDelTorneo = torneoItem.equipos || [];
+        const equiposDisponibles = equiposPorTorneo[torneoItem.torneo_id] || [];
 
-        const catLower = tipoEq.toLowerCase();
-        if (catLower.includes("mixto")) countMixto++;
-        else countGenero++;
+        for (const eqSel of equiposDelTorneo) {
+          if (!eqSel.equipo_id) continue; // Si está vacío, lo saltamos
+
+          // Buscamos la categoría real del equipo seleccionado
+          const equipoEncontrado = equiposDisponibles.find(
+            (e) => e.id.toString() === eqSel.equipo_id.toString()
+          );
+
+          const tipoEq = equipoEncontrado ? equipoEncontrado.categoria : "Varonil";
+          const catLower = tipoEq.toLowerCase();
+
+          if (catLower.includes("mixto")) {
+            countMixto++;
+          } else {
+            countGenero++; // Varonil o Femenil cuentan para género
+          }
+        }
       }
 
+      // 🛑 VALIDACIONES ESTRICTAS DE LÍMITE
       if (countGenero > 2) {
         alert(
-          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de género.",
+          "⚠️ Límite superado: Solo puedes pertenecer a un máximo de 2 equipos de género (Varonil/Femenil).",
         );
         return;
       }
@@ -298,16 +305,9 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
       }
 
       // 2. PREPARAMOS EL PAYLOAD
-      // Si estás editando un torneo específico, asegúrate de enviar el torneo_id correspondiente.
-      // Si el formulario maneja varios torneos, podrías necesitar un loop,
-      // pero por ahora enviamos el torneo_id del primer equipo o el que tengas en el estado.
-      const torneoIdActivo =
-        listaDinamica.length > 0 ? listaDinamica[0].torneo_id : null;
-
       const payload = {
         ...datosForm,
         foto_perfil: perfil.foto_perfil,
-        torneo_id: torneoIdActivo, // 🟢 AQUÍ ESTÁ LA CLAVE PARA EL BACKEND
       };
 
       delete payload.password;
