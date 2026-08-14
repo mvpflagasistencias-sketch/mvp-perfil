@@ -33,6 +33,7 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
 
   // 📢 NUEVO ESTADO: Guarda la promoción seleccionada para el modal de detalle
   const [promoSeleccionada, setPromoSeleccionada] = useState(null);
+  const [equiposPorTorneo, setEquiposPorTorneo] = useState({});
 
   // Información del equipo y asistencias
   const [datosEquipo, setDatosEquipo] = useState({
@@ -1857,7 +1858,8 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                           <select
                             disabled={!editandoCampos}
                             value={torneoItem.torneo_id || ""}
-                            onChange={(e) => {
+                            onChange={async (e) => {
+                              // 🟢 Paso 1: Agregamos 'async'
                               const val = e.target.value;
                               const nuevos = [...datosForm.torneos_dinamicos];
                               nuevos[tIndex].torneo_id = val;
@@ -1866,6 +1868,24 @@ const PerfilJugador = ({ jugadorId, onLogout }) => {
                                 ...datosForm,
                                 torneos_dinamicos: nuevos,
                               });
+
+                              // 🟢 Paso 2: Hacemos la llamada al backend solo para este torneo
+                              if (val) {
+                                try {
+                                  const res = await api.get(
+                                    `/api/equipos/por-torneo/${val}`,
+                                  );
+                                  setEquiposPorTorneo((prev) => ({
+                                    ...prev,
+                                    [val]: res.data,
+                                  }));
+                                } catch (err) {
+                                  console.error(
+                                    "Error al cargar equipos del torneo:",
+                                    err,
+                                  );
+                                }
+                              }
                             }}
                             style={{
                               width: "100%",
